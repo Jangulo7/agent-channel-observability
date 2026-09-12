@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-channel-observability"
+version = "0.1.0"
+description = "Measures how often a model's reasoning is observable, and the recall ceiling that imposes on monitors gated on deliberation."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Johanna Angulo" }]
+dependencies = [
+    "inspect-ai==0.3.260",   # pinned; matches safety-eval-pipeline
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "jsonschema>=4.21",
+    "matplotlib>=3.8",
+    "transformers>=4.44",   # NliDetector only; cached checkpoint, no network in CI
+    "torch>=2.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
+
+[project.scripts]
+channels = "channels.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/channels"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+# The spec's style exemplar (§2) defines the enums as `class X(str, Enum)`, and the
+# JSON record relies on that implicit str behaviour. StrEnum would be the modern
+# choice; the spec wins.
+ignore = ["UP042"]
+
+[tool.ruff.lint.per-file-ignores]
+# Vendored verbatim from safety-eval-pipeline. Reformatting it would break the
+# claim that it is the same code whose edge cases are already tested there.
+"src/channels/_vendored_stats.py" = ["E501"]
+
+[tool.mypy]
+strict = true
+files = ["src/channels"]
+
+[[tool.mypy.overrides]]
+# Neither ships type stubs; we only touch a handful of their symbols.
+module = ["transformers.*", "matplotlib.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: touches a real corpus or a downloaded checkpoint; excluded from CI",
+]

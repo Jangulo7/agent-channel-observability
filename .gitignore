@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# Publication safety comes first in this file, because the project's thesis is
+# that measurements are untrustworthy when you cannot see how they were made.
+# Counts, rates, figures and the record are publishable. Corpus text is not.
+# Design reused from safety-eval-pipeline (DOI 10.5281/zenodo.22182741).
+# ---------------------------------------------------------------------------
+
+# Private research planning. Local only, never tracked.
+.research-plan/
+
+# Real corpus data. Only counts and hashes derived from these may be committed.
+data/wikitactics/
+data/german-collusion-wiki/
+data/mythos-5-incident-transcript/
+data/inspect_logs/
+
+# Inspect logs are not committed at all, matching safety-eval-pipeline's rule.
+logs/
+*.eval
+
+# Windows "mark of the web" streams that WSL surfaces as real files.
+*:Zone.Identifier
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Model checkpoints pulled for NliDetector; cached, never vendored.
+.cache/
+models/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.ipynb_checkpoints/

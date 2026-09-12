@@ -1,0 +1,45 @@
+# NOTE: this file belongs at .github/workflows/ci.yml.
+# It is parked here because the OAuth token available to the overnight build
+# lacks the `workflow` scope, and GitHub rejects any push that creates or
+# updates a file under .github/workflows/ without it. To install it:
+#     gh auth refresh -h github.com -s workflow
+#     git mv ci/ci.yml .github/workflows/ci.yml && git commit && git push
+# See BUILD_LOG.md, QUESTIONS FOR JOHANNA (Q4).
+
+name: ci
+
+on:
+  push:
+    branches: ["main", "build/**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Lint
+        run: ruff check src tests
+
+      - name: Typecheck
+        run: mypy src/channels
+
+      # No network in this job: every test that needs a corpus or a model
+      # checkpoint is marked `integration` and skipped here.
+      - name: Test
+        run: pytest -m "not integration" --cov=src --cov-report=term-missing
+
+      - name: Publication-safety checks
+        run: pytest -m "not integration" tests/test_publication_safety.py -q
