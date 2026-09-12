@@ -45,9 +45,24 @@ PY
 
 git add docs/PREREGISTRATION.md
 git commit -q -m "registration: record the registering commit SHA $SHA"
+DOCHASH=$(sha256sum docs/PREREGISTRATION.md | cut -d" " -f1)
+CBHASH=$(.venv/bin/python -c "from channels.codebook import codebook_hash; print(codebook_hash())")
+
 echo
-echo "Registered at $NOW"
-echo "Registration commit: $SHA"
+echo "================ REGISTRATION RECORD ================"
+echo "  registered at UTC : $NOW"
+echo "  commit            : $SHA"
+echo "  PREREGISTRATION.md: sha256:$DOCHASH"
+echo "  codebook          : $CBHASH"
+echo "====================================================="
 echo
-echo "Now push, so the registration is public BEFORE the labels exist:"
-echo "  git push origin $(git rev-parse --abbrev-ref HEAD)"
+echo "1. Push now, so the registration exists before any label does:"
+echo "     git push origin $(git rev-parse --abbrev-ref HEAD)"
+echo
+echo "2. OPTIONAL, and only if you want a timestamp that does not depend on this"
+echo "   repository staying honest: post the two hashes above somewhere public"
+echo "   and dated - OSF, Zenodo, a tweet, an email to yourself. The hashes"
+echo "   reveal nothing, and they let anyone check later that the document was"
+echo "   not edited after the fact. Nothing downstream requires this."
+echo
+echo "3. Record where you registered, in the deviations log if it was not OSF."

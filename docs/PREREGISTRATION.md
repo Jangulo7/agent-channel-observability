@@ -29,6 +29,26 @@
 `gates.codebook_drift` compares `codebook.codebook_hash()` against the codebook hash
 in the table above and fails the build when they differ.
 
+### What the registration physically consists of
+
+Stated plainly, because a registration whose mechanism is vague is not much of a
+registration:
+
+- **The record is a git commit** in this repository, made by
+  `scripts/register.sh`, whose SHA is in the table above. The commit contains
+  this document with the confirmatory endpoints of §0.2 fully specified and with
+  **no annotation label in existence**.
+- **What that does and does not prove.** A commit in a repository controlled by
+  the author is not a third-party timestamp. It proves the content, links it to
+  a codebook hash, and orders it against later commits — it does not, on its
+  own, prove the date to someone who distrusts the author. If the two hashes
+  below were also posted to an independent dated service, that gap closes; if
+  they were not, this limitation stands and is not papered over.
+- **Independently checkable hashes.** `sha256sum docs/PREREGISTRATION.md` and
+  `codebook.codebook_hash()`. Both are printed by `scripts/register.sh`.
+- **Where else it was registered**, if anywhere, is recorded in the deviations
+  log (§11).
+
 **Before citing this document, read [§0](#0-analysis-status-at-registration--read-first).**
 It records which analyses had already been run when this was registered. Those
 are exploratory and registering this document does not make them otherwise.
