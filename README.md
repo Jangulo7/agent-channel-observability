@@ -1,203 +1,199 @@
 # agent-channel-observability
 
-Measures, from Inspect evaluation logs, **how often a model's reasoning is actually
-observable to an external evaluator** — and derives the recall ceiling that observability
-imposes on any monitor gated on deliberation.
+**What this does, in one sentence:** it measures how often you can actually *see*
+an AI agent's reasoning when you go looking for it — and shows what that ceiling
+does to any safety monitor that depends on reading it.
 
-The thesis is that a measurement is untrustworthy when you cannot see how it was
-produced. Two rules are therefore architectural rather than stylistic, and the tests
-that pin them are the ones worth reading first:
+---
 
-1. **No detector reports a rate without a recorded validated recall.** A number with no
-   measured instrument behind it is not a finding.
-2. **An uninspectable sample is a failure, not a dropped denominator.** A turn whose
-   reasoning was summarised, redacted or absent stays in the denominator and fails the
-   gate. Dropping it would compute a rate over the turns that happened to be observable
-   — a measurement of the observable subset, not of the agent.
+## The problem, in plain words
 
-## The result
+A common way to check whether an AI agent is behaving is to read its reasoning:
+the "thinking out loud" it produces before it acts. If the reasoning shows the
+agent planning something harmful, you catch it.
 
-Two corpora are measured, and they are never pooled: their step indices do not mean the
-same thing.
+That only works if the reasoning is **there to read**. Sometimes the model does
+not produce any. Sometimes it produces reasoning but the provider ships you a
+short summary instead. Sometimes it ships an encrypted blob you cannot open.
+From the outside, all three look similar — and all three break the monitor.
 
-### The three registered benchmarks — not one turn in 3,789 emitted reasoning
+Almost nobody measures how often this happens. This repository does, and it
+turns the answer into a hard upper bound on how well such a monitor can work.
 
-Across 12 Inspect `.eval` logs (3,039 samples, **3,789 assistant turns**, three models ×
-three task classes), **raw reasoning was readable for 0 turns**. Uninspectable share
-**1.000**; one-sided 95% upper bound on emission **0.00071**. The recall ceiling for a
-deliberation-gated monitor is **0.000 at every step, for any second stage**.
+## The hypothesis
 
-| model | task classes | n turns | raw_present | 95% CI |
-|---|---|---|---|---|
-| Qwen2.5-7B-Instruct | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
-| Llama-3.1-8B-Instruct | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
-| Ministral-8B-Instruct-2410 | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
+> **H1.** Whether an evaluator can read an agent's reasoning is mostly decided by
+> the *provider's disclosure policy and the request's configuration*, not by
+> whether the model is capable of reasoning.
+>
+> **H2.** Because a monitor that is triggered by reasoning can only fire when
+> reasoning is visible, the visible share is a **ceiling** on that monitor's
+> recall — a ceiling no improvement to the monitor itself can lift.
 
-**Read this caveat in the same breath as the number.** These are vLLM-served 7–8B
-instruction-tuned models, none of which emits a reasoning channel by design. The zero
-describes *this serving stack and model family*, not a frontier reasoning model's
-disclosure policy. What it does establish is that a standard three-benchmark safety
-evaluation, run and logged normally, leaves an external evaluator with no deliberation
-evidence whatsoever.
+H2 is arithmetic, not an empirical claim: a two-stage detector that only runs
+its expensive check when a cheap trigger fires has recall at most
+`coverage × stage-2 recall`. The contribution is measuring `coverage` honestly,
+with a denominator that is stated rather than assumed.
 
-### The Mythos 5 incident transcript — 33.3%, and a flat profile
+## What we measure
 
-On the only public incident transcript a frontier lab has released, **raw reasoning is
-readable for 33.3% of assistant turns** (686 / 2,061; Wilson 95% CI 0.313–0.353).
-Uninspectable share **0.667** [0.647, 0.687]. With a *perfect* second stage (r₂ = 1),
-that caps a deliberation-gated monitor at **0.333 recall** averaged over the trajectory,
-and **0.295 against an action taken at its weakest position**.
+Every assistant turn is put in exactly one of four states:
 
-The positional profile is **flat** — 0.295 to 0.372 across ten decile bins, every
-interval overlapping every other — across a real 20-hour long-horizon agentic
-trajectory. This is a datapoint against transferring the sharply-varying per-step
-profiles reported on short multi-hop QA to agentic settings, which those papers' own
-Limitations sections already decline to claim.
+| state | meaning for an outside evaluator |
+|---|---|
+| `raw_present` | the actual reasoning is readable |
+| `summary_only` | only a provider-written summary is readable |
+| `redacted` | reasoning exists but is withheld or encrypted |
+| `absent` | no reasoning was produced at all |
 
-**Caveats, before citing any of it.** n = 1 trajectory, one model, one incident. It is
-not a sample. The Wilson intervals assume within-trajectory independence, which is
-false; they are descriptive, not inferential. `cluster.py` refuses to compute a
-clustered interval from a single cluster rather than emitting a finite one that would
-look inferential.
+**The denominator is assistant turns that actually occurred.** Turns that never
+happened — because a run ended early — are not counted as `absent`. Counting
+them would make long agent runs look unmonitorable by construction.
 
-Reasoning in this corpus is in-band `<thinking>…</thinking>` markup inside a content
-string, not a structured field. "The transcript contains reasoning" and "the transcript
-exposes a reasoning field an evaluator could read programmatically" are different
-claims, and only the first is true.
+## Two rules that are built into the code, not just described
 
-### Two detectors, one corpus, two different answers
+1. **No detector may report a rate without a recorded, validated recall.**
+   `require_validation` raises an exception. A number from an uncalibrated
+   instrument is not a weak measurement; it is an unknown one.
+2. **An unreadable turn is a failure, not a dropped row.** A turn whose reasoning
+   was summarised, redacted or absent stays in the denominator and fails the
+   gate. Dropping it would measure only the turns that happened to be readable.
 
-Validated on WikiTactics (3,865 utterances), the two instruments disagree on
-normative-objection recall by 3×, **with non-overlapping intervals**:
+## Headline results
 
-| detector | OBJ recall | 95% CI |
+### Visibility is a configuration choice, not a capability limit
+
+Identical prompts, identical benchmarks, different models and settings:
+
+| what was run | turns | raw reasoning readable |
 |---|---|---|
-| `tree_coder` 1.0 | 0.072 | [0.046, 0.111] |
-| `nli_detector` 1.0 | 0.218 | [0.171, 0.273] |
+| Llama-3.1-8B, Qwen2.5-7B, Ministral-8B (via vLLM) | 3,789 | **0.000** |
+| `deepseek-v3.2`, reasoning **not requested** | — | **0.000** |
+| `deepseek-v3.2`, reasoning **requested** | 763 | **0.978** |
+| `gpt-oss-120b` | 1,263 | **1.000** |
+| `qwen3-32b` | 313 | **1.000** |
+| `gpt-5-nano` | — | reasoning **encrypted**: `redacted`, not readable |
 
-They are reported side by side and never averaged. A rate from a single instrument
-inherits that spread before it inherits any sampling error, which is why no rate is
-reported from `collusion_wiki` at all.
+The DeepSeek pair is the cleanest evidence: **the same model, same prompts, same
+provider — only a request parameter changed.** So "this model emits no
+reasoning" was really "this request did not ask for it". And `gpt-5-nano`
+demonstrably reasons, yet ships the chain encrypted, so an evaluator gets
+nothing. Visibility tracks *policy and configuration*, which is H1.
 
-### Where peer disagreement is even possible
+For the three vLLM models the recall ceiling is **0.000 at every step, for any
+monitor** — zero observed, 95% one-sided upper bound 0.00071.
 
-Of 4,024 collusion.wiki pages carrying an agent revision, **2,824 (70.2%) have exactly
-one agent** and cannot contain peer disagreement by construction. RQ3 is structurally
-feasible on under a third of the corpus, and `rq3.rq3_endpoint` returns a bound and its
-blockers rather than a rate.
+*The reasoning-model sweep is still running; the table above is updated as arms
+complete, and every figure states its own n.*
 
-## Status
+### A real incident exposes reasoning, but not as a field
 
-All twelve steps of the build order have shipped. 159 tests pass with no network at 89%
-coverage; `ruff` and `mypy --strict` are clean.
+On Anthropic's Mythos 5 transcript — the only public incident transcript from a
+frontier lab — raw reasoning is readable for **33.3%** of assistant turns
+(686/2,061, 95% CI 0.313–0.353). But it is `<thinking>` markup buried inside a
+free-text field, not a structured channel, and **66% of assistant records are
+tool calls carrying no reasoning at all**. "The transcript contains reasoning"
+and "an evaluator can enumerate the reasoning channel" are different claims;
+only the first is true.
 
-`channels gate` **exits 1** on the real corpora. That is the intended demonstration, not
-a defect: the two emission gates fail and `codebook_drift` passes. The floor and ceiling
-in `config/channels.yaml` are **illustrative defaults, not safety claims** — nothing in
-the literature establishes what share of turns must expose raw reasoning before a
-deliberation-gated monitor is trustworthy. Do not cite them as a standard.
+The positional profile is **flat** (0.295–0.372 across ten deciles) over a real
+20-hour agent run — a datapoint against carrying short-task reasoning profiles
+into long-horizon settings.
 
-What is **not** built: rung-2 validation (transfer from human prose to agent protocol
-strings), so no rate is reported from `collusion_wiki`; test–retest reliability of the
-codebook, which needs a second human coder; and the `reasoning_effort` breakdown, which
-does not exist because no log in this corpus records the setting.
+> **n = 1 trajectory.** One model, one incident. Not a sample. The intervals are
+> descriptive, not inferential, and `cluster.py` refuses to compute a clustered
+> interval from a single cluster rather than emitting one that looks inferential.
 
-`BUILD_LOG.md` is the honest account, including an assessment of the artifact's biggest
-weakness. `RESULTS_SUMMARY.md` has every number in citable form, including a table of
-the numbers that do not exist and why.
+### Two instruments, one corpus, two different answers
 
-## Install
+Measuring normative objection on WikiTactics (3,865 utterances):
+
+| detector | recall for OBJ | 95% CI |
+|---|---|---|
+| `tree_coder` (rule-based) | 0.072 | [0.046, 0.111] |
+| `nli_detector` (NLI model) | 0.218 | [0.171, 0.273] |
+
+**The intervals do not overlap.** A rate from either one alone inherits that
+3× spread before it inherits any sampling error. They are reported side by side
+and never averaged — which is why this repository reports **no** objection rate
+from the agent corpus at all.
+
+## The data
+
+| corpus | what it is | size | licence |
+|---|---|---|---|
+| Inspect eval logs (baseline) | 3 models × 3 safety benchmarks, run on local vLLM | 3,789 turns | MIT (own runs) |
+| Inspect eval logs (reasoning) | reasoning-capable models via OpenRouter, same benchmarks | 2,339 turns and growing | own runs; vendor terms vary |
+| Mythos 5 transcript | Anthropic's released incident transcript | 2,061 turns | not stated; **do-not-train, carries a canary** |
+| collusion.wiki | AI agents editing a German wiki | 14,591 revisions | **none stated** |
+| WikiTactics | human Wikipedia disagreement, labelled | 3,865 utterances | **none stated** |
+| Published incident record | quotations hand-transcribed from METR reports | 10 rows | quoted, not redistributed |
+
+**No corpus text is committed to this repository.** Only counts, rates, figures
+and the record. Full detail, including how each was obtained and what may be
+published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
+
+## How the claims are kept honest
+
+- **A frozen codebook.** Eight text codes plus one action code, each with a
+  definition, an inclusion rule, an exclusion rule and sourced examples. It is
+  hashed; `codebook_drift` fails the build if it changes after registration.
+- **Verified citations.** Every quoted row is checked against the source PDF by
+  `scripts/verify_citations.py`, which exits non-zero on a mismatch.
+- **Missing numbers stay missing.** A code with no examples in the control has
+  *undefined* recall, not zero. An errored sample is reported, not quietly
+  dropped. `RESULTS_SUMMARY.md` has a table of every number that does **not**
+  exist and why.
+- **Human labels are the gold standard.** No LLM produces a label used to
+  validate anything. See [`coder-kit/`](coder-kit/).
+
+## Reproduce it
 
 ```bash
-uv venv && uv pip install -e ".[dev]"
+uv sync --extra dev
+uv run channels describe    # what each corpus contains, before any analysis
+uv run channels measure     # the record and both figures
+uv run channels gate        # exits 1 — the failure is the demonstration
 ```
 
-Python ≥ 3.11. `inspect-ai` is pinned to `0.3.260` to match the run that produced the
-logs. Corpora are **not** committed — `data/` subdirectories are gitignored, and only
-counts, rates, hashes and figures ever reach the repository. See
-`docs/DATA_PROVENANCE.md` for what each corpus is and the SHA-256 of the exact bytes
-analysed.
+`channels gate` is **meant** to exit non-zero. The thresholds in
+`config/channels.yaml` are **illustrative defaults, not safety claims**: nothing
+in the literature says what share of turns must expose reasoning before a
+monitor is trustworthy. Do not cite them as a standard.
 
-## Use
+## What this does not establish
 
-```bash
-channels describe   # what each corpus contains, without analysing it
-channels measure    # writes results/observability_record.json and both figures
-channels gate       # runs the three gates; exits non-zero on failure
-```
+1. **The benchmarks are short.** One or two turns per sample. Long agentic runs
+   may behave differently, and the only long trajectory here is n = 1.
+2. **No rate is reported for agent-to-agent objection.** The instruments were
+   validated on human prose; nothing shows they transfer to agent protocol
+   strings. That transfer is unbuilt, and it is why `rq3` returns a bound.
+3. **Thresholds are illustrative.** See above.
+4. **Coverage is not monitorability.** This bounds monitors that are *gated on
+   reasoning*. Evidence from actions may suffice where reasoning does not.
+5. **The published incident record is 10 rows**, chosen by investigators to
+   illustrate. No rate may be computed from it, and `refuse_rate()` raises.
 
-`describe` names every corpus it could **not** find, with the path it checked. A run
-that quietly omits a corpus invites the reader to assume it was empty.
+## Reuse and attribution
 
-`gate` currently fails on the committed data, which is the intended demonstration:
-
-```
-[FAIL] deliberation_coverage_floor: aggregate raw_present 0.333;
-       worst stratum mythos-5/effort=None at 0.333 against a floor of 0.500
-[FAIL] uninspectable_ceiling:       aggregate uninspectable 0.667 against a ceiling of 0.500
-[FAIL] codebook_drift:              no codebook hash recorded in the pre-registration
-```
-
-The third is not a bug. The codebook is step 9 and does not exist, so there is nothing
-to compare against, and the gate returns `UNEVALUABLE` — which counts as failure. A gate
-that passed because it had nothing to check would be the exact defect this package
-exists to name.
-
-> **The thresholds in `config/channels.yaml` (floor 0.50, ceiling 0.50) are illustrative
-> defaults, not safety standards.** Nothing in the literature establishes what share of
-> an agent's turns must expose raw reasoning before a deliberation-gated monitor is
-> trustworthy, because the question has not been asked in this form. They exist so the
-> gate machinery has something to compare against. Citing them as a standard would
-> reproduce exactly the unprovenanced-number problem this project criticises.
+The interval estimators in `_vendored_stats.py` are vendored verbatim from
+**safety-eval-pipeline** (DOI [10.5281/zenodo.22182741](https://doi.org/10.5281/zenodo.22182741)),
+with the origin named in the file header. The gate contract — aggregate plus
+per-stratum bound, un-evaluable counts as failure, worst stratum always reported
+— is a reused design, reimplemented. The `unscored`-as-first-class-column
+discipline is the same idea, renamed `uninspectable`.
 
 ## Layout
 
-| path | what it is |
-|---|---|
-| `src/channels/coverage.py` | classifies one turn into the four reasoning-channel states |
-| `src/channels/emission.py` | rates by model × task class × step index; **read its denominator docstring** |
-| `src/channels/bound.py` | recall ceiling, scalar and positional |
-| `src/channels/cluster.py` | clustered intervals; refuses when there is one cluster |
-| `src/channels/priors.py` | published constants, each with its source and its caveats. Constants only — a test parses the AST and fails if executable logic appears |
-| `src/channels/gates.py` | the three gates; un-evaluable counts as failure |
-| `src/channels/record.py` | the machine-readable record; validates before writing |
-| `results/observability_record.json` | the artefact another researcher checks the paper against |
-| `docs/PREREGISTRATION.md` | what was specified before the data was seen |
-
-## Tests
-
-```bash
-pytest -q          # 108 tests
-ruff check src tests
-mypy src/channels
 ```
-
-Test fixtures are synthetic by design and obviously so — every fixture string is
-recognisable as fake at a glance. No test reads a real corpus. Analysis inputs are real
-or absent; there is no third option in this repository.
-
-`tests/test_publication_safety.py` enforces that no canary GUID and no corpus text
-reaches a published artefact.
-
-## Provenance and credit
-
-The statistics helpers in `src/channels/_vendored_stats.py` are vendored verbatim from
-**[safety-eval-pipeline](https://github.com/Jangulo7/safety-eval-pipeline)** (Johanna
-Angulo), which also supplies this project's gate contract — an aggregate bound plus a
-per-stratum bound, the worst stratum always reported, a marginal annotation when the
-interval crosses the threshold, and un-evaluable counting as failure rather than being
-dropped. They are vendored rather than reimplemented so the claim that this is the same
-code, with the same tested edge cases, holds literally.
-
-Corpora, their licences and their hashes: `docs/DATA_PROVENANCE.md`. The Mythos
-transcript carries a canary GUID and a do-not-train notice; no content from it is sent
-to any third-party service.
+src/channels/        the package: schema, coverage, emission, bound, detectors
+coder-kit/           everything a human annotator needs
+scripts/             runners, citation verification, the annotation tool
+data/codebook/       the frozen codebook
+results/             record, figures, validation records  (committed)
+docs/                provenance, pre-registration, deviations log
+```
 
 ## Citation
 
-See `CITATION.cff`.
-
-## Licence
-
-MIT. The licence covers the code. It does not extend to any corpus the code reads —
-see `docs/DATA_PROVENANCE.md` for each corpus's own terms.
+See [`CITATION.cff`](CITATION.cff). Licence: MIT.

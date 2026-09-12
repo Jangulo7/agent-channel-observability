@@ -75,7 +75,24 @@ for forbidden in RESULTS_SUMMARY.md BUILD_LOG.md README.md docs results; do
   fi
 done
 
+# Zip with Python's zipfile: `zip` is not installed on every machine, and the
+# coder should not have to care which archiver the author happened to have.
+ZIP="${OUT%/}.zip"
+rm -f "$ZIP"
+.venv/bin/python - "$OUT" "$ZIP" <<'PYZIP'
+import sys, zipfile
+from pathlib import Path
+
+source, target = Path(sys.argv[1]), Path(sys.argv[2])
+with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    for path in sorted(source.rglob("*")):
+        if path.is_file():
+            archive.write(path, Path(source.name) / path.relative_to(source))
+PYZIP
+
 size=$(du -sh "$OUT" | cut -f1)
+zipsize=$(du -h "$ZIP" | cut -f1)
 echo "bundle built at $OUT ($size)"
+echo "zip written to  $ZIP ($zipsize)  <- send this"
 echo "contains: annotation tool, codebook, corpus, coder-kit"
 echo "excludes: results, build log, preregistration, project README"
