@@ -38,8 +38,8 @@ from channels.schema import Channel
 utts = list(CollusionWikiLoader(Path("data/german-collusion-wiki")).load())
 edits = [u for u in utts if u.channel is Channel.ARTEFACT_EDIT and u.corpus_meta.get("is_revert")]
 msgs = [u for u in utts if u.channel is Channel.INTER_AGENT_MESSAGE and u.text]
-print(f"  Round 1 draws 150 items from {len(edits):,} undone edits")
-print(f"  Round 2 draws 300 items from {len(msgs):,} messages")
+print(f"  Round 1 draws 60 items from {len(edits):,} undone edits")
+print(f"  Round 2 draws 200 items from {len(msgs):,} messages")
 print(f"  codebook {codebook_hash()[:26]}...")
 PY
 
@@ -53,8 +53,10 @@ if [ "${reply:-n}" = "y" ] || [ "${reply:-n}" = "Y" ]; then
     --task revert_validity --coder practice --n 5 --seed 1
   echo
   echo "Practice done. That is exactly what the real thing looks like."
+  echo "Check the median time printed above: if it is over ~2.5 minutes an item,"
+  echo "say so before starting - we will cut Round 1 to 40 items."
 fi
 
 echo
 echo "When you are ready, read coder-kit/TASK_1_EDITS.md and run:"
-echo "  uv run python scripts/annotate.py --task revert_validity --coder YOUR_NAME"
+echo "  uv run python scripts/annotate.py --task revert_validity --coder YOUR_NAME --n 60"

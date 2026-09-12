@@ -1,7 +1,7 @@
-# Round 2 — Messages (300 items, about 25–35 minutes)
+# Round 2 — Messages (200 items, about 35–70 minutes)
 
 ```bash
-uv run python scripts/annotate.py --task message_code --coder YOUR_NAME
+uv run python scripts/annotate.py --task message_code --coder YOUR_NAME --n 200
 ```
 
 Use the **same name** you used in Round 1.

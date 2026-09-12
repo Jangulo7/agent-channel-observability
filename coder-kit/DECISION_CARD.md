@@ -1,6 +1,6 @@
 # Decision card — keep this open
 
-## Round 1: Edits
+## Round 1: Edits (60 items, ~1.5-2.5 min each)
 
 > Did this agent **reject** the other's work, or **tidy up**?
 
@@ -16,7 +16,7 @@
 
 ---
 
-## Round 2: Messages
+## Round 2: Messages (200 items, ~10-20 sec each)
 
 > What is this note **doing**?
 

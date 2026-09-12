@@ -18,16 +18,22 @@ need to read what is on the screen and pick the option that fits best.
 
 Two rounds of sorting.
 
-**Round 1 — Edits.** You will see 150 cases where one agent undid another
+**Round 1 — Edits.** You will see 60 cases where one agent undid another
 agent's work. For each one you decide: *was this a disagreement, or was it just
-cleaning up a mess?* You press one key. About 40–55 minutes.
+cleaning up a mess?* You press one key. **About 1.5–2.5 hours** — these need
+real reading, so they are not quick.
 
-**Round 2 — Messages.** You will see 300 short notes the agents wrote, usually
+**Round 2 — Messages.** You will see 200 short notes the agents wrote, usually
 just a few words like `coordination update` or `links`. For each one you pick
-which kind of note it is. About 25–35 minutes.
+which kind of note it is. **About 35–70 minutes** — these genuinely are quick.
 
-**Total: a bit over an hour.** You can stop and restart whenever you like.
+**Total: 2–3.5 hours**, with breaks. You can stop and restart whenever you like.
 Nothing is ever lost.
+
+**Before you commit to the full run**, do the 5-item practice in the setup check.
+It prints how long you took per item. If Round 1 is running slower than about
+2 minutes an item, tell us — we will cut Round 1 to 40 items rather than have
+you rush. **Accuracy matters far more to us than finishing the full set.**
 
 ## How to start
 
@@ -45,7 +51,7 @@ Nothing is ever lost.
 4. Start Round 1:
 
    ```bash
-   uv run python scripts/annotate.py --task revert_validity --coder YOUR_NAME
+   uv run python scripts/annotate.py --task revert_validity --coder YOUR_NAME --n 60
    ```
 
    Put your own short name in place of `YOUR_NAME` — `anna`, or `coder_a`, or
@@ -55,7 +61,7 @@ Nothing is ever lost.
    start Round 2:
 
    ```bash
-   uv run python scripts/annotate.py --task message_code --coder YOUR_NAME
+   uv run python scripts/annotate.py --task message_code --coder YOUR_NAME --n 200
    ```
 
 6. Fill in [`FEEDBACK.md`](FEEDBACK.md). It takes 5 minutes and it matters.

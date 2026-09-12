@@ -35,7 +35,7 @@ from channels.loaders.collusion_wiki import CollusionWikiLoader
 from channels.schema import Channel, Utterance
 
 CORPUS_ROOT = Path("data/german-collusion-wiki")
-DEFAULT_N = {"revert_validity": 150, "message_code": 300}
+DEFAULT_N = {"revert_validity": 60, "message_code": 200}
 DEFAULT_SEED = 7
 DIFF_LINES = 24
 
@@ -92,8 +92,6 @@ def _context_for_revert(
     lines += [
         f"  undone actor    {undone.get('label')}",
         f"  undone summary  {str(undone.get('change_summary') or '')!r}",
-        "",
-        "  --- what this revert removed (undone edit -> restored state) ---",
     ]
     diff = difflib.unified_diff(
         str(undone.get("body") or "").splitlines(),
@@ -102,6 +100,16 @@ def _context_for_revert(
         n=1,
     )
     body = [line for line in diff if not line.startswith(("---", "+++", "@@"))]
+    removed = sum(1 for line in body if line.startswith("-"))
+    added = sum(1 for line in body if line.startswith("+"))
+
+    # Neutral counts, shown before the diff. These are facts about the edit, not
+    # judgements about it: a coder should not have to count 200 lines by eye to
+    # see that a whole block was deleted. Nothing here hints at d/h/u.
+    lines.insert(
+        4, f"  size            {removed} line(s) removed, {added} line(s) restored"
+    )
+    lines += ["", "  --- what this revert removed (- removed, + restored) ---"]
     for line in body[:DIFF_LINES]:
         lines.append(f"  {line[:110]}")
     if len(body) > DIFF_LINES:

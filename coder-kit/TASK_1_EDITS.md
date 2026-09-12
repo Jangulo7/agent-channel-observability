@@ -1,4 +1,4 @@
-# Round 1 — Edits (150 items, about 40–55 minutes)
+# Round 1 — Edits (60 items, about 1.5–2.5 hours)
 
 ## The situation
 
@@ -70,6 +70,19 @@ probably `d`. If you thought "someone had to tidy that up", it is probably `h`.
 
 In the example above, the removed content is a wall of nearly identical links.
 That reads as junk, so `h` would be a reasonable answer.
+
+## How long this takes
+
+Plan on **1.5 to 2.5 minutes per item**. These are not quick decisions — you
+have to read a diff and form a judgement, and that is the work.
+
+**Do not rush to finish.** 60 careful answers are worth far more to us than 150
+hurried ones. If you are going slower than this, that is fine: tell us and we
+will cut the set, not the care.
+
+The `size` line tells you how many lines were removed and restored, so you do
+not have to count. A very large removal with nothing restored is usually quick
+to judge.
 
 ## Practical notes
 
