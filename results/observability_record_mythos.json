@@ -2,9 +2,9 @@
   "observability_record": {
     "schema_version": "3.0",
     "codebook_version": 1,
-    "codebook_hash": "TODO(johanna): codebook YAML not written",
+    "codebook_hash": "sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83",
     "preregistration_commit": null,
-    "generated_utc": "2026-09-12T18:47:41Z",
+    "generated_utc": "2026-09-12T19:13:23Z",
     "corpora": [
       {
         "name": "mythos_transcript",

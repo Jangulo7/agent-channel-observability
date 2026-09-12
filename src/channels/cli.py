@@ -161,9 +161,11 @@ def _run_measure(args: argparse.Namespace) -> int:
 
     # Figure 1 spans every corpus: each bar is one model x task class, so no bar
     # mixes corpora and the comparison it invites is the intended one.
-    figure_one(
-        build_cells(observations),
-        results / "figures" / "figure1_emission_states.png",
+    _write_figure_caption(
+        *figure_one(
+            build_cells(observations),
+            results / "figures" / "figure1_emission_states.png",
+        )
     )
 
     groups, _ = _corpora(args)
@@ -173,6 +175,17 @@ def _run_measure(args: argparse.Namespace) -> int:
     for name in missing:
         print(f"NOT AVAILABLE: {name}")
     return 0
+
+
+def _write_figure_caption(figure_path: Path, caption: str) -> None:
+    """Write a figure's caption next to it, so the two can never drift apart.
+
+    A committed figure whose caption describes an earlier run is worse than no
+    caption: it states an n that the image does not show.
+    """
+    figure_path.with_name(f"{figure_path.stem}_caption.txt").write_text(
+        caption + "\n", encoding="utf-8"
+    )
 
 
 def _measure_one_corpus(
@@ -186,11 +199,26 @@ def _measure_one_corpus(
     results = args.results
     suffix = "" if description.name == "inspect_logs" else f"_{description.name}"
 
-    figure_two(
-        binned,
-        results / "figures" / f"figure2_recall_ceiling{suffix}.png",
-        stage2_recall=args.stage2_recall,
-        step_label=f"trajectory position ({args.bins} equal-width bins of step index)",
+    # The axis must state the bins that actually exist, not the bins requested:
+    # a corpus whose trajectories are two turns long yields two, not `--bins`.
+    n_positions = len(binned)
+    n_trajectories = len({obs.sample_id for obs in observations})
+    step_label = (
+        f"trajectory position ({n_positions} equal-width bins of step index)"
+    )
+    panel_title = (
+        f"Measured: {description.n_utterances} turns over "
+        f"{n_trajectories} trajectory" + ("" if n_trajectories == 1 else "ies")
+    )
+
+    _write_figure_caption(
+        *figure_two(
+            binned,
+            results / "figures" / f"figure2_recall_ceiling{suffix}.png",
+            stage2_recall=args.stage2_recall,
+            step_label=step_label,
+            panel_title=panel_title,
+        )
     )
 
     record = build_record(

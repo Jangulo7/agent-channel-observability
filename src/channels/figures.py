@@ -82,7 +82,7 @@ def figure_one(
     figure.patch.set_facecolor(SURFACE)
     axes.set_facecolor(SURFACE)
 
-    labels = [f"{model}\n{task}" for model, task in plotted]
+    labels = [f"{_display_model(model)}\n{task}" for model, task in plotted]
     bottoms = [0.0] * len(plotted)
     for state in ReasoningState:
         heights = [_share_of(group, state) for group in plotted.values()]
@@ -126,6 +126,7 @@ def figure_two(
     out_path: Path,
     stage2_recall: float = 1.0,
     step_label: str = "step index",
+    panel_title: str = "Measured",
 ) -> tuple[Path, str]:
     """Positional coverage c(j) and its ceiling, beside the induced prior art.
 
@@ -160,7 +161,7 @@ def figure_two(
     left.set_xticks(list(steps))
     left.legend(frameon=False, fontsize=8, labelcolor=TEXT_SECONDARY, loc="upper right")
     left.set_title(
-        "Measured: one real agentic trajectory",
+        panel_title,
         color=TEXT_PRIMARY, fontsize=10, loc="left", pad=8,
     )
 
@@ -317,6 +318,16 @@ def _pooled_rate(group: Sequence[EmissionCell]) -> RateWithCI:
         n_clusters=max((c.n_clusters or 0) for c in group) or None,
     )
     return cell_rate(merged)
+
+
+def _display_model(model: str) -> str:
+    """Shorten a provider-qualified model id for an axis tick.
+
+    The record keeps the full id; only the tick is shortened, because colliding
+    tick labels make a committed figure unreadable and an unreadable figure
+    cannot be checked by a reader.
+    """
+    return model.split("/")[-1]
 
 
 def _caption_one(
