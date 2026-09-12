@@ -1,0 +1,53 @@
+cff-version: 1.2.0
+title: >-
+  agent-channel-observability: measuring reasoning-channel emission
+  and the recall ceiling it imposes on deliberation-gated monitors
+message: >-
+  If you use this software or its measurements, please cite it. Please also
+  carry the caveats: the headline numbers rest on a single trajectory
+  (n_clusters = 1) and are descriptive, not inferential.
+type: software
+authors:
+  - given-names: Johanna
+    family-names: Angulo
+repository-code: "https://github.com/Jangulo7/agent-channel-observability"
+abstract: >-
+  Measures, from Inspect evaluation logs, how often a model's reasoning is
+  actually observable to an external evaluator, and derives the recall ceiling
+  that observability imposes on any monitor gated on deliberation. Two rules are
+  architectural: no detector reports a rate without a recorded validated recall,
+  and an uninspectable sample is a failure rather than a dropped denominator.
+keywords:
+  - AI safety
+  - evaluation
+  - chain-of-thought monitorability
+  - observability
+  - Inspect
+license: MIT
+version: 0.1.0
+date-released: "2026-09-12"
+
+references:
+  - type: software
+    title: "safety-eval-pipeline"
+    authors:
+      - given-names: Johanna
+        family-names: Angulo
+    repository-code: "https://github.com/Jangulo7/safety-eval-pipeline"
+    version: "v1.1.0"
+    doi: "10.5281/zenodo.22182741"
+    notes: >-
+      Source of the vendored statistics helpers in src/channels/_vendored_stats.py
+      and of this project's gate contract: an aggregate bound plus a per-stratum
+      bound, the worst stratum always reported, a marginal annotation when the
+      confidence interval crosses the threshold, and un-evaluable counting as
+      failure rather than being dropped.
+
+  - type: data
+    title: "Mythos 5 incident transcript"
+    repository-code: "https://github.com/anthropics/mythos-5-incident-transcript"
+    notes: >-
+      The corpus behind every measurement currently in results/. Licence not
+      stated; released by Anthropic for study. Carries a canary GUID and a
+      do-not-train notice. n = 1 trajectory: one incident, one model, not a
+      sample. See docs/DATA_PROVENANCE.md.

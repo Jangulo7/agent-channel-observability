@@ -226,3 +226,35 @@ one.** Marked `# NEEDS REVIEW: illustrative threshold, not a safety claim`.
 AMBER — CLI tests run on a synthetic four-turn transcript in the real row format, written
 into `tmp_path`. Two of four turns carry `<thinking>`, so the expected share is 0.5 and
 can be counted by hand in the fixture. No test touches a real corpus.
+
+## Step 7 — README, CITATION.cff, DATA_PROVENANCE ✅
+`docs/DATA_PROVENANCE.md` was already committed at step 2, so this step was README and
+CITATION.cff. Both written; 108 tests still pass, ruff and mypy clean.
+
+The README leads with the result *and its caveats in the same breath* — n=1 trajectory,
+intervals descriptive not inferential, in-band `<thinking>` markup rather than a
+structured reasoning field — rather than putting the caveats in a section a reader can
+skip. It also states plainly that the gate failure is the intended demonstration and
+that the config thresholds are not a standard.
+
+**Verified rather than assumed:** `docs/DATA_PROVENANCE.md` carries the Zenodo DOI
+`10.5281/zenodo.22182741` for safety-eval-pipeline. I checked it against the upstream
+repository's README badge before repeating it in CITATION.cff. It is real. Flagging the
+check because the integrity rules forbid inventing a DOI, and a DOI inherited from an
+earlier session is exactly the kind of number that gets propagated unverified.
+
+safety-eval-pipeline is cited in three places, as asked: the README's provenance
+section, `CITATION.cff` `references`, and §"Reuse and attribution" of DATA_PROVENANCE.
+The vendored statistics are credited as vendored-verbatim; the gate contract is credited
+as a reused design.
+
+**Q4 still open, unchanged.** `ci/ci.yml` remains parked outside `.github/workflows/`.
+I re-checked the token: scopes are `admin:public_key, delete_repo, gist, read:org, repo`
+— still no `workflow`, so GitHub will reject any push creating that path. One command
+fixes it:
+```
+gh auth refresh -h github.com -s workflow
+git mv ci/ci.yml .github/workflows/ci.yml && git commit && git push
+```
+Until then **CI does not run on this repository.** The workflow file is correct and the
+three commands it runs all pass locally, but nothing is enforcing that on push.
