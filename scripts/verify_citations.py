@@ -13,7 +13,6 @@ which physical page. Exits non-zero if a row cites a page the text is not on.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
 
 from channels.loaders.published_record import PublishedRecordLoader
@@ -21,6 +20,7 @@ from channels.loaders.published_record import PublishedRecordLoader
 #: Reports available locally. A row citing anything else cannot be checked here.
 SOURCE_PDFS = {
     "HF investigation": Path("data/METR/hugging-face-incident-report-aug-2026.pdf"),
+    "Frontier Risk Report": Path("data/METR/risk-report-feb-mar-2026.pdf"),
 }
 
 #: How many leading characters of a quotation to search for. Protocol strings are
@@ -51,18 +51,21 @@ def _cited_page(source_ref: str) -> int | None:
 
 def main() -> int:
     """Verify each row; return 1 if any checkable row fails."""
-    pdf = SOURCE_PDFS["HF investigation"]
-    if not pdf.is_file():
-        print(f"source PDF absent: {pdf}", file=sys.stderr)
-        return 2
-    pages = _page_texts(pdf)
+    pages_by_source: dict[str, list[str]] = {}
+    for label, pdf in SOURCE_PDFS.items():
+        if pdf.is_file():
+            pages_by_source[label] = _page_texts(pdf)
+        else:
+            print(f"source PDF absent, rows citing it will be skipped: {pdf}")
 
     failures = 0
     for utt in PublishedRecordLoader().load():
         ref = utt.source_ref or ""
-        if "HF investigation" not in ref:
+        source = next((s for s in pages_by_source if s in ref), None)
+        if source is None:
             print(f"SKIP     {utt.uid}: cites a source not available locally")
             continue
+        pages = pages_by_source[source]
         claimed = _cited_page(ref)
         probe = re.sub(r"\s+", "", (utt.text or ""))[:PROBE_CHARS]
         found = [i + 1 for i, text in enumerate(pages) if probe and probe in text]

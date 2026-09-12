@@ -136,12 +136,13 @@ def test_zz_convention_spans_independent_agent_pairs() -> None:
     assert len(dyads) >= 2, f"zz rows all come from one exchange: {dyads}"
 
 
-def test_citations_that_are_not_verified_say_so() -> None:
-    """An unverified citation must be visible in describe(), not silently counted.
+def test_every_citation_is_now_verified() -> None:
+    """All ten rows have been checked against a source PDF held in data/METR.
 
-    Two rows come from the METR Frontier Risk Report, whose PDF is not in
-    data/METR. Their page references have NOT been checked and the corpus
-    description has to keep saying so.
+    This asserted "2 of 10 unverified" until Johanna supplied
+    risk-report-feb-mar-2026.pdf on 2026-09-12, which let INC-037 be located at
+    p.124. If a future row is added without verification, the count moves off
+    zero and this fails - which is the point.
     """
     caveats = " ".join(PublishedRecordLoader().describe().caveats)
-    assert "2 of 10 rows carry an unverified" in caveats
+    assert "0 of 10 rows carry an unverified" in caveats

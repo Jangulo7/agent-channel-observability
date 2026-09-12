@@ -57,14 +57,40 @@ class InspectLogLoader:
         """Whether any Inspect log file exists under the configured root."""
         return bool(self.log_paths())
 
-    def log_paths(self) -> list[Path]:
-        """Every Inspect log under the root, sorted for reproducible ordering."""
+    def incomplete_logs(self) -> list[Path]:
+        """Logs whose run has not finished, and which are therefore excluded.
+
+        A log still being written has fewer samples than the run will produce.
+        Including it would silently shrink a denominator, which is the exact
+        failure `emission.py` exists to prevent — so incomplete logs are skipped
+        AND named in `describe()`, never quietly dropped.
+        """
+        from inspect_ai.log import read_eval_log
+
+        incomplete: list[Path] = []
+        for path in self._all_log_paths():
+            try:
+                status = read_eval_log(str(path), header_only=True).status
+            except Exception:
+                incomplete.append(path)
+                continue
+            if status != "success":
+                incomplete.append(path)
+        return incomplete
+
+    def _all_log_paths(self) -> list[Path]:
+        """Every Inspect log under the root, complete or not."""
         if not self.root.is_dir():
             return []
         found: list[Path] = []
         for suffix in LOG_SUFFIXES:
             found.extend(self.root.rglob(f"*{suffix}"))
         return sorted(found)
+
+    def log_paths(self) -> list[Path]:
+        """Every COMPLETE Inspect log under the root, sorted reproducibly."""
+        excluded = set(self.incomplete_logs())
+        return [path for path in self._all_log_paths() if path not in excluded]
 
     def require_available(self) -> list[Path]:
         """Return the log paths, or raise naming the exact path that was checked.
@@ -107,10 +133,13 @@ class InspectLogLoader:
             licence=self.licence,
             caveats=(
                 f"task classes present: {task_classes}",
-                f"{len(paths)} log file(s) under {self.root}",
+                f"{len(paths)} complete log file(s) under {self.root}",
                 "one trajectory is one cluster; per-turn independence is false",
                 f"reasoning_effort settings present: "
                 f"{sorted({str(o.reasoning_effort) for o in observations})}",
+                f"{len(self.incomplete_logs())} incomplete log(s) EXCLUDED "
+                "(run not finished); their samples are absent from every "
+                "denominator rather than partially counted",
             ),
         )
 

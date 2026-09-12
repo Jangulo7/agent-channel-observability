@@ -181,3 +181,57 @@ def _cluster_sizes(clusters: Sequence[str]) -> list[int]:
     for name in clusters:
         counts[name] = counts.get(name, 0) + 1
     return list(counts.values())
+
+
+#: The unit dependence actually lives on in collusion.wiki, decided by Johanna
+#: on 2026-09-12: the PAGE is primary, the ACTOR is the sensitivity analysis.
+#:
+#: Why not the actor, which is what spec §8's comment implies. Spec §8 justifies
+#: clustering with "91% of edits come from the single actor `dse`". Measured,
+#: `dse` is a WIKI, not an actor: it holds 91.9% of revisions, while the most
+#: active individual actor holds 2.3% across 3,102 actors. The page is the unit
+#: RQ3 is defined over — peer disagreement happens when two agents edit the same
+#: page — so it is the unit on which observations are dependent. Clustering on
+#: the wiki instead would give 4 clusters and an interval too wide to inform
+#: anything.
+PRIMARY_CLUSTER_FIELD = "page"
+SENSITIVITY_CLUSTER_FIELD = "actor"
+
+
+def cluster_keys(utts: Sequence[Utterance], field: str) -> list[str]:
+    """Return the cluster key of each utterance under one clustering choice.
+
+    Raises rather than pooling when the key is missing, for the same reason
+    `MissingActorError` exists: a missing cluster key silently assumes
+    independence, which is the assumption clustering exists to avoid.
+    """
+    if field not in (PRIMARY_CLUSTER_FIELD, SENSITIVITY_CLUSTER_FIELD):
+        raise ValueError(
+            f"field={field!r}: expected one of "
+            f"{(PRIMARY_CLUSTER_FIELD, SENSITIVITY_CLUSTER_FIELD)}"
+        )
+    keys: list[str] = []
+    for utt in utts:
+        key = utt.thread_id if field == PRIMARY_CLUSTER_FIELD else utt.actor
+        if key is None:
+            raise MissingActorError(
+                f"{utt.uid} has no {field} and cannot be clustered on it; "
+                "pooling it would assume independence"
+            )
+        keys.append(str(key))
+    return keys
+
+
+def both_clusterings(
+    successes: int, utts: Sequence[Utterance]
+) -> dict[str, RateWithCI]:
+    """Return the rate clustered by page (primary) and by actor (sensitivity).
+
+    Reported together, never one without the other. If the two disagree
+    materially, the clustering choice is doing the work rather than the data, and
+    a reader has to be able to see that.
+    """
+    return {
+        field: clustered_wilson(successes, len(utts), cluster_keys(utts, field))
+        for field in (PRIMARY_CLUSTER_FIELD, SENSITIVITY_CLUSTER_FIELD)
+    }

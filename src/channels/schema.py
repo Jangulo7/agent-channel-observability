@@ -25,6 +25,13 @@ class Channel(str, Enum):
     VISIBLE_OUTPUT = "visible_output"
     TOOL_CALL = "tool_call"
     INTER_AGENT_MESSAGE = "inter_agent_message"
+    # An edit to a shared artefact (a wiki revision, a file write). NOT a message:
+    # it is addressed to no one and carries no illocutionary force of its own, but
+    # it is observable to peers and can express disagreement by action - a revert
+    # undoes a peer's edit without saying anything. Added 2026-09-12 because
+    # coding wiki revisions as INTER_AGENT_MESSAGE conflated two different
+    # communicative acts and inflated the inter-agent message denominator.
+    ARTEFACT_EDIT = "artefact_edit"
     HUMAN_MESSAGE = "human_message"
     SYSTEM_MESSAGE = "system_message"
     EVENT = "event"

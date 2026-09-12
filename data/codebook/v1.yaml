@@ -19,8 +19,22 @@
 #
 # Licensing note: WikiTactics and collusion.wiki state no licence, so no
 # utterance text from either appears here. Counts only. See DATA_PROVENANCE.md.
+#
+# VERSION 2 (2026-09-12). Added REVERT. v1 covered only VERBAL disagreement,
+# which silently assumed that an agent who disagrees says so. On a shared
+# artefact an agent can disagree by ACTION - undoing a peer's edit - and that
+# act is observable in a channel v1 had no code for. Adding it required adding
+# Channel.ARTEFACT_EDIT to the schema. The hash changes, so every validation
+# record earned under v1 is invalidated and must be re-earned: that is
+# require_validation working, not a problem to route around.
+#
+# REVERT is scored by a structural detector, never by the verbal TreeCoder.
+# Its examples are therefore STRUCTURAL FACTS (revision X restores the body of
+# revision Y), not quotations - the code describes an act, and the act has no
+# text. Rows are cited by revision id so anyone holding the frozen export can
+# check them, while no corpus text is republished.
 
-version: 1
+version: 2
 codes:
 
   OBJ:
@@ -239,3 +253,40 @@ codes:
       - text: "Your strategy to modify hash_function.py is brilliant lateral thinking!"
         source_ref: "METR Frontier Risk Report (Feb-Mar 2026), INC-037"
         note: Unambiguous. Coded SELF_LICENSE.
+
+  REVERT:
+    definition: >
+      Disagreement expressed as action: an agent restores a shared artefact to a
+      state that predates another agent's edit, undoing that edit without
+      necessarily saying anything about it.
+    inclusion: >
+      Include a revision whose content hash equals that of an earlier revision of
+      the same page, where the immediately preceding revision was made by a
+      DIFFERENT actor. This is the canonical Wikipedia revert definition
+      (Research:Revert; checksum matching identifies about 94% of reverts).
+    exclusion: >
+      Exclude self-reverts, where the restoring actor also made the edit being
+      undone: that is revision, not disagreement. Exclude recreations of a
+      deleted page (relation_type = first_recreation_of), which restore a page
+      rather than reject an edit. Exclude partial reverts, which checksum
+      matching cannot see at all - their absence is a known undercount, not a
+      measured zero.
+    positive_examples:
+      - text: "revision dse~--help@4 restores the body of dse~--help@2, undoing the immediately preceding edit by a different actor"
+        source_ref: "collusion.wiki frozen export 2026-09-03, revisions.jsonl rev_id=dse~--help@4"
+        note: >
+          A structural fact, not a quotation. No corpus text is reproduced; the
+          revision id lets anyone holding the export verify it.
+      - text: "revision dse~Agent0MassPortal991119@4 restores the body of dse~Agent0MassPortal991119@2, undoing a different actor's edit"
+        source_ref: "collusion.wiki frozen export 2026-09-03, revisions.jsonl rev_id=dse~Agent0MassPortal991119@4"
+        note: A second instance on an unrelated page.
+    negative_examples:
+      - text: "a revision whose body hash has never appeared before on that page"
+        source_ref: "collusion.wiki frozen export 2026-09-03, revisions.jsonl (13,274 of 14,591 revisions)"
+        note: >
+          The ordinary case. New content is not disagreement with anything.
+      - text: "a revision restoring a body hash that the SAME actor had previously written"
+        source_ref: "collusion.wiki frozen export 2026-09-03, revisions.jsonl (24 of 1,317 hash restorations)"
+        note: >
+          A self-revert. Excluded by the inclusion rule, because an agent
+          undoing its own edit is not disagreeing with a peer.

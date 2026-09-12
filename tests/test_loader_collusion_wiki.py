@@ -16,21 +16,26 @@ SYNTHETIC_REVISIONS = [
     # page_a: two distinct agent actors -> can contain peer disagreement.
     {"rev_id": 1, "page_key": "page_a", "label": "SyntheticAgentOne",
      "wiki": "synthetic_wiki", "time": "2026-01-01T00:00:00Z", "seq": 0,
-     "body": "SYNTHETIC BODY TEXT", "body_len": 19},
+     "body": "SYNTHETIC BODY TEXT", "body_len": 19,
+     "change_summary": "SYNTHETIC SUMMARY"},
     {"rev_id": 2, "page_key": "page_a", "label": "SyntheticAgentTwo",
      "wiki": "synthetic_wiki", "time": "2026-01-01T00:01:00Z", "seq": 1,
-     "body": "SYNTHETIC BODY TEXT", "body_len": 19},
+     "body": "SYNTHETIC BODY TEXT", "body_len": 19,
+     "change_summary": "SYNTHETIC SUMMARY"},
     # page_b: one actor only -> cannot contain peer disagreement.
     {"rev_id": 3, "page_key": "page_b", "label": "SyntheticAgentOne",
      "wiki": "synthetic_wiki", "time": "2026-01-01T00:02:00Z", "seq": 0,
-     "body": "SYNTHETIC BODY TEXT", "body_len": 19},
+     "body": "SYNTHETIC BODY TEXT", "body_len": 19,
+     "change_summary": "SYNTHETIC SUMMARY"},
     # a human handle, and an unknown handle that must fail toward human.
     {"rev_id": 4, "page_key": "page_c", "label": "SyntheticHuman",
      "wiki": "synthetic_wiki", "time": "2026-01-01T00:03:00Z", "seq": 0,
-     "body": "SYNTHETIC BODY TEXT", "body_len": 19},
+     "body": "SYNTHETIC BODY TEXT", "body_len": 19,
+     "change_summary": "SYNTHETIC SUMMARY"},
     {"rev_id": 5, "page_key": "page_c", "label": "NeverSeenInLabels",
      "wiki": "synthetic_wiki", "time": "2026-01-01T00:04:00Z", "seq": 1,
-     "body": "SYNTHETIC BODY TEXT", "body_len": 19},
+     "body": "SYNTHETIC BODY TEXT", "body_len": 19,
+     "change_summary": "SYNTHETIC SUMMARY"},
 ]
 
 SYNTHETIC_LABELS = [
@@ -69,19 +74,51 @@ def test_missing_export_raises_naming_every_path(tmp_path: Path) -> None:
         list(loader.load())
 
 
-def test_revision_text_is_never_carried(export: Path) -> None:
-    """The corpus has no licence, so body text does not enter an Utterance."""
+def test_revision_body_text_is_never_carried(export: Path) -> None:
+    """Body text never enters an Utterance; the corpus has no licence.
+
+    The change_summary DOES, because the verbal codebook needs it to code the
+    message channel at all. It is withheld from published artefacts instead, by
+    the publication-safety tests — a different control for a different risk.
+    """
     for utt in CollusionWikiLoader(export).load():
-        assert utt.text is None
         assert utt.provenance is Provenance.REDACTED_PARTIAL
+        if utt.channel is Channel.ARTEFACT_EDIT:
+            assert utt.text is None, "body diff text must never be carried"
 
 
 def test_unknown_handle_fails_toward_human(export: Path) -> None:
     """Spec §13.6: undetermined sender fails toward HUMAN_MESSAGE."""
     by_uid = {u.uid: u for u in CollusionWikiLoader(export).load()}
-    assert by_uid["collusion_wiki:4"].channel is Channel.HUMAN_MESSAGE
-    assert by_uid["collusion_wiki:5"].channel is Channel.HUMAN_MESSAGE
-    assert by_uid["collusion_wiki:1"].channel is Channel.INTER_AGENT_MESSAGE
+    assert by_uid["collusion_wiki:4:edit"].channel is Channel.HUMAN_MESSAGE
+    assert by_uid["collusion_wiki:5:edit"].channel is Channel.HUMAN_MESSAGE
+    assert by_uid["collusion_wiki:1:edit"].channel is Channel.ARTEFACT_EDIT
+
+
+def test_a_revision_emits_an_edit_and_a_message_not_one_utterance(
+    export: Path,
+) -> None:
+    """The two channels a revision carries must not be collapsed into one.
+
+    The body diff is an ARTEFACT_EDIT addressed to no one; the change_summary is
+    an INTER_AGENT_MESSAGE addressed to other editors. Coding the revision as a
+    single INTER_AGENT_MESSAGE, as this loader used to, put acts that carry no
+    words into the inter-agent message denominator.
+    """
+    utterances = list(CollusionWikiLoader(export).load())
+    edits = [u for u in utterances if u.channel is Channel.ARTEFACT_EDIT]
+    messages = [u for u in utterances if u.channel is Channel.INTER_AGENT_MESSAGE]
+    assert edits, "no artefact edits emitted"
+    assert messages, "no change_summary messages emitted"
+    # The edit never carries body text; the message carries its summary.
+    assert all(u.text is None for u in edits)
+    assert all(u.text for u in messages)
+
+
+def test_revert_is_cross_actor_only(export: Path) -> None:
+    """A self-revert is revision, not disagreement, and must not be flagged."""
+    reverts = CollusionWikiLoader(export)._revert_rev_ids()
+    assert "3" not in reverts  # page_b: single actor, no cross-actor revert
 
 
 def test_actors_per_page_counts_agents_only(export: Path) -> None:

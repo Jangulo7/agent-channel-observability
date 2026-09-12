@@ -20,7 +20,8 @@
 |---|---|
 | Registration commit SHA | `TODO(johanna)` — fill at the moment of the public commit |
 | Registration timestamp (UTC) | `TODO(johanna)` |
-| Codebook SHA-256 | `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83` |
+| Codebook SHA-256 (v2, current) | `sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f` |
+| Codebook SHA-256 (v1, superseded) | `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83` |
 | Corpus freeze hashes | see [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md) |
 
 `gates.codebook_drift` compares `codebook.codebook_hash()` against the codebook hash
@@ -262,10 +263,9 @@ Monitoring paradox, acknowledged: publishing what a dissent detector looks for c
 ## 11. Deviations log
 
 Every departure from this document is recorded here with a date, the change, and the reason. This table is reproduced verbatim in the report appendix. Nothing above is amended in place.
-Date / time (UTC)
-Section
-Deviation
-Reason
+| Date / time (UTC) | Section | Deviation | Reason |
+|---|---|---|---|
+| 2026-09-12 20:30 | §6.1 codebook | Codebook bumped v1 → v2: added code `REVERT`; added `Channel.ARTEFACT_EDIT` to the schema. Hash moved from `sha256:2d1077fa…` to `sha256:0bc62c3e…`. | v1 coded only VERBAL disagreement, which assumed an agent that disagrees says so. On a shared artefact an agent can disagree by ACTION — undoing a peer's edit — and collusion.wiki contains 1,293 such cross-actor reverts that v1 had no code for. Coding a wiki revision as `INTER_AGENT_MESSAGE`, as v1 forced, also inflated the inter-agent message denominator with acts that carry no words. **No rate had been computed or reported under v1**, so no published number is affected; the two v1 validation records were invalidated and re-earned under v2. Decision taken by the investigator on 2026-09-12. |
 
 ## 12. Declarations
 

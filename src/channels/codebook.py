@@ -20,8 +20,17 @@ CODEBOOK_PATH = Path(__file__).resolve().parents[2] / "data" / "codebook" / "v1.
 # SHARE establishes the denominator; the next five are the numerator; UNCL is the
 # residual. See `denominator_codes` and `numerator_codes` below.
 CODES: tuple[str, ...] = (
+    "OBJ", "REF", "ESC", "WARN", "NORM", "SELF_LICENSE", "SHARE", "UNCL", "REVERT",
+)
+
+#: Codes scored from TEXT by the verbal instruments (TreeCoder, NliDetector).
+VERBAL_CODES: tuple[str, ...] = (
     "OBJ", "REF", "ESC", "WARN", "NORM", "SELF_LICENSE", "SHARE", "UNCL",
 )
+
+#: Codes scored from ACTION by a structural detector. Never assigned from text,
+#: and never mixed into a verbal detector's recall.
+ACTION_CODES: tuple[str, ...] = ("REVERT",)
 
 REQUIRED_FIELDS: tuple[str, ...] = (
     "definition", "inclusion", "exclusion", "positive_examples", "negative_examples",

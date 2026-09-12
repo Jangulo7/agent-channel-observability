@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 from channels.errors import ChannelsError
-from channels.schema import Utterance
+from channels.schema import Channel, Utterance
 from channels.tree import CodedLabel
 
 #: A small NLI cross-encoder. Pinned by name; the checkpoint is cached locally and
@@ -220,3 +220,58 @@ def _thread_pairs(
             skipped.append(ordered[0].uid)
         pairs.extend(itertools.pairwise(ordered))
     return pairs, skipped
+
+
+class RevertDetector:
+    """Scores REVERT from structure, never from text.
+
+    A revert is an act, not an utterance: the evidence is that a revision
+    restored a body another agent had replaced. The loader computes that by
+    checksum matching and records it on `corpus_meta["is_revert"]`; this detector
+    only reads it. Keeping it a detector rather than a loader field means it goes
+    through `require_validation` like any other instrument.
+
+    **Its recall is not measurable on any control this project holds.** No corpus
+    here carries human revert labels, so `validate` will report `REVERT` support
+    of zero and status `no_support_in_control`. That is the honest state: the
+    detector is deterministic given the definition, but the definition's own
+    coverage — checksum matching finds ~94% of reverts and misses every partial
+    revert — is inherited from the literature, not measured here.
+    """
+
+    name = "revert_detector"
+    version = "1.0"
+    requires_validation = True
+    #: Structural only. It cannot express any verbal code, and a verbal detector
+    #: cannot express this one, so the two are never compared or averaged.
+    label_space = ("REVERT", "UNCL")
+
+    def detect(self, utts: Iterable[Utterance]) -> DetectorResult:
+        """Label artefact edits REVERT or UNCL; skip everything else.
+
+        Messages are skipped rather than labelled UNCL: a change summary is not a
+        failed revert, it is a different channel, and putting it in the
+        denominator would understate the revert rate.
+        """
+        labels: list[CodedLabel] = []
+        skipped: list[str] = []
+        for utt in utts:
+            if utt.channel is not Channel.ARTEFACT_EDIT:
+                skipped.append(utt.uid)
+                continue
+            is_revert = bool(utt.corpus_meta.get("is_revert"))
+            labels.append(
+                CodedLabel(
+                    uid=utt.uid,
+                    code="REVERT" if is_revert else "UNCL",
+                    type="normative" if is_revert else None,
+                    gate_path=("STRUCTURAL", "body_sha256_restored_cross_actor"),
+                )
+            )
+        return DetectorResult(
+            detector_name=self.name,
+            detector_version=self.version,
+            labels=tuple(labels),
+            skipped=tuple(skipped),
+            label_space=self.label_space,
+        )

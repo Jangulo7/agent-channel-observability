@@ -1,0 +1,33 @@
+{
+  "codebook_hash": "sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f",
+  "control_corpus": "collusion_wiki",
+  "detector_name": "revert_detector",
+  "detector_version": "1.0",
+  "generated_utc": "2026-09-12T20:29:57Z",
+  "n_skipped": 14549,
+  "n_utterances": 13661,
+  "scores": {
+    "REVERT": {
+      "code": "REVERT",
+      "f1": null,
+      "precision": null,
+      "predicted": 1275,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    },
+    "UNCL": {
+      "code": "UNCL",
+      "f1": null,
+      "precision": null,
+      "predicted": 12386,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    }
+  }
+}

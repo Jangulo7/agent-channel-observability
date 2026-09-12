@@ -124,14 +124,25 @@ class CollusionWikiLoader:
         return known, human
 
     def load(self, **kwargs: Any) -> Iterator[Utterance]:
-        """Yield one Utterance per revision. Body text is withheld.
+        """Yield TWO utterances per revision: the artefact edit and its summary.
 
-        `text=None` is deliberate and is not a missing value: the corpus has no
-        licence, so the text is not publishable, and the four-state accounting
-        this package performs does not need it. The utterance still counts.
+        A wiki revision carries two distinct channels and v1 of this loader
+        conflated them:
+
+        * the body diff is an ARTEFACT_EDIT - addressed to no one, but observable
+          to peers, and capable of expressing disagreement by ACTION (a revert);
+        * the `change_summary` is an INTER_AGENT_MESSAGE - a short note addressed
+          to other editors, and the only channel here in which a verbal objection
+          could appear. 93.3% of revisions carry one.
+
+        Body text is never carried: the corpus has no licence and the four-state
+        accounting does not need it. Summary text IS carried, because the verbal
+        codebook needs it, and is withheld from `results/` by the publication
+        safety tests.
         """
         self.require_available()
         known, human = self._handles()
+        reverts = self._revert_rev_ids()
         for row in self._rows("revisions"):
             absent = [k for k in REQUIRED_REVISION_KEYS if k not in row]
             if absent:
@@ -141,19 +152,18 @@ class CollusionWikiLoader:
                 )
             label = row.get("label") or None
             is_human = label is None or label in human or label not in known
+            rev_id = row["rev_id"]
+            shared = {
+                "wiki": row.get("wiki"),
+                "page_id": row.get("page_id"),
+                "attribution": "inferred by source authors; see manifest.json",
+            }
+
             yield Utterance(
-                uid=f"collusion_wiki:{row['rev_id']}",
+                uid=f"collusion_wiki:{rev_id}:edit",
                 corpus="collusion_wiki",
-                # NEEDS REVIEW: a wiki revision is an artefact edit, not a message.
-                # The honest channel would be a new ARTEFACT_EDIT value, but adding
-                # one changes the Utterance schema, which spec §15.4 and the build's
-                # RED boundary both forbid without asking. INTER_AGENT_MESSAGE is
-                # used because a shared page IS the channel these agents coordinate
-                # through. See BUILD_LOG.md, QUESTIONS FOR JOHANNA.
                 channel=(
-                    Channel.HUMAN_MESSAGE
-                    if is_human
-                    else Channel.INTER_AGENT_MESSAGE
+                    Channel.HUMAN_MESSAGE if is_human else Channel.ARTEFACT_EDIT
                 ),
                 provenance=Provenance.REDACTED_PARTIAL,
                 text=None,
@@ -161,14 +171,65 @@ class CollusionWikiLoader:
                 thread_id=str(row.get("page_key")),
                 timestamp=row.get("time"),
                 seq=row.get("seq"),
-                source_ref="collusion.wiki frozen export",
+                source_ref=f"collusion.wiki frozen export, rev_id={rev_id}",
                 corpus_meta={
-                    "wiki": row.get("wiki"),
-                    "page_id": row.get("page_id"),
+                    **shared,
                     "body_len": row.get("body_len"),
-                    "attribution": "inferred by source authors; see manifest.json",
+                    "is_revert": rev_id in reverts,
                 },
             )
+
+            summary = (row.get("change_summary") or "").strip()
+            if summary:
+                yield Utterance(
+                    uid=f"collusion_wiki:{rev_id}:summary",
+                    corpus="collusion_wiki",
+                    channel=(
+                        Channel.HUMAN_MESSAGE
+                        if is_human
+                        else Channel.INTER_AGENT_MESSAGE
+                    ),
+                    provenance=Provenance.REDACTED_PARTIAL,
+                    text=summary,
+                    actor=label,
+                    thread_id=str(row.get("page_key")),
+                    timestamp=row.get("time"),
+                    seq=row.get("seq"),
+                    source_ref=f"collusion.wiki frozen export, rev_id={rev_id}",
+                    corpus_meta={**shared, "field": "change_summary"},
+                )
+
+    def _revert_rev_ids(self) -> set[str]:
+        """Revision ids that restore an earlier body, undoing a DIFFERENT actor.
+
+        The canonical Wikipedia revert definition: a revision whose content hash
+        matches an earlier revision of the same page. Checksum matching finds
+        about 94% of reverts (Research:Revert); partial reverts are invisible to
+        it, so this is a known UNDERCOUNT and never a measured zero.
+
+        Self-reverts are excluded: an agent undoing its own edit is revising, not
+        disagreeing with a peer.
+        """
+        by_page: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+        for row in self._rows("revisions"):
+            if row.get("page_key") and row.get("body_sha256"):
+                by_page[str(row["page_key"])].append(row)
+
+        reverts: set[str] = set()
+        for revisions in by_page.values():
+            revisions.sort(
+                key=lambda r: (r.get("seq") or 0, str(r.get("time") or ""))
+            )
+            seen: set[str] = set()
+            for index, row in enumerate(revisions):
+                digest = str(row["body_sha256"])
+                if index > 0 and digest in seen:
+                    previous = revisions[index - 1].get("label")
+                    current = row.get("label")
+                    if current and previous and current != previous:
+                        reverts.add(str(row["rev_id"]))
+                seen.add(digest)
+        return reverts
 
     def actors_per_page(self) -> Counter[int]:
         """Distribution of distinct actors per page.

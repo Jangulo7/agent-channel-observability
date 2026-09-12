@@ -23,6 +23,17 @@ NON_AGENT_CHANNELS: frozenset[Channel] = frozenset(
     {Channel.HUMAN_MESSAGE, Channel.SYSTEM_MESSAGE}
 )
 
+#: Channels that carry a message FROM one agent TO another. This, not "everything
+#: an agent did", is the denominator for an inter-agent message rate. An artefact
+#: edit is agent-authored and peer-observable but is addressed to no one, so
+#: counting it here would inflate the denominator with acts that could not have
+#: carried an objection in words.
+MESSAGE_CHANNELS: frozenset[Channel] = frozenset({Channel.INTER_AGENT_MESSAGE})
+
+#: Channels that express a stance through action rather than text. Scored by a
+#: different instrument (revert detection), never by the verbal codebook.
+ACTION_CHANNELS: frozenset[Channel] = frozenset({Channel.ARTEFACT_EDIT})
+
 
 def for_primary(
     utts: Iterable[Utterance],
@@ -69,6 +80,16 @@ def assert_primary_eligible(utts: Iterable[Utterance]) -> None:
 def is_inter_agent(utt: Utterance) -> bool:
     """Whether this utterance may count toward an inter-agent rate."""
     return utt.channel not in NON_AGENT_CHANNELS
+
+
+def is_inter_agent_message(utt: Utterance) -> bool:
+    """Whether this utterance is a MESSAGE from one agent to another.
+
+    Stricter than `is_inter_agent`: an artefact edit passes that test and fails
+    this one. The codebook's verbal codes are defined over messages, so this is
+    the predicate that gates them.
+    """
+    return utt.channel in MESSAGE_CHANNELS
 
 
 def _ineligibility_reason(utt: Utterance) -> str | None:
