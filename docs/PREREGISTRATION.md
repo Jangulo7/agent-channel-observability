@@ -20,7 +20,7 @@
 |---|---|
 | Registration scope | **Confirmatory: C1–C3 only** (the human annotation). Everything else is exploratory — see [§0](#0-analysis-status-at-registration--read-first). |
 | Registration commit SHA | `TODO(johanna)` — filled by `scripts/register.sh` at the registration commit |
-| Registration timestamp (UTC) | `TODO(johanna)` |
+| Registration timestamp (UTC) | `2026-09-12T23:15:00Z` |
 | Codebook SHA-256 (v3, current) | `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62` |
 | Codebook SHA-256 (v2, superseded) | `sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f` |
 | Codebook SHA-256 (v1, superseded) | `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83` |
