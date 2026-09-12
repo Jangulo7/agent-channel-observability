@@ -62,7 +62,7 @@ def _revisions_by_id(loader: CollusionWikiLoader) -> dict[str, dict[str, Any]]:
 
 
 def _context_for_revert(
-    utt: Utterance, rows: dict[str, dict[str, Any]]
+    utt: Utterance, rows: dict[str, dict[str, Any]], max_lines: int | None = DIFF_LINES
 ) -> str:
     """Render what this revert undid, so the coder can judge intent.
 
@@ -110,10 +110,13 @@ def _context_for_revert(
         4, f"  size            {removed} line(s) removed, {added} line(s) restored"
     )
     lines += ["", "  --- what this revert removed (- removed, + restored) ---"]
-    for line in body[:DIFF_LINES]:
+    shown = body if max_lines is None else body[:max_lines]
+    for line in shown:
         lines.append(f"  {line[:110]}")
-    if len(body) > DIFF_LINES:
-        lines.append(f"  ... {len(body) - DIFF_LINES} more diff lines")
+    if len(body) > len(shown):
+        lines.append(
+            f"  ... {len(body) - len(shown)} more diff lines - press [m] to see them"
+        )
     return "\n".join(lines)
 
 
@@ -129,12 +132,15 @@ def _context_for_message(utt: Utterance) -> str:
     )
 
 
-def _prompt(task: AnnotationTask) -> str:
+def _prompt(task: AnnotationTask, can_expand: bool) -> str:
     """The choice menu, shown under every item."""
     lines = [f"  {task.question}", ""]
     for key, meaning in task.choices.items():
         lines.append(f"    [{key}] {meaning}")
-    lines.append("    [s] skip for now      [q] save and quit")
+    extra = "    [s] skip for now      [q] save and quit"
+    if can_expand:
+        extra = "    [m] show the whole diff\n" + extra
+    lines.append(extra)
     return "\n".join(lines)
 
 
@@ -171,22 +177,33 @@ def _run(args: argparse.Namespace) -> int:
     print(f"{len(remaining)} of {n} items left. Population: {len(population)}.\n")
 
     for position, utt in enumerate(remaining, start=len(done) + 1):
-        print("=" * 78)
-        print(f"[{position}/{n}]")
-        print(
-            _context_for_revert(utt, rows)
-            if task.name == "revert_validity"
-            else _context_for_message(utt)
-        )
-        print()
-        print(_prompt(task))
         started = time.monotonic()
-        try:
-            choice = input("\n  > ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            print("\ninterrupted")
+        budget: int | None = None if args.full_diff else DIFF_LINES
+        quit_now = False
+        choice = ""
+        while True:
+            print("=" * 78)
+            print(f"[{position}/{n}]")
+            if task.name == "revert_validity":
+                context = _context_for_revert(utt, rows, budget)
+            else:
+                context = _context_for_message(utt)
+            print(context)
+            print()
+            print(_prompt(task, can_expand="press [m]" in context))
+            try:
+                choice = input("\n  > ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                print("\ninterrupted")
+                quit_now = True
+                break
+            # [m] re-renders the SAME item with the diff unabridged. The timer
+            # keeps running: reading the rest of the diff is part of the work.
+            if choice == "m" and task.name == "revert_validity":
+                budget = None
+                continue
             break
-        if choice == "q":
+        if quit_now or choice == "q":
             break
         if choice == "s" or choice not in task.choice_keys():
             if choice != "s":
@@ -251,6 +268,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     parser.add_argument("--corpus", type=Path, default=CORPUS_ROOT)
     parser.add_argument("--out", type=Path, default=ANNOTATION_DIR)
+    parser.add_argument(
+        "--full-diff",
+        action="store_true",
+        help="always show the whole diff instead of the first 24 lines",
+    )
     parser.add_argument("--kappa", default=None, help="sample id to score instead")
     args = parser.parse_args(argv)
     return _run_kappa(args) if args.kappa else _run(args)

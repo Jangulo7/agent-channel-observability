@@ -65,8 +65,12 @@ probably `d`. If you thought "someone had to tidy that up", it is probably `h`.
 
 - Lines starting with **`-`** were **removed** by the undo.
 - Lines starting with **`+`** were **put back** by the undo.
-- Long diffs stop after 24 lines. Judge from what you can see; if that is not
-  enough, press `u`.
+- Long diffs stop after 24 lines to keep the screen readable. When they do, you
+  will see a line like `... 85 more diff lines - press [m] to see them`.
+  **Press `m` to show the whole thing**, then answer as normal.
+- Use `m` whenever the visible part does not settle it. Only fall back to `u`
+  when the *full* diff still does not settle it.
+- If you would rather always see everything, add `--full-diff` to the command.
 
 In the example above, the removed content is a wall of nearly identical links.
 That reads as junk, so `h` would be a reasonable answer.

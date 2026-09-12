@@ -85,6 +85,25 @@ is a one-page reminder of the choices.
    expect to find, and we would rather your answers were not shaped by that. If
    you have already read them, no problem — just say so in the feedback form.
 
+## Getting the files
+
+You do not need access to the project's code repository. You will be sent a
+self-contained bundle containing the tool, the data and this kit — and
+deliberately **not** the project's results or notes, so that nothing you read
+can shape your answers.
+
+Unpack it, then:
+
+```bash
+uv sync --extra dev          # or: pip install -e .
+bash coder-kit/check_setup.sh
+```
+
+Please read `LICENCE_NOTE.md` in the bundle before starting. In short: the wiki
+data has no licence, so please do not redistribute it, do not paste any of it
+into a chatbot or online tool, and delete it when you are done. Your labels
+contain no page text, so they are safe to send back.
+
 ## Your answers are private
 
 The saved file contains only: which item, which key you pressed, how many

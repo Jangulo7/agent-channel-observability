@@ -10,7 +10,7 @@
   u   UNCLEAR        honestly cannot tell
 ```
 
-`-` lines were removed · `+` lines were put back · diff cuts off at 24 lines
+`-` removed · `+` put back · cuts off at 24 lines — **press `m` for the rest**
 
 *"That was rude"* → `d`  ·  *"Someone had to clean that"* → `h`
 
@@ -43,5 +43,5 @@ point at. Reasoning your way there usually means `u`.
 - No target proportions. Repetition is fine.
 - First instinct. Don't revise.
 - Break every 30–40 min.
-- `s` = skip this item · `q` = save and quit
+- `m` = show the whole diff · `s` = skip · `q` = save and quit
 - Re-run the same command to resume. Nothing is lost.
