@@ -39,16 +39,44 @@ class CollusionWikiLoader:
 
     def available(self) -> bool:
         """Whether the three required export files are present."""
-        return all(self._path(n).is_file() for n in ("revisions", "pages", "labels"))
+        return all(
+            self._path(n) is not None for n in ("revisions", "pages", "labels")
+        )
 
-    def _path(self, stem: str) -> Path:
-        return self.root / f"{stem}.jsonl.gz"
+    def _path(self, stem: str) -> Path | None:
+        """Locate one export file under the root, whatever layout it arrived in.
+
+        The published export ships as `<stem>.jsonl.gz` at the top level. A copy
+        that has been through a Windows unzip arrives decompressed, and often
+        nested one level deep in a directory that shares the archive's name
+        (`revisions.jsonl/revisions.jsonl`). Searching for the file rather than
+        assuming a layout stops a corpus that IS present being reported missing —
+        which would be a false negative of exactly the kind this package refuses
+        to let pass silently.
+        """
+        for candidate in (
+            self.root / f"{stem}.jsonl.gz",
+            self.root / f"{stem}.jsonl",
+            self.root / f"{stem}.jsonl" / f"{stem}.jsonl",
+            self.root / f"{stem}.jsonl.gz" / f"{stem}.jsonl.gz",
+        ):
+            if candidate.is_file():
+                return candidate
+        matches = sorted(
+            path
+            for pattern in (f"{stem}.jsonl", f"{stem}.jsonl.gz")
+            for path in self.root.rglob(pattern)
+            if path.is_file()
+        )
+        return matches[0] if matches else None
 
     def require_available(self) -> None:
         """Raise naming every path checked, because missing data is a result."""
         if self.available():
             return
-        checked = [str(self._path(n)) for n in ("revisions", "pages", "labels")]
+        checked = [
+            f"{self.root / n}.jsonl[.gz]" for n in ("revisions", "pages", "labels")
+        ]
         raise SchemaDiscoveryError(
             f"collusion_wiki: export not found. Checked: {checked}. "
             "Download it with the commands in docs/DATA_PROVENANCE.md"
@@ -57,8 +85,15 @@ class CollusionWikiLoader:
     def _rows(self, stem: str) -> list[dict[str, Any]]:
         """Read one gzipped JSONL file, checking its count against the source's."""
         path = self._path(stem)
+        if path is None:
+            raise SchemaDiscoveryError(
+                f"collusion_wiki: no {stem}.jsonl[.gz] anywhere under {self.root}"
+            )
+        opener = (
+            gzip.open if path.suffix == ".gz" else open
+        )
         rows: list[dict[str, Any]] = []
-        with gzip.open(path, "rt", encoding="utf-8") as handle:
+        with opener(path, "rt", encoding="utf-8") as handle:
             for line in handle:
                 stripped = line.strip()
                 if stripped:
@@ -171,7 +206,7 @@ class CollusionWikiLoader:
             n_actors=len({a for a in actors if a}),
             actor_concentration=actor_concentration(actors),
             date_range=None,
-            source_hash=file_hash(self._path("revisions")),
+            source_hash=_hash_or_raise(self._path("revisions")),
             licence="unspecified — research use, cite source",
             caveats=(
                 "No licence stated. Counts published; revision text withheld.",
@@ -191,3 +226,10 @@ class CollusionWikiLoader:
                 "inter-agent rate.",
             ),
         )
+
+
+def _hash_or_raise(path: Path | None) -> str:
+    """Hash the revisions export, or raise rather than report an empty hash."""
+    if path is None:
+        raise SchemaDiscoveryError("collusion_wiki: revisions export not found")
+    return file_hash(path)
