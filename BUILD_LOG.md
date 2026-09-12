@@ -699,3 +699,36 @@ and tool use, even at n = 50, because the transfer objection above is the
 strongest one available and a single long-horizon arm would blunt it. I would
 not spend those hours on the objection arm: it needs the human labels, and no
 amount of engineering substitutes for them.
+
+---
+
+## Registration, as executed (2026-09-12 23:15 UTC)
+
+Recorded here rather than in `docs/PREREGISTRATION.md`, because that document
+must not be edited after the commit that registers it.
+
+| | |
+|---|---|
+| Registration commit | `ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce` |
+| Timestamp (UTC) | `2026-09-12T23:15:00Z` (01:15 Madrid, 13 Sep) |
+| Codebook | `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62` |
+| `PREREGISTRATION.md` | `sha256:1266dc183224737617143aba67d8f466e8133f013867042ac42477954f545d68` |
+
+**Why two commits, and which hash to publish.** `scripts/register.sh` commits
+twice by design: `ae377b0` stamps the timestamp, then `cd0fa2c` writes that
+commit's own SHA back into the document. A SHA cannot be written into the commit
+it names, so the document hash that survives is the one **after** both — 
+`1266dc18…`, which is the current file and the one to post anywhere public.
+The document at `ae377b0` hashes differently (`20c2d08b…`) because its SHA field
+was still a placeholder; that is expected, not drift.
+
+**Verified after the fact:** `docs/PREREGISTRATION.md` is byte-identical to
+`cd0fa2c` and its hash still matches what `register.sh` printed. Both commits
+are contained in `origin/build/overnight`.
+
+**Still outstanding.** No independent third-party timestamp — OSF's ORCID login
+was returning `UnauthorizedServiceException` at the time. The limitation is
+stated in the registration itself: a commit in a repository the author controls
+proves content and order, not date, to someone who distrusts the author. Posting
+the two hashes above to any dated public service closes that gap whenever it is
+convenient, and where that happened belongs in the deviations log.
