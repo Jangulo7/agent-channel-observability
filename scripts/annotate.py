@@ -1,0 +1,252 @@
+"""Hand-coding tool for the collusion.wiki corpus.
+
+    uv run python scripts/annotate.py --task revert_validity --coder coder_a
+    uv run python scripts/annotate.py --task message_code   --coder coder_a --n 300
+    uv run python scripts/annotate.py --kappa revert_validity_n150_seed7
+
+Resumable: stop with Ctrl-C or `q` and re-run the same command to continue.
+The coder never sees a detector's prediction, and the saved file holds uids and
+codes only - no corpus text - so `results/annotations/` is publishable.
+"""
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import sys
+import time
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+from channels.annotate import (
+    ANNOTATION_DIR,
+    TASKS,
+    AnnotationRecord,
+    AnnotationTask,
+    Label,
+    cohens_kappa,
+    draw_sample,
+    load_record,
+    sample_id_for,
+)
+from channels.codebook import codebook_hash
+from channels.loaders.collusion_wiki import CollusionWikiLoader
+from channels.schema import Channel, Utterance
+
+CORPUS_ROOT = Path("data/german-collusion-wiki")
+DEFAULT_N = {"revert_validity": 150, "message_code": 300}
+DEFAULT_SEED = 7
+DIFF_LINES = 24
+
+
+def _population(task: AnnotationTask, loader: CollusionWikiLoader) -> list[Utterance]:
+    """The utterances this task draws from."""
+    utterances = list(loader.load())
+    if task.name == "revert_validity":
+        return [
+            utt
+            for utt in utterances
+            if utt.channel is Channel.ARTEFACT_EDIT and utt.corpus_meta.get("is_revert")
+        ]
+    return [
+        utt
+        for utt in utterances
+        if utt.channel is Channel.INTER_AGENT_MESSAGE and utt.text
+    ]
+
+
+def _revisions_by_id(loader: CollusionWikiLoader) -> dict[str, dict[str, Any]]:
+    """Raw revision rows, needed locally to render a diff for the coder."""
+    return {str(row["rev_id"]): row for row in loader._rows("revisions")}
+
+
+def _context_for_revert(
+    utt: Utterance, rows: dict[str, dict[str, Any]]
+) -> str:
+    """Render what this revert undid, so the coder can judge intent.
+
+    Body text is shown from the LOCAL export and never leaves the machine: the
+    rule is publish counts not text, not never look at it.
+    """
+    rev_id = utt.uid.split(":")[1]
+    row = rows.get(rev_id, {})
+    page = str(utt.thread_id)
+    same_page = sorted(
+        (r for r in rows.values() if str(r.get("page_key")) == page),
+        key=lambda r: (r.get("seq") or 0, str(r.get("time") or "")),
+    )
+    index = next(
+        (i for i, r in enumerate(same_page) if str(r["rev_id"]) == rev_id), None
+    )
+    lines = [
+        f"  page            {page}",
+        f"  rev_id          {rev_id}",
+        f"  reverting actor {utt.actor}",
+        f"  change summary  {str(row.get('change_summary') or '')!r}",
+    ]
+    if index is None or index == 0:
+        return "\n".join(lines)
+
+    undone = same_page[index - 1]
+    lines += [
+        f"  undone actor    {undone.get('label')}",
+        f"  undone summary  {str(undone.get('change_summary') or '')!r}",
+        "",
+        "  --- what this revert removed (undone edit -> restored state) ---",
+    ]
+    diff = difflib.unified_diff(
+        str(undone.get("body") or "").splitlines(),
+        str(row.get("body") or "").splitlines(),
+        lineterm="",
+        n=1,
+    )
+    body = [line for line in diff if not line.startswith(("---", "+++", "@@"))]
+    for line in body[:DIFF_LINES]:
+        lines.append(f"  {line[:110]}")
+    if len(body) > DIFF_LINES:
+        lines.append(f"  ... {len(body) - DIFF_LINES} more diff lines")
+    return "\n".join(lines)
+
+
+def _context_for_message(utt: Utterance) -> str:
+    """The message itself, with no prediction attached."""
+    return "\n".join(
+        [
+            f"  page            {utt.thread_id}",
+            f"  actor           {utt.actor}",
+            "",
+            f'  message         "{utt.text}"',
+        ]
+    )
+
+
+def _prompt(task: AnnotationTask) -> str:
+    """The choice menu, shown under every item."""
+    lines = [f"  {task.question}", ""]
+    for key, meaning in task.choices.items():
+        lines.append(f"    [{key}] {meaning}")
+    lines.append("    [s] skip for now      [q] save and quit")
+    return "\n".join(lines)
+
+
+def _run(args: argparse.Namespace) -> int:
+    """Draw or resume a sample and take labels until it is finished or quit."""
+    task = TASKS[args.task]
+    loader = CollusionWikiLoader(args.corpus)
+    if not loader.available():
+        print(f"corpus not found under {args.corpus}", file=sys.stderr)
+        return 2
+
+    population = _population(task, loader)
+    n = args.n or DEFAULT_N[task.name]
+    sample = draw_sample(population, task, n, args.seed)
+    sample_id = sample_id_for(task, n, args.seed)
+
+    record = AnnotationRecord(
+        sample_id=sample_id,
+        task=task.name,
+        codebook_hash=codebook_hash(),
+        coder_id=args.coder,
+        n_requested=n,
+        seed=args.seed,
+    )
+    existing = record.path(args.out)
+    if existing.is_file():
+        record = load_record(existing)
+        print(f"resuming {existing.name}: {len(record.labels)}/{n} already coded")
+
+    rows = _revisions_by_id(loader) if task.name == "revert_validity" else {}
+    done = record.coded_uids
+    remaining = [utt for utt in sample if utt.uid not in done]
+    print(f"\ncodebook {codebook_hash()[:26]}...  coder={args.coder}")
+    print(f"{len(remaining)} of {n} items left. Population: {len(population)}.\n")
+
+    for position, utt in enumerate(remaining, start=len(done) + 1):
+        print("=" * 78)
+        print(f"[{position}/{n}]")
+        print(
+            _context_for_revert(utt, rows)
+            if task.name == "revert_validity"
+            else _context_for_message(utt)
+        )
+        print()
+        print(_prompt(task))
+        started = time.monotonic()
+        try:
+            choice = input("\n  > ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\ninterrupted")
+            break
+        if choice == "q":
+            break
+        if choice == "s" or choice not in task.choice_keys():
+            if choice != "s":
+                print(f"  '{choice}' is not a valid choice; skipping")
+            continue
+        record.labels.append(
+            Label(
+                uid=utt.uid,
+                choice=choice,
+                seconds=round(time.monotonic() - started, 2),
+                utc=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            )
+        )
+        record.save(args.out)
+
+    path = record.save(args.out)
+    print(f"\nsaved {len(record.labels)}/{n} labels to {path}")
+    if record.labels:
+        median = sorted(label.seconds for label in record.labels)[
+            len(record.labels) // 2
+        ]
+        print(f"median {median:.1f}s per item")
+    return 0
+
+
+def _run_kappa(args: argparse.Namespace) -> int:
+    """Report Cohen's kappa across every coder who worked on one sample."""
+    files = sorted(args.out.glob(f"{args.kappa}__*.json"))
+    if len(files) < 2:
+        print(
+            f"need two coders for {args.kappa}; found {len(files)} file(s)",
+            file=sys.stderr,
+        )
+        return 2
+    records = [load_record(path) for path in files]
+    for first_index in range(len(records)):
+        for second_index in range(first_index + 1, len(records)):
+            first, second = records[first_index], records[second_index]
+            if first.codebook_hash != second.codebook_hash:
+                print(
+                    f"REFUSED {first.coder_id} vs {second.coder_id}: coded against "
+                    "different codebook versions; the labels are not comparable"
+                )
+                continue
+            a = {label.uid: label.choice for label in first.labels}
+            b = {label.uid: label.choice for label in second.labels}
+            kappa, overlap = cohens_kappa(a, b)
+            agreed = sum(1 for uid in set(a) & set(b) if a[uid] == b[uid])
+            print(
+                f"{first.coder_id} vs {second.coder_id}: n={overlap} "
+                f"agreement={agreed / overlap:.3f} kappa={kappa:.3f}"
+            )
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Entry point."""
+    parser = argparse.ArgumentParser(description="Hand-code collusion.wiki items.")
+    parser.add_argument("--task", choices=sorted(TASKS), default="revert_validity")
+    parser.add_argument("--coder", default="coder_a", help="coder id, e.g. coder_b")
+    parser.add_argument("--n", type=int, default=None)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    parser.add_argument("--corpus", type=Path, default=CORPUS_ROOT)
+    parser.add_argument("--out", type=Path, default=ANNOTATION_DIR)
+    parser.add_argument("--kappa", default=None, help="sample id to score instead")
+    args = parser.parse_args(argv)
+    return _run_kappa(args) if args.kappa else _run(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -66,3 +66,5 @@ data/inspect-runs-reasoning/
 
 # The METR source PDF is a published report, not our data. Not redistributed.
 data/METR/
+# Annotation labels only - no corpus text. Committed with the results.
+!results/annotations/
