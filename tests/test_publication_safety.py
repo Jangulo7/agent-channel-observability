@@ -56,7 +56,7 @@ def test_canary_guid_absent_from_tracked_files() -> None:
 
 
 def test_no_payload_blobs_committed() -> None:
-    """No base64-looking blob over 128 chars and no webhook.site URL in committed YAML."""
+    """No base64-ish blob over 128 chars and no webhook.site URL in committed YAML."""
     for path in _tracked_files():
         if path.suffix not in {".yaml", ".yml"}:
             continue
@@ -67,7 +67,7 @@ def test_no_payload_blobs_committed() -> None:
 
 
 def test_no_real_corpus_committed() -> None:
-    """Corpus directories must stay untracked; only counts and hashes are publishable."""
+    """Corpus dirs stay untracked; only counts and hashes are publishable."""
     tracked = {p.relative_to(REPO).as_posix() for p in _tracked_files()}
     forbidden_prefixes = (
         "data/wikitactics/",

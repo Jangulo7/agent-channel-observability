@@ -87,3 +87,30 @@ AMBER:
 - The spec file on disk is `SPEC_agent_channel_observability_v4.md` whose own H1 reads
   "v3"; confirmed by you mid-build that v4 is authoritative. No v3 `.md` exists (only
   Windows `Zone.Identifier` stubs).
+
+## Step 3 — coverage, emission, Inspect loader ✅ built / ⛔ cannot be measured
+Built `coverage.py` (four-state, turn-level, strongest-limitation-wins),
+`emission.py` (the headline estimator, spec denominator docstring verbatim),
+`loaders/base.py` (schema discovery, `require_keys` reports the keys actually seen) and
+`loaders/inspect_logs.py` (streams with `read_eval_log_samples(resolve_attachments=True)`,
+reads both the `messages` path and the `events` path so `as_tool()` sub-agent traffic is
+not silently dropped).
+Passing: ruff, mypy strict (10 files), **29 tests**. `test_emission_denominator_...`
+encodes the AdaptR1 lesson directly: two trajectories of length 3 and 1 give step 2 a
+denominator of **1**, not 2-with-an-ABSENT.
+
+**The measurement did not run — see Q1.** No substitute corpus was used.
+
+**Loader verified against real Inspect logs anyway**, so it is not shipping untested:
+pointed it at `/home/johan/ai_eval_projects/PROJECT/logs` (7 logs, tasks `addition`,
+`gsm8k`, `humaneval`, `example_task`; models `openai/gpt-4o`,
+`openrouter/meta-llama/llama-3.1-8b-instruct`). It parsed 15 assistant turns into 5
+cells, all four-state-classified. **Every one of the 15 is `ABSENT`** — those APIs
+returned no reasoning channel at all. That is an engineering check, not a result, and no
+number from it appears in RESULTS_SUMMARY.md: it is a different task family from the
+three registered benchmarks.
+
+AMBER: spec §9.1 says to read `ChatMessageAssistant.reasoning`. That attribute does not
+exist in the pinned `inspect-ai==0.3.260` (fields are `id, content, source, metadata,
+role, tool_calls, model`). Read defensively via `getattr` and fall back to the content
+blocks, where 0.3.260 actually stores `ContentReasoning`. Marked `# NEEDS REVIEW`.

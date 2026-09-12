@@ -79,5 +79,7 @@ def test_schema_is_a_leaf_module() -> None:
             imported.append(node.module)
         elif isinstance(node, ast.Import):
             imported.extend(alias.name for alias in node.names)
-    forbidden = [m for m in imported if "loaders" in m or m.endswith(("tree", "detect"))]
+    forbidden = [
+        m for m in imported if "loaders" in m or m.endswith(("tree", "detect"))
+    ]
     assert forbidden == [], f"schema.py must stay a leaf, but imports {forbidden}"
