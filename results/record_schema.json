@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jangulo7/agent-channel-observability/results/record_schema.json",
+  "title": "observability_record",
+  "description": "Machine-readable record of how observable a model's reasoning was, and the recall ceiling that imposes. Fields that were not measured are null with a status, never a plausible default.",
+  "type": "object",
+  "required": ["observability_record"],
+  "additionalProperties": false,
+  "properties": {
+    "observability_record": {
+      "type": "object",
+      "required": [
+        "schema_version", "codebook_version", "codebook_hash",
+        "generated_utc", "corpora", "emission", "bound",
+        "inter_agent_channel", "detectors"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"const": "3.0"},
+        "codebook_version": {"type": "integer", "minimum": 1},
+        "codebook_hash": {"type": "string", "minLength": 1},
+        "preregistration_commit": {"type": ["string", "null"]},
+        "generated_utc": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+        },
+        "corpora": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "n_utterances", "n_actors", "source_hash", "licence", "caveats"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string"},
+              "n_utterances": {"type": "integer", "minimum": 0},
+              "n_actors": {"type": "integer", "minimum": 0},
+              "actor_concentration": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+              "source_hash": {"type": "string"},
+              "licence": {"type": "string", "minLength": 1},
+              "caveats": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "emission": {
+          "type": "object",
+          "required": ["denominator", "min_cell_n", "cells", "positional_profile", "uninspectable_share"],
+          "additionalProperties": false,
+          "properties": {
+            "denominator": {
+              "const": "assistant turns that occurred at this step index",
+              "description": "Stated explicitly because the prior art does not state it. Turns that never occurred are absent from the cell, not counted as ABSENT."
+            },
+            "min_cell_n": {"type": "integer", "minimum": 1},
+            "cells": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["model", "task_class", "step_index", "n_turns", "raw_present", "summary_only", "redacted", "absent", "low_n"],
+                "additionalProperties": false,
+                "properties": {
+                  "model": {"type": "string"},
+                  "task_class": {"type": "string"},
+                  "step_index": {"type": "integer", "minimum": 0},
+                  "reasoning_effort": {"type": ["string", "null"]},
+                  "n_turns": {"type": "integer", "minimum": 1},
+                  "raw_present": {"type": "number", "minimum": 0, "maximum": 1},
+                  "summary_only": {"type": "number", "minimum": 0, "maximum": 1},
+                  "redacted": {"type": "number", "minimum": 0, "maximum": 1},
+                  "absent": {"type": "number", "minimum": 0, "maximum": 1},
+                  "ci95_raw_present": {
+                    "type": "array", "minItems": 2, "maxItems": 2,
+                    "items": {"type": ["number", "null"]}
+                  },
+                  "n_clusters": {"type": ["integer", "null"], "minimum": 1},
+                  "low_n": {"type": "boolean"}
+                }
+              }
+            },
+            "positional_profile": {
+              "type": "object",
+              "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+            },
+            "uninspectable_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+          }
+        },
+        "bound": {
+          "type": "object",
+          "required": ["model", "stage2_recall_assumed", "ceiling_mean_coverage", "ceiling_by_step"],
+          "additionalProperties": false,
+          "properties": {
+            "model": {"type": ["string", "array"], "items": {"type": "string"}},
+            "stage2_recall_assumed": {"type": "number", "minimum": 0, "maximum": 1},
+            "ceiling_mean_coverage": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "ceiling_by_step": {
+              "type": "object",
+              "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+            }
+          }
+        },
+        "inter_agent_channel": {
+          "type": "object",
+          "required": ["n_messages", "n_human_excluded", "denominator_code", "n_denominator", "rate_per_1000", "rate_status", "codes", "messages_authenticated"],
+          "additionalProperties": false,
+          "properties": {
+            "n_messages": {"type": "integer", "minimum": 0},
+            "n_human_excluded": {"type": "integer", "minimum": 0},
+            "denominator_code": {"type": "string"},
+            "n_denominator": {"type": "integer", "minimum": 0},
+            "rate_per_1000": {"type": ["number", "null"], "minimum": 0},
+            "rate_status": {"enum": ["ok", "no_denominator", "not_measured"]},
+            "zero_case_upper_bound_95": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+            "codes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+            "messages_authenticated": {
+              "type": ["boolean", "null"],
+              "description": "null by design. No corpus this project reads supports sender authentication. Recording the absence of a field we cannot populate is the honest form of the adversarial-channel finding."
+            }
+          }
+        },
+        "detectors": {
+          "type": "array",
+          "description": "One entry per detector. Two detectors on the same corpus emit two entries with their own recalls; they are never averaged into one.",
+          "items": {
+            "type": "object",
+            "required": ["name", "version", "validated_on", "recall"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string"},
+              "version": {"type": "string"},
+              "validated_on": {"type": ["string", "null"]},
+              "codebook_hash": {"type": "string"},
+              "recall": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
+              "recall_ci95": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array", "minItems": 2, "maxItems": 2,
+                  "items": {"type": ["number", "null"]}
+                }
+              },
+              "precision": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
+              "f1": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
+              "n_labelled": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    }
+  }
+}

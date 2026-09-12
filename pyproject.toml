@@ -51,7 +51,7 @@ files = ["src/channels"]
 
 [[tool.mypy.overrides]]
 # Neither ships type stubs; we only touch a handful of their symbols.
-module = ["transformers.*", "matplotlib.*"]
+module = ["transformers.*", "matplotlib.*", "jsonschema.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
