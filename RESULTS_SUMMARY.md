@@ -71,7 +71,7 @@ OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
 comparable. Scoring disabled: we measure the channel, not performance.
 
 <!-- BEGIN:reasoning-status -->
-**5 of 9 arms complete**, 6,315 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `deepseek-v3.2-reasoning-on`. Not yet run: `gpt-5-nano-low`, `gpt-5-nano-medium`, `gpt-5-nano-high`.
+**6 of 9 arms complete**, 7,578 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `gpt-5-nano-low`. Not yet run: `gpt-5-nano-medium`, `gpt-5-nano-high`.
 <!-- END:reasoning-status -->
 
 Arms below are complete. Pending arms are **not** included in any figure or
@@ -88,6 +88,7 @@ the n actually measured.
 | `glm-4.7-flash` | 1,263 | **0.9976** | [0.9930, 0.9992] | 0.0000 | 0.0000 | 0.0024 |
 | `claude-haiku-4.5` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
 | `deepseek-v3.2` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 0.0000 | 1.0000 |
+| `deepseek-v3.2-reasoning-on` | 1,263 | **0.9802** | [0.9709, 0.9866] | 0.0000 | 0.0000 | 0.0198 |
 <!-- END:reasoning-arms -->
 
 Zero samples errored. Incomplete logs are excluded and counted, not partially
@@ -107,7 +108,7 @@ here.
 |---|---|---|
 | Llama-3.1-8B, Qwen2.5-7B, Ministral-8B (vLLM) | 3,789 | **0.0000** |
 | **`deepseek-v3.2`, reasoning NOT requested** | **1,263** | **0.0000** [0.0000, 0.0030] |
-| **`deepseek-v3.2`, reasoning REQUESTED** | 763 so far | **0.9777** [0.9646, 0.9860] |
+| **`deepseek-v3.2`, reasoning REQUESTED** | **1,263** | **0.9802** [0.9709, 0.9866] |
 | `gpt-oss-120b` | 1,263 | **1.0000** |
 | `qwen3-32b` | 1,263 | **1.0000** |
 | `claude-haiku-4.5` | 1,263 | **1.0000** |
@@ -116,10 +117,11 @@ here.
 
 **This is the result the baseline alone could not support.** A reviewer reading
 §1 could fairly object that 0/3,789 was measured on models that were never going
-to emit reasoning. The DeepSeek pair answers that directly: **same model, same
-prompts, same provider, one request parameter** — 0.000 with reasoning not
-requested, 0.978 with it requested. "This model emits no reasoning" was really
-"this request did not ask for it."
+to emit reasoning. The DeepSeek pair answers that directly and is now a
+**complete, symmetric, within-model comparison**: same model, same provider,
+same benchmarks, same 1,013 sample ids, 1,263 turns on each side — **0.0000 with
+reasoning not requested, 0.9802 with it requested.** "This model emits no
+reasoning" was really "this request did not ask for it."
 
 And `gpt-5-nano` demonstrably reasons (64 reasoning tokens on the probe) while
 shipping the chain encrypted, so an external evaluator receives nothing readable.
@@ -134,7 +136,11 @@ by whether the request asked for reasoning:
 | configuration | n turns | raw_present | 95% CI | absent | reasoning tokens |
 |---|---|---|---|---|---|
 | default (`reasoning_tokens` unset) | 1,263 | **0.0000** | [0.0000, 0.0030] | 1.0000 | **0** |
-| `--reasoning-tokens 2048` | 763 so far | **0.9777** | [0.9646, 0.9860] | 0.0223 | 150,187 |
+| `--reasoning-tokens 2048` | 1,263 | **0.9802** | [0.9709, 0.9866] | 0.0198 | **539,635** |
+
+Both arms are complete: 4 of 4 task logs, 1,013 of 1,013 samples, identical
+sample ids, 1,263 assistant turns each. The intervals are disjoint by a margin
+of 0.97.
 
 Same model, same prompts, same provider, same benchmarks, same sample ids.
 **One request parameter.** The default arm emitted *zero* reasoning tokens
@@ -145,12 +151,18 @@ So "this model does not expose reasoning" was never a fact about the model. It
 was a fact about the request. **Whether an evaluator can read an agent's
 deliberation is a configuration and disclosure choice, which is H1.**
 
-> **What is still incomplete.** The default arm is a complete 1,263-turn arm.
-> The reasoning-requested arm is at 763 of 1,263 turns because its sycophancy
-> task is re-running; its rate is stable across the three completed tasks
-> (0.971–0.982) but the pair is not yet symmetric. The `gpt-5-nano` row remains
-> a **single-prompt probe** and is labelled as such. Neither the partial arm nor
-> the probe enters the generated table above, which contains complete arms only.
+> **What is still incomplete.** The DeepSeek pair is complete. The `gpt-5-nano`
+> row remains a **single-prompt probe** and is labelled as such — its three
+> effort arms are still running, and until they finish this project has **no
+> complete arm exhibiting `redacted`**, and no `reasoning_effort` axis. The
+> probe does not enter the generated table above, which contains complete arms
+> only.
+>
+> Note also what the DeepSeek pair does **not** show. It establishes that
+> visibility is set by the request for *this* model on *these* benchmarks. It
+> does not establish that every provider honours such a request, nor that a
+> provider which emits reasoning will keep doing so; `gpt-5-nano` is the
+> counter-case, and it is still only a probe.
 
 ### `reasoning_effort` — still not measured
 
