@@ -35,8 +35,23 @@ class InspectLogLoader:
 
     name = "inspect_logs"
 
-    def __init__(self, root: Path) -> None:
+    def __init__(
+        self,
+        root: Path,
+        name: str | None = None,
+        licence: str | None = None,
+    ) -> None:
         self.root = root
+        # A second directory of Inspect logs is a second CORPUS, not more rows of
+        # the first: it has its own provenance, its own licence and its own source
+        # hash. The step indices mean the same thing in both, so unlike Mythos they
+        # could legitimately be pooled - but that must be a stated choice, not a
+        # side effect of both landing in the same loader.
+        if name is not None:
+            self.name = name
+        self.licence = licence or (
+            "run artefacts of safety-eval-pipeline; MIT, same author"
+        )
 
     def available(self) -> bool:
         """Whether any Inspect log file exists under the configured root."""
@@ -89,11 +104,13 @@ class InspectLogLoader:
             actor_concentration=actor_concentration(samples),
             date_range=None,
             source_hash=_combined_hash(paths),
-            licence="run artefacts of safety-eval-pipeline; MIT, same author",
+            licence=self.licence,
             caveats=(
                 f"task classes present: {task_classes}",
                 f"{len(paths)} log file(s) under {self.root}",
                 "one trajectory is one cluster; per-turn independence is false",
+                f"reasoning_effort settings present: "
+                f"{sorted({str(o.reasoning_effort) for o in observations})}",
             ),
         )
 

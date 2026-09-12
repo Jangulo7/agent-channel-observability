@@ -60,3 +60,6 @@ data/inspect-runs/
 
 # collusion.wiki frozen export. Counts publishable, revision text is not.
 data/german-collusion-wiki/
+
+# Reasoning-model emission runs (OpenRouter), 2026-09-12. Counts only are committed.
+data/inspect-runs-reasoning/

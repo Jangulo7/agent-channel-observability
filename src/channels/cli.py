@@ -21,6 +21,7 @@ DEFAULT_MYTHOS = (
     REPO_ROOT / "data" / "mythos-5-incident-transcript" / "transcript.jsonl"
 )
 DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
+DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -71,6 +72,9 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
     """Corpus paths, shared by every subcommand."""
     parser.add_argument("--mythos", type=Path, default=DEFAULT_MYTHOS)
     parser.add_argument("--inspect-logs", type=Path, default=DEFAULT_INSPECT_LOGS)
+    parser.add_argument(
+        "--reasoning-logs", type=Path, default=DEFAULT_REASONING_LOGS
+    )
 
 
 #: Each corpus keeps its own record file. Records are never pooled across corpora:
@@ -78,6 +82,7 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
 RECORD_FILENAMES = {
     "inspect_logs": "observability_record.json",
     "mythos_transcript": "observability_record_mythos.json",
+    "inspect_logs_reasoning": "observability_record_reasoning.json",
 }
 
 
@@ -112,6 +117,21 @@ def _corpora(
         groups.append((logs.describe(), list(logs.observations())))
     else:
         missing.append(f"inspect_logs (looked in {args.inspect_logs})")
+
+    reasoning = InspectLogLoader(
+        getattr(args, "reasoning_logs", DEFAULT_REASONING_LOGS),
+        name="inspect_logs_reasoning",
+        licence=(
+            "run artefacts of this project via OpenRouter; "
+            "model terms vary by vendor"
+        ),
+    )
+    if reasoning.available():
+        groups.append((reasoning.describe(), list(reasoning.observations())))
+    else:
+        missing.append(
+            f"inspect_logs_reasoning (looked in {reasoning.root})"
+        )
 
     return groups, missing
 

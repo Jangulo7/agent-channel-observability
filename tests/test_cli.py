@@ -85,10 +85,17 @@ def transcript(tmp_path: Path) -> Path:
 
 
 def args(transcript: Path, *extra: str) -> list[str]:
-    """CLI arguments pinned to the synthetic corpus and away from the real one."""
+    """CLI arguments pinned to the synthetic corpus and away from every real one.
+
+    Every corpus flag must be redirected, not just the ones a given test cares
+    about: a flag left at its default silently picks up whatever real corpus
+    happens to be on the machine, which is how a suite starts depending on data
+    that is not in the repository.
+    """
     return [
         "--mythos", str(transcript),
         "--inspect-logs", str(transcript.parent / "no_such_logs_dir"),
+        "--reasoning-logs", str(transcript.parent / "no_such_reasoning_dir"),
         *extra,
     ]
 
@@ -193,6 +200,7 @@ def test_measure_refuses_when_no_corpus_is_available(
         "measure",
         "--mythos", str(tmp_path / "no_such_transcript.jsonl"),
         "--inspect-logs", str(tmp_path / "no_such_logs_dir"),
+        "--reasoning-logs", str(tmp_path / "no_such_reasoning_dir"),
         "--results", str(results),
     ])
     assert code == 2
@@ -236,6 +244,7 @@ def test_gate_exits_non_zero_when_nothing_could_be_measured(tmp_path: Path) -> N
         "gate",
         "--mythos", str(tmp_path / "no_such_transcript.jsonl"),
         "--inspect-logs", str(tmp_path / "no_such_logs_dir"),
+        "--reasoning-logs", str(tmp_path / "no_such_reasoning_dir"),
     ])
     assert code == 1
 
@@ -287,6 +296,8 @@ def test_corpora_are_never_pooled_into_one_record(
             str(transcript),
             "--inspect-logs",
             str(logs_root),
+            "--reasoning-logs",
+            str(tmp_path / "no_such_reasoning_dir"),
             "--results",
             str(results),
         ]
@@ -297,3 +308,28 @@ def test_corpora_are_never_pooled_into_one_record(
     record = json.loads((results / "observability_record_mythos.json").read_text())
     corpora = record["observability_record"]["corpora"]
     assert [c["name"] for c in corpora] == ["mythos_transcript"]
+
+
+def test_every_corpus_flag_is_redirected_in_this_suite() -> None:
+    """No test may fall back to a real corpus path via an un-redirected default.
+
+    Found the hard way: adding `--reasoning-logs` broke 12 tests at once, because
+    they silently began reading whatever real logs existed on the machine. The
+    suite must depend on nothing outside tests/.
+    """
+    import argparse
+
+    from channels.cli import _build_parser
+
+    parser = _build_parser()
+    corpus_flags = {
+        action.option_strings[0]
+        for action in parser._subparsers._group_actions[0].choices["measure"]._actions
+        if isinstance(action, argparse.Action)
+        and action.option_strings
+        and action.dest.endswith(("mythos", "logs"))
+    }
+    redirected = set(args(Path("/tmp/synthetic.jsonl"))[::2])
+    assert corpus_flags <= redirected, (
+        f"corpus flags not redirected by args(): {corpus_flags - redirected}"
+    )
