@@ -18,7 +18,8 @@
 
 | Field | Value |
 |---|---|
-| Registration commit SHA | `TODO(johanna)` — fill at the moment of the public commit |
+| Registration scope | **Confirmatory: C1–C3 only** (the human annotation). Everything else is exploratory — see [§0](#0-analysis-status-at-registration--read-first). |
+| Registration commit SHA | `TODO(johanna)` — filled by `scripts/register.sh` at the registration commit |
 | Registration timestamp (UTC) | `TODO(johanna)` |
 | Codebook SHA-256 (v3, current) | `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62` |
 | Codebook SHA-256 (v2, superseded) | `sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f` |
@@ -26,8 +27,11 @@
 | Corpus freeze hashes | see [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md) |
 
 `gates.codebook_drift` compares `codebook.codebook_hash()` against the codebook hash
-in the table above and fails the build when they differ. The hash is written here by
-step 9 of the build order; until then it reads `TODO(johanna)`.
+in the table above and fails the build when they differ.
+
+**Before citing this document, read [§0](#0-analysis-status-at-registration--read-first).**
+It records which analyses had already been run when this was registered. Those
+are exploratory and registering this document does not make them otherwise.
 
 ---
 
@@ -64,6 +68,108 @@ This registration is written before any coding of the target corpus. Sections 4�
 A null result is reported as the headline finding. See §4.2.
 Every deviation from this document is recorded in the deviations log (§11) with a date and a reason, and reproduced in the report appendix. Nothing is amended in place.
 No rate is reported for any detector without a recorded validated recall (§7.3).
+
+## 0. Analysis status at registration — READ FIRST
+
+> **Added 2026-09-13 at the moment of registration. Not part of the ODF v1.0
+> text.** Everything above and below this section is the verbatim original; this
+> section exists because registering it unchanged would have implied a claim
+> that is not true.
+
+Pre-registration is only meaningful for analyses that have **not yet been run**.
+Several analyses in this document were run during the build of 2026-09-12/13,
+**before** this registration. Presenting them as pre-registered would be false.
+They are therefore relabelled **exploratory**, and the confirmatory claims of
+this project are restricted to §0.2.
+
+### 0.1 Already executed before registration — EXPLORATORY
+
+These are reported as exploratory. Their hypotheses were not fixed in advance of
+seeing the data, and no confirmatory claim rests on them.
+
+| analysis | state at registration |
+|---|---|
+| Four-state emission on the vLLM baseline (3 models × 3 benchmarks, 3,789 turns) | run; 0/3,789 raw reasoning |
+| Four-state emission on the Mythos 5 transcript (2,061 turns) | run; 0.333 raw reasoning |
+| Four-state emission on reasoning-capable models via OpenRouter | **in progress**; arms complete are reported with their n |
+| `TreeCoder` recall on WikiTactics | run; OBJ 0.072 [0.046, 0.111] |
+| `NliDetector` recall on WikiTactics | run; OBJ 0.218 [0.171, 0.273] |
+| Revert detection on collusion.wiki | run; 1,275 of 13,661 agent edits |
+| Actors-per-page structure of collusion.wiki | run; 70.2% single-agent pages |
+| Transcription and citation verification of the published record | run; 10 rows, 10 verified |
+
+The emission measurements are **descriptive**: they report a distribution with
+its denominator stated, and make no comparison whose direction was predicted in
+advance. The detector recalls are **instrument calibration**, not findings about
+any corpus. Reporting them as exploratory costs this project nothing, because
+neither was ever going to be a hypothesis test.
+
+### 0.2 Not yet executed — CONFIRMATORY, registered here
+
+No label from the human annotation exists at the time of registration. The
+following is fixed now and will not be changed after labels are seen; any
+departure goes in the deviations log (§11) with a date and a reason.
+
+**C1 — Primary confirmatory endpoint. Precision of the checksum-revert detector.**
+- *Question.* Of the revisions the detector calls reverts, what share are
+  genuine disagreement rather than housekeeping?
+- *Sample.* 60 items drawn by `channels.annotate.draw_sample` from the 1,275
+  cross-actor reverts, `seed=7`, deterministic and reproducible.
+- *Measure.* Share coded `d` (disagreement), with `u` (unclear) kept in the
+  denominator. Excluding `u` would compute a rate over the items that happened
+  to be decidable.
+- *Interval.* Wilson 95%, clustered by **page** (primary) and by **actor**
+  (sensitivity), reported together.
+- *Registered interpretation.* `REVERT` is reported as a validated code only if
+  the lower bound of the page-clustered interval exceeds **0.50**. At or below
+  that, the code is reported as measured but not validated, and no revert-based
+  rate is presented as evidence of disagreement.
+
+**C2 — Secondary. Verbal objection in the inter-agent message channel.**
+- *Sample.* 200 `change_summary` messages, same mechanism, `seed=7`.
+- *Measure.* Count coded `OBJ`, `REF`, `ESC` or `WARN`.
+- *Registered interpretation.* If the count is zero, report a one-sided 95%
+  upper bound (≈0.013 at n=200) and the sentence "zero observed; below X with
+  95% confidence" — **never** "no objection occurs". If the count is non-zero,
+  report the rate with its interval and state that the instrument transferring
+  to this channel remains unvalidated.
+
+**C3 — Reliability. Author as second coder.**
+- *Sample.* The first 50 items of C1's sample, coded independently.
+- *Measure.* Cohen's κ on matched pairs; percent agreement reported alongside
+  but never in place of κ.
+- *Declared limitation, in advance.* **The second coder is the author of the
+  codebook.** This is therefore not independent double-coding; it measures
+  whether the written rules reproduce the author's intent. It will be reported
+  in those words, and κ will not be described as inter-rater reliability.
+- *Registered interpretation.* κ ≥ 0.60 is reported as adequate reproducibility
+  for an exploratory instrument. Below 0.40, C1 is reported as unreliable
+  regardless of its point estimate.
+
+### 0.3 Conditions binding on all three
+
+1. **Blind.** Coders see no detector output. The bundle shipped to the coder
+   (`scripts/make_coder_bundle.sh`) physically excludes the results, the build
+   log and this document, so the blindness is structural rather than requested.
+2. **Codebook frozen.** All labels are coded under codebook **v3**,
+   `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62`. `cohens_kappa` refuses to
+   compare records coded under different hashes.
+3. **No LLM labels.** No model output is used as a gold label anywhere in C1–C3.
+4. **Stopping rule.** The sample sizes above are fixed. If coding is cut short,
+   the achieved n is reported and the interval widens accordingly; no additional
+   items are drawn to reach a desired result.
+5. **`u` is data.** Unclear is a substantive answer and stays in every
+   denominator.
+
+### 0.4 What this registration cannot repair
+
+The exploratory analyses in §0.1 stay exploratory. Registering now does not make
+them confirmatory, and this document should not be cited as though it does. The
+parts of the original registration that were already doing real work — the
+codebook hash freeze, which gates the build, and the deviations log — continue
+unchanged.
+
+---
 
 ## 1. Background and rationale
 

@@ -5,47 +5,32 @@ seen the diffs.
 
 ## QUESTIONS FOR JOHANNA
 
-**Q1 — RESOLVED, and it changed the headline.** The previous session was blocked
-on the missing Inspect `logs/`. You dropped them into `data/inspect-runs/`
-mid-session and step 3's measurement ran. See "Session 2" below. No substitute
-corpus was ever used.
+**All previously open questions are now resolved.** Kept here in one line each so
+the record shows what was asked and how it was settled.
 
-**Q2 — AI Village: still out of scope.** Unchanged from session 1. Not in the
-spec's §11.2 build order; §15 lists it under extension D. Say the word and it
-becomes a task class.
+| # | question | resolution |
+|---|---|---|
+| Q1 | Where are the Inspect `logs/`? | **Resolved.** Supplied as `data/inspect-runs/`; step 3 measured. |
+| Q2 | Is AI Village in scope? | Out of scope, unchanged. |
+| Q3 | Spec function names vs upstream | `wilson_upper_bound` is new code, marked as such. |
+| Q4 | CI blocked by missing `workflow` token scope | **Resolved.** CI runs; green on every push. |
+| Q5 | Clustering unit for collusion.wiki | **Resolved by Johanna:** page primary, actor sensitivity. Implemented; both reported together. |
+| Q6 | Does `ARTEFACT_EDIT` need adding to the schema? | **Resolved by Johanna: yes.** Added, plus `REVERT` in codebook v2. |
+| Q7 | METR page references unverified | **Resolved.** Both PDFs supplied; 10 of 10 rows verified, 0 mismatches. |
+| Q8 | Spec v3 vs v4 | **Resolved:** v4 is authoritative and is what is implemented. |
 
-**Q3 — spec function names: resolved as described in session 1.** `wilson_upper_bound`
-is new code, marked as such in `_vendored_stats.py`.
+### Open decisions that are yours, not blockers
 
-**Q4 — CI: RESOLVED.** The token on this machine carries the `workflow` scope, so
-`.github/workflows/ci.yml` is installed and pushes cleanly. CI runs on the repo now.
-
-**Q5 — NEW, and it needs your call: the spec's clustering justification is wrong.**
-Spec §8 instructs a comment reading "91% of `collusion_wiki` edits come from the
-single actor `dse`". **`dse` is a wiki, not an actor.** Measured from the frozen
-export: 13,403/14,591 revisions (91.9%) come from wiki `dse`; the most active
-*individual actor* holds 2.3%, across 3,102 distinct actors. So the clustering
-unit for collusion.wiki is the **wiki or the page**, not the actor. I did not
-silently rewrite the spec's reasoning into the code; `cluster.py`'s fixture and
-test are unchanged and still valid (a 91%-in-one-cluster fixture is a fine test
-of the widening), but `collusion_wiki.describe()` now states the corrected fact.
-**Confirm which unit you want clusters formed on before any RQ3 rate is reported.**
-
-**Q6 — NEW: `ARTEFACT_EDIT` is the channel collusion.wiki actually needs.**
-A wiki revision is an artefact edit, not a message. The honest `Channel` value
-would be a new `ARTEFACT_EDIT`, but adding one changes the `Utterance` schema,
-which the build's RED boundary and spec §15.4 both forbid without asking. I used
-`INTER_AGENT_MESSAGE` (a shared page *is* the channel these agents coordinate
-through) and marked it `# NEEDS REVIEW` in `loaders/collusion_wiki.py`. One word
-from you and I add the enum value.
-
-**Q7 — NEW: page references in `published_record` are unverified.** The two METR
-dyad rows are seeded exactly as you gave them, `p.43 [VERIFY page: +/-3]`. I have
-**not** verified them; I do not have the PDF. `describe()` reports 5 of 7 rows as
-carrying an unverified or TODO citation.
-
-**Q8 — spec version.** `.research-plan/` holds only `SPEC_..._v4.md` (whose own H1
-reads v3). Your prompt names v3 as authoritative. I implemented v4, as session 1 did.
+1. **Pre-registration is ready to register, and §0 makes it honest.** Several
+   analyses were already run, so the document now separates them: §0.1 lists
+   them as **exploratory**, §0.2 registers **C1–C3** (the human annotation) as
+   confirmatory with decision rules fixed before any label exists. Run
+   `scripts/register.sh` when you are ready — it stamps the timestamp, commits,
+   records the SHA and tells you to push. **Push before the coder starts**, or
+   the registration post-dates the labels.
+2. **`config/channels.yaml` thresholds are still illustrative** (floor 0.50,
+   ceiling 0.50). Nothing in the literature sets these. They must not be cited
+   as a standard, and the README says so.
 
 ---
 
@@ -431,7 +416,13 @@ deliverable.
 
 ---
 
-## Honest assessment
+## Honest assessment (as at end of session 2 — superseded, kept for the record)
+
+> Session 3 answers the central criticism below by measuring reasoning-capable
+> models. The paragraph is left unedited because a build log that quietly
+> rewrites its own past assessment is worth less than one that shows the
+> assessment changing.
+
 
 **What shipped.** All twelve steps in the build order, plus the step-3
 measurement the previous session could not make. Two corpora measured
@@ -477,3 +468,234 @@ which would tell us whether TreeCoder's 7.2% is the instrument failing or the
 label→code mapping being wrong — right now those two explanations are
 indistinguishable, and that ambiguity undermines §3 more than the low number
 does.
+
+---
+
+# Session 3 — 2026-09-12 night into 2026-09-13
+
+Driven by Johanna's decisions rather than the build order. Everything here is
+either a decision she took or an error the work surfaced.
+
+## The reasoning-model measurement — the weakness in session 2's assessment, repaired
+
+Session 2's honest assessment said the headline result was measured on models
+that were never going to emit reasoning, so "0 of 3,789" was close to a
+tautology. That was the right criticism and this session answers it.
+
+Probed six candidates through OpenRouter first, because the design only works if
+the four states actually vary:
+
+| model | state recorded | evidence |
+|---|---|---|
+| `gpt-oss-120b` | RAW_PRESENT | raw CoT, 202 chars |
+| `claude-haiku-4.5` | RAW_PRESENT | raw CoT, 276 chars |
+| `qwen3-32b` | RAW_PRESENT | raw CoT, 738 chars |
+| `glm-4.7-flash` | RAW_PRESENT | raw CoT, 1,291 chars |
+| **`gpt-5-nano`** | **REDACTED** | encrypted chain + 492-char summary |
+| `deepseek-v3.2` (default) | ABSENT | no block, 0 reasoning tokens |
+
+`gpt-5-nano` is the one that matters: it demonstrably reasons (64 reasoning
+tokens) and ships the chain encrypted, so an evaluator gets nothing. The four
+states vary by **vendor disclosure policy**, not by model capability.
+
+**Johanna's control, and it was the right call.** She asked whether ABSENT was a
+capability limit or a configuration choice. Measured, same model and prompt,
+only a request parameter changed:
+
+- `deepseek-v3.2` default → no reasoning block, 0 reasoning tokens
+- `deepseek-v3.2` with `reasoning_tokens=2048` → **0.9777** raw over 763 turns
+
+So "this model emits no reasoning" was really "this request did not ask for it".
+That converts a capability claim into a disclosure claim, which is the paper's
+thesis stated as a measurement.
+
+**Arms complete so far** (sweep running; every figure states its own n):
+
+| arm | n turns | raw_present | 95% CI |
+|---|---|---|---|
+| `gpt-oss-120b` | 1,263 | 1.0000 | [0.9970, 1.0000] |
+| `qwen3-32b` | 813 | 1.0000 | [0.9953, 1.0000] |
+| `deepseek-v3.2-reasoning-on` | 763 | 0.9777 | [0.9646, 0.9860] |
+
+against the baseline's 0.0000 over 3,789 turns.
+
+## Errors this session surfaced, and what each cost
+
+1. **Sycophancy ran the wrong sample.** The baseline used
+   `--limit 250 --sample-shuffle 42` against a 4,882-sample dataset. I read the
+   sample *count* from the baseline logs but not the eval *config*, so the sweep
+   ran all 4,882 — 20× the work and a denominator not comparable with the
+   baseline, which was the entire point. **Cost: about an hour.** Partial logs
+   deleted; the runner now records every limit with a comment saying where it
+   came from, and is resumable so finished work is not repeated.
+2. **Unbounded retries.** inspect defaults to no request timeout and unlimited
+   retries, so one hung call blocked an arm at 249/250 samples. Bounded. The
+   more important half: tolerating dead samples shrinks a denominator silently,
+   so `errored_samples()` now counts the shortfall and `describe()` reports it.
+3. **Arms were pooled by model id.** Caught by *looking at the rendered figure*:
+   `deepseek-v3.2` appeared as one bar that was really the reasoning-on arm
+   alone. With the default arm and three `gpt-5-nano` efforts still to land,
+   that would have pooled arms differing by exactly the variable under study. I
+   had guarded this in `report_emission.py` and not in the loader — which is
+   precisely how such a bug survives.
+4. **My annotation time estimate was wrong by 5×.** I quoted 150 revert items at
+   40–55 minutes. Johanna pointed out a human needs 1.5–3 minutes per item,
+   which makes it 4–6 hours. She was right; 15–20s is skim-and-press-a-key
+   speed. Round 1 cut to 60 (±0.12 precision, 1.5–2.5 h), Round 2 to 200. The
+   kit now has the coder measure their own pace on a 5-item practice first.
+5. **Tests silently read real data.** Adding `--reasoning-logs` broke 12 tests at
+   once, because they had no reason to pass the flag and so began reading
+   whatever logs sat at the default path. Fixed, plus a guard test that fails if
+   a future flag reintroduces the hole.
+
+## Johanna's schema decisions — `ARTEFACT_EDIT` and `REVERT`
+
+A collusion.wiki revision carries **two** channels and v1 conflated them. The
+data settled it: **12,773 of 14,591 revisions (93.3%) carry a `change_summary`**,
+overtly coordination-flavoured ("coordination update" ×506). So the body diff is
+an `ARTEFACT_EDIT` and the summary is an `INTER_AGENT_MESSAGE`, and the
+inter-agent *message* denominator no longer contains acts that carry no words.
+
+`REVERT` added as an action code, scored structurally, never by the verbal
+coder. **1,275 of 13,661 agent edits (9.33%)** restore a body another actor
+replaced. Self-reverts excluded. A known undercount: checksum matching finds
+~94% of reverts and no partial revert.
+
+**Clustering, page primary and actor sensitivity as Johanna chose**, and the
+choice does real work:
+
+| clustering | 95% CI | clusters |
+|---|---|---|
+| page (primary) | [0.0325, 0.2424] | 4,024 |
+| actor (sensitivity) | [0.0696, 0.1243] | 3,099 |
+| naive | [0.0886, 0.0983] | — |
+
+The page interval is ~7× wider than naive, because reverts concentrate on 42
+pages. A naive interval would have been badly anticonservative.
+
+Also: the spec's justification for clustering is **wrong on the data**. §8 says
+"91% of edits come from the single actor `dse`". `dse` is a **wiki**, holding
+91.9% of revisions; the most active individual actor holds 2.3% across 3,102
+actors.
+
+## Citation verification — and one withdrawal
+
+Johanna supplied both METR PDFs. `scripts/verify_citations.py` now checks every
+transcribed row and exits non-zero on a mismatch: **10 rows, 10 verified, 0
+mismatches.** Verification changed the data — the LIBRAW dyad is on p.44 not
+p.43, and **both of its strings were truncated in the seed**.
+
+**One codebook example was withdrawn, and it is the most interesting thing here.**
+v1 listed the fragment `"...WILL_CREDIT_AND_COLLAB..."` as a UNCL positive,
+because its ellipses left its force unrecoverable. The source (p.33) shows the
+full string is an unambiguous `zz`-prefixed ASK, correctly coded SHARE.
+**The uncertainty was manufactured by the investigators' elision, not present in
+the utterance.** That is a finding about disclosure practice — it belongs in the
+report, not in a coding category — so it left the codebook.
+
+## Codebook v1 → v2 → v3
+
+v2 added `REVERT` and `ARTEFACT_EDIT`; v3 verified every citation and made the
+withdrawal above. No definition, inclusion rule or exclusion rule changed in v3.
+Both bumps are dated entries in the deviations log with reasons.
+
+Each bump invalidated the validation records and `require_validation` raised on
+the next call — the machinery working, not a problem to route around. All
+re-earned; `tree_coder`'s recalls are unchanged.
+
+## The annotation apparatus
+
+Johanna's decision: a **human coder, no LLM coding**. That keeps human labels as
+the gold standard and avoids validating one unvalidated instrument against
+another. I had proposed an LLM-assisted design; hers is the more conservative
+and more defensible one.
+
+`channels/annotate.py` enforces three properties rather than asking for them:
+**blind** (nothing can surface a detector's prediction), **deterministic**
+(sample is a pure function of population, task, n and seed, with the population
+sorted by uid first so two readers cannot get different items), and
+**text-free** (records hold uid, one letter, seconds, timestamp — so
+`results/annotations/` is publishable under an unlicensed corpus).
+
+`coder-kit/` plus `coder-bundle.zip` (3.9 MB). The bundle **physically excludes**
+the results, build log and pre-registration, and refuses to build if they are
+present — the brief asks the coder not to read them, but a request is not a
+control.
+
+Two interface corrections from Johanna, both right: diffs were truncated with no
+way to see the rest, forcing "unclear" on items whose evidence was merely
+off-screen; and the expand key I first added sat among `d`/`h`/`u` as though
+"show me more" were a third verdict. The whole diff is now always shown and the
+menu holds judgements only. Checked this is practical: median 38 diff lines, max
+109, only 4 of 60 items over 100 lines.
+
+## Pre-registration, made honest
+
+Several analyses had already run, so registering the document unchanged would
+have implied a false claim. §0 now separates **§0.1 exploratory** (everything
+already executed, listed individually with its state) from **§0.2 confirmatory**
+(C1–C3, the human annotation, with sample sizes, estimators and decision rules
+fixed before any label exists). §0.4 says plainly that registering now does not
+make the exploratory analyses confirmatory.
+
+C3 declares in advance that the second coder is the codebook's author, so κ
+measures whether the written rules reproduce the author's intent and will not be
+called inter-rater reliability.
+
+`scripts/register.sh` stamps the timestamp, commits, records the SHA and tells
+her to push — a SHA written before the commit exists would record an intention,
+not a registration.
+
+## State at the end of this session
+
+187 tests pass with no network; ruff and mypy clean on 27 files. Three
+schema-valid records (`inspect_logs`, `mythos_transcript`,
+`inspect_logs_reasoning`). Figure 1 pools task classes, justified by measurement
+rather than assumption: `task_class_spread` ≤ 0.011 for every model, recomputed
+on every run so the justification cannot silently expire.
+
+## Honest assessment (current)
+
+**What shipped.** All twelve build-order steps, plus three things the spec did
+not anticipate: a reasoning-capable model sweep across nine arms, an action
+channel with a structurally-scored code, and a complete human-annotation
+apparatus. Two corpora became three. The integrity machinery is not decorative —
+`require_validation` raised twice this session when codebook hashes changed,
+`refuse_rate` raises on the typology, undefined recall reports as undefined, and
+the gate exits non-zero on real data.
+
+**The strongest result is no longer a tautology.** Session 2's assessment was
+that the headline was measured on models that could never have emitted
+reasoning. The DeepSeek control fixes that directly: same model, same prompts,
+same provider, one request parameter, 0.000 → 0.978. Add `gpt-5-nano`, which
+reasons and encrypts, and the claim becomes measurable rather than rhetorical —
+**what an evaluator can see is set by disclosure policy and configuration, not
+by capability.**
+
+**What did not ship.** Rung-2 validation is still untouched, so no rate is
+reported from collusion.wiki and `rq3` returns a bound. `REVERT` has no recall
+at all until the coder runs — `no_support_in_control` is its honest current
+state. Five of nine codes still have zero real positive examples, and four have
+no measurable recall on any control that exists. `shuffled_control` is
+implemented and tested but never run, because there is no rung-2 rate to compare
+it against. The sweep is incomplete at the time of writing: three arms of nine.
+
+**The biggest weakness now.** It has moved, which is progress, but it has not
+gone. The emission result is strong and the *objection* result does not exist:
+`TreeCoder` at 0.072 recall is too weak to support any claim, and the project is
+saved from overclaiming only because it refuses to report rates from it. So the
+artifact demonstrates an instrument convincingly, one measurement convincingly,
+and a second measurement not at all. A reviewer will also note that both
+benchmark corpora are one- and two-turn tasks; the only long-horizon trajectory
+is n = 1, and its intervals are explicitly descriptive. Nothing here establishes
+that emission behaves the same way over a hundred-step agent run — which is
+exactly the setting the argument is about.
+
+**What I would do with two more hours.** Finish the sweep and get the
+`gpt-5-nano` effort axis, which is the only designed-experiment arm in the whole
+project and the one a reviewer will find hardest to dismiss. Then run the
+emission measurement on one genuinely agentic benchmark with a real filesystem
+and tool use, even at n = 50, because the transfer objection above is the
+strongest one available and a single long-horizon arm would blunt it. I would
+not spend those hours on the objection arm: it needs the human labels, and no
+amount of engineering substitutes for them.
