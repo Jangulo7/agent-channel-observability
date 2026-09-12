@@ -54,3 +54,6 @@ Thumbs.db
 .vscode/
 .idea/
 .ipynb_checkpoints/
+
+# Real Inspect run logs supplied 2026-09-12 (three registered benchmarks).
+data/inspect-runs/

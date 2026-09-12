@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from channels.errors import InvalidRateError
 
@@ -145,8 +145,24 @@ def bootstrap_mean(
 
 
 def wilson_interval(successes: float, n: int, confidence: float = 0.95) -> Interval:
-    """Two-sided Wilson score interval, under the name the spec uses."""
-    return wilson(successes, n, z=_z_for(confidence, two_sided=True))
+    """Two-sided Wilson score interval, under the name the spec uses.
+
+    The interval is clamped to contain its own point estimate. Analytically a Wilson
+    interval always does, but at successes=0 the centre and the margin are equal and
+    cancel only to within floating-point error: at n=500 the lower limit evaluates to
+    4.3e-19 rather than 0.0. Left alone that makes an error bar of negative length,
+    which matplotlib rejects and which would be a false claim besides — an interval
+    that excludes the estimate it describes.
+    """
+    interval = wilson(successes, n, z=_z_for(confidence, two_sided=True))
+    if not interval.available or n <= 0:
+        return interval
+    point = min(1.0, max(0.0, successes / n))
+    return replace(
+        interval,
+        low=min(interval.low, point),
+        high=max(interval.high, point),
+    )
 
 
 def wilson_upper_bound(successes: float, n: int, confidence: float = 0.95) -> float:

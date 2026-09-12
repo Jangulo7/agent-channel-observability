@@ -73,33 +73,59 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--inspect-logs", type=Path, default=DEFAULT_INSPECT_LOGS)
 
 
-def _collect(
-    args: argparse.Namespace,
-) -> tuple[list[TurnObservation], list[CorpusDescription], list[str]]:
-    """Load every available corpus, and report by name the ones that are not.
+#: Each corpus keeps its own record file. Records are never pooled across corpora:
+#: see `_corpora` for why. The key is the corpus name, the value the record filename.
+RECORD_FILENAMES = {
+    "inspect_logs": "observability_record.json",
+    "mythos_transcript": "observability_record_mythos.json",
+}
 
-    An unavailable corpus is returned in the third element rather than skipped in
+
+def _corpora(
+    args: argparse.Namespace,
+) -> tuple[list[tuple[CorpusDescription, list[TurnObservation]]], list[str]]:
+    """Load each available corpus separately, and name the ones that are not there.
+
+    Corpora are kept apart rather than concatenated because their step indices do
+    not mean the same thing. Mythos is one 2,061-turn trajectory whose positions are
+    binned into deciles; the Inspect logs are 3,039 independent samples of one or two
+    turns each. Pooling them would put a decile bin and a turn ordinal in the same
+    `positional_profile` key and produce a c(j) that describes neither — which is the
+    undefined-denominator failure this package exists to name. Figure 1 is safe to
+    draw across both because each of its bars is a single model x task class.
+
+    An unavailable corpus is returned in the second element rather than skipped in
     silence. A record that does not say which corpora were missing invites the reader
     to assume they were empty.
     """
-    observations: list[TurnObservation] = []
-    descriptions: list[CorpusDescription] = []
+    groups: list[tuple[CorpusDescription, list[TurnObservation]]] = []
     missing: list[str] = []
 
     mythos = MythosTranscriptLoader(args.mythos)
     if mythos.available():
-        observations.extend(mythos.observations())
-        descriptions.append(mythos.describe())
+        groups.append((mythos.describe(), list(mythos.observations())))
     else:
         missing.append(f"mythos_transcript (looked in {args.mythos})")
 
     logs = InspectLogLoader(args.inspect_logs)
     if logs.available():
-        observations.extend(logs.observations())
-        descriptions.append(logs.describe())
+        groups.append((logs.describe(), list(logs.observations())))
     else:
         missing.append(f"inspect_logs (looked in {args.inspect_logs})")
 
+    return groups, missing
+
+
+def _collect(
+    args: argparse.Namespace,
+) -> tuple[list[TurnObservation], list[CorpusDescription], list[str]]:
+    """Every corpus's observations concatenated, for the gates and for Figure 1."""
+    groups, missing = _corpora(args)
+    observations: list[TurnObservation] = []
+    descriptions: list[CorpusDescription] = []
+    for description, corpus_observations in groups:
+        descriptions.append(description)
+        observations.extend(corpus_observations)
     return observations, descriptions, missing
 
 
@@ -122,7 +148,7 @@ def _run_describe(args: argparse.Namespace) -> int:
 
 def _run_measure(args: argparse.Namespace) -> int:
     """Build the record and both figures from whatever corpora are present."""
-    observations, descriptions, missing = _collect(args)
+    observations, _descriptions, missing = _collect(args)
     if not observations:
         print(
             "error: no corpus was available, so there is nothing to measure. "
@@ -131,30 +157,54 @@ def _run_measure(args: argparse.Namespace) -> int:
         )
         return 2
 
-    cells = build_cells(observations)
     results = args.results
-    figure_one(cells, results / "figures" / "figure1_emission_states.png")
 
+    # Figure 1 spans every corpus: each bar is one model x task class, so no bar
+    # mixes corpora and the comparison it invites is the intended one.
+    figure_one(
+        build_cells(observations),
+        results / "figures" / "figure1_emission_states.png",
+    )
+
+    groups, _ = _corpora(args)
+    for description, corpus_observations in groups:
+        _measure_one_corpus(args, description, corpus_observations)
+
+    for name in missing:
+        print(f"NOT AVAILABLE: {name}")
+    return 0
+
+
+def _measure_one_corpus(
+    args: argparse.Namespace,
+    description: CorpusDescription,
+    observations: Sequence[TurnObservation],
+) -> None:
+    """Write one corpus's positional figure and its own record."""
+    cells = build_cells(observations)
     binned = binned_profile(cells, n_bins=args.bins)
+    results = args.results
+    suffix = "" if description.name == "inspect_logs" else f"_{description.name}"
+
     figure_two(
         binned,
-        results / "figures" / "figure2_recall_ceiling.png",
+        results / "figures" / f"figure2_recall_ceiling{suffix}.png",
         stage2_recall=args.stage2_recall,
         step_label=f"trajectory position ({args.bins} equal-width bins of step index)",
     )
 
     record = build_record(
-        corpora=descriptions,
+        corpora=[description],
         cells=cells,
         positional=binned,
         codebook_hash=_codebook_hash(),
         stage2_recall=args.stage2_recall,
     )
-    path = write_record(record, results / "observability_record.json")
-    print(f"wrote {path}")
-    for name in missing:
-        print(f"NOT AVAILABLE: {name}")
-    return 0
+    filename = RECORD_FILENAMES.get(
+        description.name, f"observability_record_{description.name}.json"
+    )
+    path = write_record(record, results / filename)
+    print(f"wrote {path}  [{description.name}: {description.n_utterances} turns]")
 
 
 def _run_gate(args: argparse.Namespace) -> int:

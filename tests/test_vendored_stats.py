@@ -30,3 +30,21 @@ def test_wilson_upper_bound_rejects_empty_denominator() -> None:
 def test_bootstrap_is_seeded_and_reproducible() -> None:
     values = [0.0, 1.0] * 25
     assert bootstrap_ci(values, seed=7) == bootstrap_ci(values, seed=7)
+
+
+def test_wilson_interval_always_contains_its_point_estimate() -> None:
+    """Regression: at successes=0 float error put the lower limit above the estimate.
+
+    At n=500 the unclamped Wilson lower limit evaluates to 4.3e-19, not 0.0, which
+    makes an error bar of negative length and states an interval that excludes the
+    rate it describes. Found when the three-benchmark Inspect corpus produced
+    exact-zero emission cells.
+    """
+    for n in (1, 30, 313, 450, 500, 3789, 10_000):
+        for successes in (0, n):
+            interval = wilson_interval(successes, n)
+            point = successes / n
+            assert interval.low <= point <= interval.high, (
+                f"n={n}, successes={successes}: interval "
+                f"({interval.low}, {interval.high}) excludes {point}"
+            )

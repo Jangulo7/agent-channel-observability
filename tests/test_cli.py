@@ -109,10 +109,14 @@ def test_measure_writes_a_valid_record_and_both_figures(
     results = tmp_path / "results"
     assert main(["measure", *args(transcript, "--results", str(results))]) == 0
 
-    record = json.loads((results / "observability_record.json").read_text())
+    record = json.loads(
+        (results / "observability_record_mythos.json").read_text()
+    )
     assert record["observability_record"]["emission"]["cells"]
     assert (results / "figures" / "figure1_emission_states.png").is_file()
-    assert (results / "figures" / "figure2_recall_ceiling.png").is_file()
+    figures = results / "figures"
+    figure_two_path = figures / "figure2_recall_ceiling_mythos_transcript.png"
+    assert figure_two_path.is_file()
 
 
 def test_measured_rate_matches_the_synthetic_trajectory(
@@ -125,7 +129,9 @@ def test_measured_rate_matches_the_synthetic_trajectory(
     """
     results = tmp_path / "results"
     main(["measure", *args(transcript, "--results", str(results))])
-    record = json.loads((results / "observability_record.json").read_text())
+    record = json.loads(
+        (results / "observability_record_mythos.json").read_text()
+    )
     assert record["observability_record"]["emission"]["uninspectable_share"] == 0.5
 
 
@@ -135,7 +141,9 @@ def test_measure_records_the_codebook_hash_as_a_todo_until_it_exists(
     """No codebook yet means an explicit TODO in the record, not a blank or a guess."""
     results = tmp_path / "results"
     main(["measure", *args(transcript, "--results", str(results))])
-    record = json.loads((results / "observability_record.json").read_text())
+    record = json.loads(
+        (results / "observability_record_mythos.json").read_text()
+    )
     assert record["observability_record"]["codebook_hash"].startswith("TODO(johanna)")
 
 
@@ -210,3 +218,34 @@ def test_domain_errors_exit_two_without_a_traceback(
 def test_no_subcommand_is_rejected() -> None:
     with pytest.raises(SystemExit):
         main([])
+
+
+def test_corpora_are_never_pooled_into_one_record(
+    tmp_path: Path, transcript: Path
+) -> None:
+    """Two corpora must produce two records, because their step indices differ.
+
+    Mythos step indices are decile bins of one 2,061-turn trajectory; Inspect step
+    indices are turn ordinals within independent samples. A single pooled
+    `positional_profile` would put both in the same key and describe neither.
+    """
+    logs_root = tmp_path / "empty_logs"
+    logs_root.mkdir()
+    results = tmp_path / "results"
+    exit_code = main(
+        [
+            "measure",
+            "--mythos",
+            str(transcript),
+            "--inspect-logs",
+            str(logs_root),
+            "--results",
+            str(results),
+        ]
+    )
+    assert exit_code == 0
+    written = sorted(p.name for p in results.glob("observability_record*.json"))
+    assert written == ["observability_record_mythos.json"]
+    record = json.loads((results / "observability_record_mythos.json").read_text())
+    corpora = record["observability_record"]["corpora"]
+    assert [c["name"] for c in corpora] == ["mythos_transcript"]
