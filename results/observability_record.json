@@ -2,9 +2,9 @@
   "observability_record": {
     "schema_version": "3.0",
     "codebook_version": 1,
-    "codebook_hash": "sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83",
+    "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
     "preregistration_commit": null,
-    "generated_utc": "2026-09-12T19:13:24Z",
+    "generated_utc": "2026-09-12T22:03:39Z",
     "corpora": [
       {
         "name": "inspect_logs",
@@ -15,8 +15,11 @@
         "licence": "run artefacts of safety-eval-pipeline; MIT, same author",
         "caveats": [
           "task classes present: ['strong_reject', 'sycophancy', 'xstest']",
-          "12 log file(s) under data/inspect-runs",
-          "one trajectory is one cluster; per-turn independence is false"
+          "12 complete log file(s) under data/inspect-runs",
+          "one trajectory is one cluster; per-turn independence is false",
+          "reasoning_effort settings present: ['None']",
+          "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
+          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
         ]
       }
     ],

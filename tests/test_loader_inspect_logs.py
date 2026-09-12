@@ -91,3 +91,35 @@ def test_errored_samples_are_counted_not_silently_dropped(tmp_path: Path) -> Non
     loader = InspectLogLoader(tmp_path)
     with patch("inspect_ai.log.read_eval_log", return_value=_Header()):
         assert loader.errored_samples() == 10
+
+
+def test_arms_of_one_model_are_not_pooled(tmp_path: Path) -> None:
+    """A model run under several configurations must not collapse into one label.
+
+    Found by looking at Figure 1: `deepseek-v3.2` appeared as a single bar that
+    was really the reasoning-on arm alone. Grouping on the model id pools arms
+    that differ by exactly the variable under study - reasoning on vs off, or
+    three reasoning_effort levels - which would have destroyed the axis the run
+    exists to measure.
+    """
+    from unittest.mock import patch
+
+    from channels.loaders.inspect_logs import InspectLogLoader
+
+    for arm in ("reasoning-on", "reasoning-off"):
+        (tmp_path / arm).mkdir()
+        (tmp_path / arm / "run.eval").write_bytes(b"placeholder")
+
+    class _Header:
+        status = "success"
+
+    loader = InspectLogLoader(tmp_path, label_by_directory=True)
+    with patch("inspect_ai.log.read_eval_log", return_value=_Header()):
+        paths = sorted(loader.log_paths())
+    assert {loader._label_for(p, "same/model/id") for p in paths} == {
+        "reasoning-on",
+        "reasoning-off",
+    }
+    # Default behaviour is unchanged: the model id is the label.
+    plain = InspectLogLoader(tmp_path)
+    assert plain._label_for(paths[0], "same/model/id") == "same/model/id"

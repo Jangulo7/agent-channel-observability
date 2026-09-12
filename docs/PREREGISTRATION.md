@@ -20,7 +20,8 @@
 |---|---|
 | Registration commit SHA | `TODO(johanna)` — fill at the moment of the public commit |
 | Registration timestamp (UTC) | `TODO(johanna)` |
-| Codebook SHA-256 (v2, current) | `sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f` |
+| Codebook SHA-256 (v3, current) | `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62` |
+| Codebook SHA-256 (v2, superseded) | `sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f` |
 | Codebook SHA-256 (v1, superseded) | `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83` |
 | Corpus freeze hashes | see [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md) |
 
@@ -265,6 +266,7 @@ Monitoring paradox, acknowledged: publishing what a dissent detector looks for c
 Every departure from this document is recorded here with a date, the change, and the reason. This table is reproduced verbatim in the report appendix. Nothing above is amended in place.
 | Date / time (UTC) | Section | Deviation | Reason |
 |---|---|---|---|
+| 2026-09-13 00:05 | §6.1 codebook | Codebook v2 → v3: every `[page TODO(johanna)]` citation replaced with a page verified against the PDFs in `data/METR/`; one UNCL positive example withdrawn. Hash `sha256:0bc62c3e…` → `sha256:a67d3c09…`. | Citation accuracy, done before the codebook was sent to the human coder. **No definition, inclusion rule or exclusion rule changed**, so no coding decision is affected. The withdrawal is substantive and is recorded as such: the fragment "…WILL_CREDIT_AND_COLLAB…" was listed as UNCL because its ellipses left its force unrecoverable, and the source (p.33) shows the full string is an unambiguous ASK. The ambiguity was manufactured by the investigators' elision rather than present in the utterance — a finding about disclosure practice, which belongs in the report, not a coding category. Validation records re-earned under v3. |
 | 2026-09-12 20:30 | §6.1 codebook | Codebook bumped v1 → v2: added code `REVERT`; added `Channel.ARTEFACT_EDIT` to the schema. Hash moved from `sha256:2d1077fa…` to `sha256:0bc62c3e…`. | v1 coded only VERBAL disagreement, which assumed an agent that disagrees says so. On a shared artefact an agent can disagree by ACTION — undoing a peer's edit — and collusion.wiki contains 1,293 such cross-actor reverts that v1 had no code for. Coding a wiki revision as `INTER_AGENT_MESSAGE`, as v1 forced, also inflated the inter-agent message denominator with acts that carry no words. **No rate had been computed or reported under v1**, so no published number is affected; the two v1 validation records were invalidated and re-earned under v2. Decision taken by the investigator on 2026-09-12. |
 
 ## 12. Declarations

@@ -1,9 +1,9 @@
 {
-  "codebook_hash": "sha256:0bc62c3edba70e32ef6e02c6c4dfad65e761b10271868a6c4f84a60d14f1665f",
+  "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
   "control_corpus": "wikitactics",
   "detector_name": "nli_detector",
   "detector_version": "1.0",
-  "generated_utc": "2026-09-12T20:29:56Z",
+  "generated_utc": "2026-09-12T22:01:29Z",
   "n_skipped": 213,
   "n_utterances": 3652,
   "scores": {

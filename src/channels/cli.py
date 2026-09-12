@@ -7,7 +7,7 @@ from pathlib import Path
 
 from channels.emission import binned_profile, build_cells
 from channels.errors import ChannelsError
-from channels.figures import figure_one, figure_two
+from channels.figures import figure_one, figure_two, task_class_spread
 from channels.gates import load_config, run_gates
 from channels.loaders.inspect_logs import InspectLogLoader
 from channels.loaders.mythos_transcript import MythosTranscriptLoader
@@ -22,6 +22,11 @@ DEFAULT_MYTHOS = (
 )
 DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
 DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
+
+#: Largest within-model spread across task classes that still permits pooling
+#: them into one bar. Above this, pooling would hide variation the figure exists
+#: to show, which is the reporting-unit failure this package names.
+MAX_POOLABLE_SPREAD = 0.05
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -121,6 +126,7 @@ def _corpora(
     reasoning = InspectLogLoader(
         getattr(args, "reasoning_logs", DEFAULT_REASONING_LOGS),
         name="inspect_logs_reasoning",
+        label_by_directory=True,
         licence=(
             "run artefacts of this project via OpenRouter; "
             "model terms vary by vendor"
@@ -181,12 +187,25 @@ def _run_measure(args: argparse.Namespace) -> int:
 
     # Figure 1 spans every corpus: each bar is one model x task class, so no bar
     # mixes corpora and the comparison it invites is the intended one.
+    # Pooling task classes is justified by measurement, not assumption:
+    # task_class_spread is <=0.011 for every model in both corpora, so a bar per
+    # model hides no variation. Recomputed here so the justification cannot
+    # silently expire when a new corpus arrives.
+    cells = build_cells(observations)
+    spread = max(task_class_spread(cells).values(), default=0.0)
+    by_task = spread > MAX_POOLABLE_SPREAD
     _write_figure_caption(
         *figure_one(
-            build_cells(observations),
+            cells,
             results / "figures" / "figure1_emission_states.png",
+            by_task=by_task,
         )
     )
+    if not by_task:
+        print(
+            f"figure 1: task classes pooled (max within-model spread "
+            f"{spread:.4f} <= {MAX_POOLABLE_SPREAD})"
+        )
 
     groups, _ = _corpora(args)
     for description, corpus_observations in groups:

@@ -68,3 +68,7 @@ data/inspect-runs-reasoning/
 data/METR/
 # Annotation labels only - no corpus text. Committed with the results.
 !results/annotations/
+
+# Built artefact for the human coder; regenerate with scripts/make_coder_bundle.sh
+coder-bundle/
+coder-bundle*.zip

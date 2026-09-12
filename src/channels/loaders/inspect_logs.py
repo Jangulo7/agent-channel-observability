@@ -40,8 +40,17 @@ class InspectLogLoader:
         root: Path,
         name: str | None = None,
         licence: str | None = None,
+        label_by_directory: bool = False,
     ) -> None:
         self.root = root
+        # When one model is run under several CONFIGURATIONS - reasoning on vs
+        # off, three reasoning_effort levels - the model id is no longer the
+        # experimental condition, and grouping on it silently pools arms that
+        # differ by exactly the variable under study. With this set, the arm
+        # directory name becomes the label and the real model id moves to
+        # corpus_meta. Caught on 2026-09-13 when Figure 1 showed one
+        # "deepseek-v3.2" bar that was really the reasoning-on arm alone.
+        self.label_by_directory = label_by_directory
         # A second directory of Inspect logs is a second CORPUS, not more rows of
         # the first: it has its own provenance, its own licence and its own source
         # hash. The step indices mean the same thing in both, so unlike Mythos they
@@ -169,12 +178,18 @@ class InspectLogLoader:
             ),
         )
 
+    def _label_for(self, path: Path, model: str) -> str:
+        """The grouping label: the arm directory, or the model id."""
+        if self.label_by_directory and path.parent != self.root:
+            return path.parent.name
+        return model
+
     def _observations_for_log(self, path: Path) -> Iterator[TurnObservation]:
         """Stream one log file and classify every assistant turn it contains."""
         from inspect_ai.log import read_eval_log, read_eval_log_samples
 
         header = read_eval_log(str(path), header_only=True)
-        model = _model_of(header)
+        model = self._label_for(path, _model_of(header))
         task_class = _task_class_of(header)
         effort = _reasoning_effort_of(header)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
@@ -185,7 +200,7 @@ class InspectLogLoader:
         from inspect_ai.log import read_eval_log, read_eval_log_samples
 
         header = read_eval_log(str(path), header_only=True)
-        model = _model_of(header)
+        model = self._label_for(path, _model_of(header))
         task_class = _task_class_of(header)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
             yield from sample_utterances(sample, model, task_class, self.name)
