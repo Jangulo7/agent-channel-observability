@@ -57,6 +57,29 @@ class InspectLogLoader:
         """Whether any Inspect log file exists under the configured root."""
         return bool(self.log_paths())
 
+    def errored_samples(self) -> int:
+        """Samples that errored and so contributed no assistant turn.
+
+        A sample that died mid-run is not a turn that emitted nothing; it is a
+        turn that never happened, and it leaves the denominator. That is correct
+        - but it is only honest if the shortfall is REPORTED, because a rate
+        computed over quietly fewer turns is the dropped-denominator failure this
+        package exists to name.
+        """
+        from inspect_ai.log import read_eval_log
+
+        total = 0
+        for path in self.log_paths():
+            try:
+                header = read_eval_log(str(path), header_only=True)
+            except Exception:
+                continue
+            stats = getattr(header.results, "completed_samples", None)
+            requested = getattr(header.results, "total_samples", None)
+            if stats is not None and requested is not None:
+                total += max(0, requested - stats)
+        return total
+
     def incomplete_logs(self) -> list[Path]:
         """Logs whose run has not finished, and which are therefore excluded.
 
@@ -140,6 +163,9 @@ class InspectLogLoader:
                 f"{len(self.incomplete_logs())} incomplete log(s) EXCLUDED "
                 "(run not finished); their samples are absent from every "
                 "denominator rather than partially counted",
+                f"{self.errored_samples()} sample(s) errored and contributed no "
+                "assistant turn; they are absent from the denominator, not "
+                "counted as emitting nothing",
             ),
         )
 

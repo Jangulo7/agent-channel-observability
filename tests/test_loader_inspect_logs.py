@@ -64,3 +64,30 @@ def test_incomplete_logs_are_excluded_and_named(tmp_path: Path) -> None:
     with patch("inspect_ai.log.read_eval_log", return_value=_Header()):
         assert loader.incomplete_logs() == []
         assert loader.log_paths() == [tmp_path / "started.eval"]
+
+
+def test_errored_samples_are_counted_not_silently_dropped(tmp_path: Path) -> None:
+    """A sample that died leaves the denominator, and the shortfall is reported.
+
+    This is the dropped-denominator failure in its subtlest form: an errored
+    sample contributes no assistant turn, so a rate computed over the survivors
+    is arithmetically correct and epistemically wrong unless the shortfall is
+    stated. `describe()` states it.
+    """
+    from unittest.mock import patch
+
+    from channels.loaders.inspect_logs import InspectLogLoader
+
+    (tmp_path / "run.eval").write_bytes(b"placeholder")
+
+    class _Results:
+        completed_samples = 240
+        total_samples = 250
+
+    class _Header:
+        status = "success"
+        results = _Results()
+
+    loader = InspectLogLoader(tmp_path)
+    with patch("inspect_ai.log.read_eval_log", return_value=_Header()):
+        assert loader.errored_samples() == 10

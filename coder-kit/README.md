@@ -32,8 +32,7 @@ Nothing is ever lost.
 
 **Before you commit to the full run**, do the 5-item practice in the setup check.
 It prints how long you took per item. If Round 1 is running slower than about
-2 minutes an item, tell us — we will cut Round 1 to 40 items rather than have
-you rush. **Accuracy matters far more to us than finishing the full set.**
+2 minutes an item, tell us.
 
 ## How to start
 

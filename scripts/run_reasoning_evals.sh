@@ -21,6 +21,16 @@ LOGROOT="data/inspect-runs-reasoning"
 CONN="${CONN:-16}"
 MAXTOK=8192
 
+# inspect defaults to NO request timeout and UNLIMITED retries, so a single
+# hung request blocks an entire arm indefinitely. Observed on 2026-09-12:
+# gpt-oss-120b sycophancy sat at 249/250 samples for minutes on one call.
+# Bounded here. --fail-on-error 0.05 lets an arm finish despite a few dead
+# samples; the resulting shortfall is REPORTED by the loader rather than
+# silently shrinking a denominator.
+TIMEOUT=120
+RETRIES=3
+FAIL_ON_ERROR=0.05
+
 # Skip if a COMPLETE log for this arm/task/subset already exists.
 #
 # Both xstest subsets write files named *_xstest_*.eval, so the filename cannot
@@ -61,7 +71,9 @@ run_one() {  # arm model label task subset extra...
   echo "=== [$(date +%H:%M:%S)] $arm :: $label ==="
   .venv/bin/inspect eval "inspect_evals/$task" \
     --model "$model" --no-score --log-dir "$LOGROOT/$arm" \
-    --max-connections "$CONN" --max-tokens "$MAXTOK" "$@" 2>&1 | tail -3
+    --max-connections "$CONN" --max-tokens "$MAXTOK" \
+    --timeout "$TIMEOUT" --max-retries "$RETRIES" \
+    --fail-on-error "$FAIL_ON_ERROR" "$@" 2>&1 | tail -3
 }
 
 ARMS=(
