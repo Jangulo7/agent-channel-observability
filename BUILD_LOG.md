@@ -5,38 +5,51 @@ seen the diffs.
 
 ## QUESTIONS FOR JOHANNA
 
-**Q1 — BLOCKING for step 3, the primary result. Where are the Inspect `logs/`?**
-The spec (§9.1) and your prompt name "the `logs/` directory of my safety-eval-pipeline
-runs" as the source for the headline emission measurement. Those logs do not exist on
-this machine and are not obtainable from the public repo. Exact paths and remotes
-checked, all negative:
-- `https://github.com/Jangulo7/safety-eval-pipeline` cloned to scratch — `.gitignore:43`
-  reads *"Inspect logs are not committed at all"*, `.gitignore:51` is `logs/`.
-  Remote has only `refs/heads/main` and `refs/tags/v1.1.0`; no logs branch, no release
-  asset checked out by a clone.
-- `find /home/johan /mnt -maxdepth 8 -name "*.eval"` → 16 files, all under
-  `/home/johan/ai_eval_projects/{my-eval,PROJECT}/logs/`, tasks `addition`, `gsm8k`,
-  `humaneval`, `example-task`. **None** of the three named benchmarks.
-- `find /home/johan -maxdepth 8 -iname "*sycophancy*" -o -iname "*xstest*" -o
-  -iname "*strong_reject*"` → only `inspect_evals` package source, no run logs.
-- `/home/johan/EvalPipelineAA` is a different repo (no logs).
-I have **not** substituted the gsm8k/humaneval logs — that would be swapping the corpus,
-which the integrity rules forbid. If you can drop the run's `logs/` into
-`data/inspect_logs/` (it is gitignored), step 3 runs against it unchanged.
+**Q1 — RESOLVED, and it changed the headline.** The previous session was blocked
+on the missing Inspect `logs/`. You dropped them into `data/inspect-runs/`
+mid-session and step 3's measurement ran. See "Session 2" below. No substitute
+corpus was ever used.
 
-**Q2 — is the AI Village dataset in scope tonight?** You granted access to
-`huggingface.co/datasets/aidigestorg/ai-village` mid-build. It is not in the spec's
-§11.2 build order; §15 lists it under extension D. I am treating it as out of scope for
-steps 0–7 rather than quietly widening the build. Say the word and it becomes a task
-class.
+**Q2 — AI Village: still out of scope.** Unchanged from session 1. Not in the
+spec's §11.2 build order; §15 lists it under extension D. Say the word and it
+becomes a task class.
 
-**Q3 — spec function names.** Spec §1.2 says to vendor `wilson_interval`,
-`wilson_upper_bound` and `bootstrap_ci` from safety-eval-pipeline "without rewriting
-them". Upstream actually exports `wilson`, `wilson_from_rate` and `bootstrap_mean`, and
-has **no** one-sided bound at all. I vendored the real three verbatim and added your
-three names as wrappers; `wilson_upper_bound` is new code, marked as such in the file.
+**Q3 — spec function names: resolved as described in session 1.** `wilson_upper_bound`
+is new code, marked as such in `_vendored_stats.py`.
+
+**Q4 — CI: RESOLVED.** The token on this machine carries the `workflow` scope, so
+`.github/workflows/ci.yml` is installed and pushes cleanly. CI runs on the repo now.
+
+**Q5 — NEW, and it needs your call: the spec's clustering justification is wrong.**
+Spec §8 instructs a comment reading "91% of `collusion_wiki` edits come from the
+single actor `dse`". **`dse` is a wiki, not an actor.** Measured from the frozen
+export: 13,403/14,591 revisions (91.9%) come from wiki `dse`; the most active
+*individual actor* holds 2.3%, across 3,102 distinct actors. So the clustering
+unit for collusion.wiki is the **wiki or the page**, not the actor. I did not
+silently rewrite the spec's reasoning into the code; `cluster.py`'s fixture and
+test are unchanged and still valid (a 91%-in-one-cluster fixture is a fine test
+of the widening), but `collusion_wiki.describe()` now states the corrected fact.
+**Confirm which unit you want clusters formed on before any RQ3 rate is reported.**
+
+**Q6 — NEW: `ARTEFACT_EDIT` is the channel collusion.wiki actually needs.**
+A wiki revision is an artefact edit, not a message. The honest `Channel` value
+would be a new `ARTEFACT_EDIT`, but adding one changes the `Utterance` schema,
+which the build's RED boundary and spec §15.4 both forbid without asking. I used
+`INTER_AGENT_MESSAGE` (a shared page *is* the channel these agents coordinate
+through) and marked it `# NEEDS REVIEW` in `loaders/collusion_wiki.py`. One word
+from you and I add the enum value.
+
+**Q7 — NEW: page references in `published_record` are unverified.** The two METR
+dyad rows are seeded exactly as you gave them, `p.43 [VERIFY page: +/-3]`. I have
+**not** verified them; I do not have the PDF. `describe()` reports 5 of 7 rows as
+carrying an unverified or TODO citation.
+
+**Q8 — spec version.** `.research-plan/` holds only `SPEC_..._v4.md` (whose own H1
+reads v3). Your prompt names v3 as authoritative. I implemented v4, as session 1 did.
 
 ---
+
+# Session 1 — 2026-09-12, initial build (steps 0–7)
 
 ## Step 0 — Mythos transcript check ✅ 
 
@@ -290,3 +303,177 @@ Two routes, both needing Johanna:
 2. Add a real user SSH key (not a deploy key) and switch `origin` to the SSH URL.
 
 **Until one of them happens, CI does not run on this repository.**
+
+---
+
+# Session 2 — 2026-09-12 evening, resumed on a different machine
+
+**How this session started, and the lesson.** Local memory for this project was
+empty and the working directory held only `.research-plan/`. I scaffolded the
+repo from scratch and rebuilt steps 0–3 before discovering that
+`origin/build/overnight` **already had steps 0–7 complete and pushed**. That was
+~40 minutes of duplicated work. I reset to the remote, kept the duplicate on the
+local-only branch `local/scratch-rebuild`, and wrote three memory files so the
+next machine checks the remote first. Nothing from the rebuild was merged; the
+session-1 modules are the ones that shipped.
+
+## Step 3 — MEASURED at last (the previous session's blocker)
+
+You supplied 12 real `.eval` logs. Measured: 3,039 samples, **3,789 assistant
+turns**, 3 models × 3 task classes (sycophancy, xstest, strong_reject).
+
+**Emission of raw reasoning: 0 / 3,789.** Uninspectable share **1.0000**
+(95% CI [0.9990, 1.0000]). One-sided 95% upper bound on emission **0.00071**.
+Recall ceiling **0.000** at every step, for any r₂. No cell is low-n.
+
+This is spec §11.2's stop-rule outcome, and it is a real result: a standard
+three-benchmark safety evaluation, run and logged normally, leaves an external
+evaluator with no deliberation evidence at all. **The caveat travels with it:**
+these are vLLM-served 7–8B instruction-tuned models that emit no reasoning
+channel by design, so the zero describes this serving stack, not a frontier
+reasoning model's disclosure policy. RESULTS_SUMMARY.md states that in the same
+breath as the number.
+
+`reasoning_effort` is `None` in every log, so the effort axis does not exist
+here (Q2 of session 1, now settled by the data).
+
+### Two bugs the new corpus forced, both fixed at the source
+1. **`wilson_interval` could exclude its own point estimate.** At successes=0,
+   n=500 the lower limit evaluated to 4.3e-19, not 0.0 — making an error bar of
+   negative length (matplotlib refused it) and, worse, an interval that excludes
+   the rate it describes. Now clamped to contain the point estimate, with a
+   regression test across n ∈ {1, 30, 313, 450, 500, 3789, 10000}.
+2. **Records were pooled across corpora.** With both corpora loaded, one
+   `positional_profile` held Mythos decile bins and Inspect turn ordinals under
+   the same integer keys, and `ceiling_by_step["0"]` came out 0.0188 — a number
+   describing neither corpus. Each corpus now writes its own record. Figure 1
+   still spans both, because each of its bars is a single model × task class.
+
+## Step 8 — collusion.wiki, GO/NO-GO on RQ3 ✅
+Downloaded the frozen export; all three row counts match the published figures
+exactly (14,591 / 4,579 / 3,103).
+
+**Result: 2,824 of 4,024 pages (70.18%) carry exactly one agent** and cannot
+contain peer disagreement by construction. 1,200 pages (29.82%) have ≥2.
+RQ3 is structurally feasible on under a third of the corpus.
+
+AMBER: the spec's `dse` claim is wrong — see Q5. Human/agent separation uses
+`labels.jsonl`'s `is_human_handle` and fails toward `HUMAN_MESSAGE` when the
+handle is absent (930 revisions). `actors_per_page` counts agents only; a test
+caught me counting human editors toward peer-disagreement feasibility, which
+would have inflated the feasible denominator.
+
+## Step 9 — the validation ladder's first rung ✅ (protected above 10–12)
+`data/codebook/v1.yaml` with all eight codes, each carrying a definition, an
+inclusion rule, an exclusion rule and ≥2 positive/negative examples.
+**`codebook_hash()` = `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83`**,
+now registered in `docs/PREREGISTRATION.md`, so `codebook_drift` PASSes instead
+of being UNEVALUABLE.
+
+**A finding, not a gap: the four numerator codes OBJ/REF/ESC/WARN have ZERO real
+positive examples.** No source consulted quotes one agent normatively objecting
+to another. Every published verbatim inter-agent string is coordination,
+flattery or reciprocity. Written as `TODO(johanna): example needed` rather than
+invented; `example_gaps()` reports it programmatically.
+
+`tree.py` (TreeCoder, gates P,C,G0–G5,T, a priori, never fitted, `gate_path`
+persisted), `loaders/positive_control.py` (WikiTactics, 3,865 utterances, with a
+**committed** label→code table), `validate.py` (the gatekeeper).
+
+**MEASURED recall, TreeCoder on WikiTactics:**
+`OBJ 0.072 [0.046, 0.111]` · `REF 0.065 [0.018, 0.207]` · `SHARE 0.187 [0.168, 0.208]`.
+The instrument barely works. I did **not** tune it: the module docstring asserts
+it is never fitted, and sweeping cues against this score would void that claim.
+
+## Step 10 — the second instrument ✅
+`detect.py` + `NliDetector` (`cross-encoder/nli-deberta-v3-small`, offline-only,
+rung 1 only, `do_not_train` checked before the model loads).
+
+**THE RESULT: the two detectors' OBJ recall intervals do not overlap.**
+`tree_coder 0.072 [0.046, 0.111]` vs `nli_detector 0.218 [0.171, 0.273]` — 3×,
+same corpus, same code, same gold labels. Spec §11.2's stop rule calls this a
+result, not a bug, and it is extension B's seed. Reported side by side, never
+averaged.
+
+Integrity fix found while writing it up: `NliDetector` emits only OBJ/UNCL, so
+its 0.000 on REF and SHARE is a property of the instrument, not a measurement.
+Detectors now declare a `label_space` and those codes report
+`outside_detector_label_space` rather than a measured zero. 213 thread-initial
+abstentions leave the denominator and are counted in `n_skipped`.
+
+## Step 11 — the published record ✅
+7 rows seeded verbatim from your prompt. `refuse_rate()` raises by design.
+Validator requires a non-empty `source_ref` and enum-valid channel/provenance on
+every row. `test_zz_prefix_consistent_across_sources` asserts the `zz` convention
+appears under ≥2 independently attributed actors. Page numbers unverified (Q7).
+
+## Step 12 — RQ3 returns a bound and its blockers, never a rate ✅
+`rate=None`, `rate_status="no_validated_detector_for_this_corpus"`, three
+computed blockers (structural 70.2%, instrumental 3× detector disagreement,
+transfer unvalidated). Both sensitivity analyses shipped: recall correction
+(13.9× vs 4.6× depending on which detector you believe) and denominator choice
+(3.35× between all pages and multi-agent pages).
+
+## Figures — three problems found by looking at the images, not the code
+The CLI was **discarding** the caption text `figure_one`/`figure_two` return, so
+the committed captions still described an earlier Mythos-only run — a caption
+stating an n the image does not show. Captions are now written beside each
+figure and regenerate with it. Figure 1's x ticks collided (full
+provider-qualified model ids); shortened for display only. Figure 2's left panel
+was hardcoded "one real agentic trajectory" and its axis claimed 10 bins
+regardless of how many exist; both are now derived from the data.
+
+## Final state
+159 tests pass with no network, **89% coverage**; `ruff` and `mypy --strict`
+clean on 26 files. Both records schema-valid. `channels gate` exits 1 with the
+two emission gates failing and `codebook_drift` passing — the failure is the
+deliverable.
+
+---
+
+## Honest assessment
+
+**What shipped.** All twelve steps in the build order, plus the step-3
+measurement the previous session could not make. Two corpora measured
+end-to-end, two detectors validated against a labelled control with real
+intervals, a schema-valid record per corpus, two figures with captions that
+regenerate with them, a codebook whose hash gates the build, and an RQ3 endpoint
+that refuses to produce a rate for three separately computed reasons. The
+integrity machinery is real and it fires: `require_validation` raises,
+`refuse_rate` raises, `assert_primary_eligible` raises, undefined recall reports
+as undefined rather than zero, and the gate exits non-zero on the real data.
+
+**What did not ship.** Rung-2 validation — the whole transfer question from human
+prose to agent protocol strings — is untouched, which is why no rate is reported
+from collusion.wiki. No test–retest reliability on the codebook; that needs a
+second human coder. The `reasoning_effort` axis does not exist in this data, so
+extension A's designed-experiment upgrade cannot be piloted here at all. Five of
+the eight codes have no real examples, and four of them have no measurable
+recall. `shuffled_control` is implemented and tested but never actually run as a
+rung-2 comparison, because there is no rung-2 rate to compare against.
+
+**The biggest weakness, stated plainly.** *The headline emission result is
+measured on models that were never going to emit reasoning.* Llama-3.1-8B,
+Qwen2.5-7B and Ministral-8B served through vLLM have no reasoning channel by
+design, so "0 of 3,789" is very close to a tautology dressed as a finding. It is
+honest, it is correctly caveated, and the machinery that produced it is sound —
+but a reviewer will ask whether the measurement could have come out any other
+way on this corpus, and the answer is no. The Mythos transcript is the only
+corpus here where emission could vary, and it is n=1 trajectory whose intervals
+are explicitly descriptive rather than inferential. So the artifact currently
+demonstrates an *instrument* convincingly and a *measurement* only weakly. The
+second weakness is that `TreeCoder`'s 7.2% recall is bad enough that its
+coverage-related outputs are near-uninformative; the project is saved from
+overclaiming only because it refuses to report rates from it.
+
+**What I would do with two more hours.** First, run the emission measurement on a
+model that actually emits reasoning — one `inspect eval` against any
+reasoning-capable API across the same three benchmarks would turn the headline
+from "the stack exposed nothing" into "coverage is X here and Y there", and
+every piece of machinery to consume it already exists. That is the single
+highest-value hour available. Second, hand-code 100 WikiTactics utterances
+against the codebook myself and compute test–retest against the gold labels,
+which would tell us whether TreeCoder's 7.2% is the instrument failing or the
+label→code mapping being wrong — right now those two explanations are
+indistinguishable, and that ambiguity undermines §3 more than the low number
+does.

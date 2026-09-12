@@ -17,43 +17,94 @@ that pin them are the ones worth reading first:
 
 ## The result
 
-On the Mythos 5 incident transcript — the only public incident transcript a frontier lab
-has released — **raw reasoning is readable for 33.3% of assistant turns**
-(686 / 2,061; Wilson 95% CI 0.313–0.353). The uninspectable share is **0.667**
-[0.647, 0.687].
+Two corpora are measured, and they are never pooled: their step indices do not mean the
+same thing.
 
-With a *perfect* second stage (r₂ = 1), that caps a deliberation-gated monitor at
-**0.333 recall** averaged over the trajectory, and at **0.295 against an action taken at
-the trajectory's weakest position**.
+### The three registered benchmarks — not one turn in 3,789 emitted reasoning
+
+Across 12 Inspect `.eval` logs (3,039 samples, **3,789 assistant turns**, three models ×
+three task classes), **raw reasoning was readable for 0 turns**. Uninspectable share
+**1.000**; one-sided 95% upper bound on emission **0.00071**. The recall ceiling for a
+deliberation-gated monitor is **0.000 at every step, for any second stage**.
+
+| model | task classes | n turns | raw_present | 95% CI |
+|---|---|---|---|---|
+| Qwen2.5-7B-Instruct | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
+| Llama-3.1-8B-Instruct | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
+| Ministral-8B-Instruct-2410 | sycophancy, xstest, strong_reject | 1,263 | 0.000 | [0.000, 0.0030] |
+
+**Read this caveat in the same breath as the number.** These are vLLM-served 7–8B
+instruction-tuned models, none of which emits a reasoning channel by design. The zero
+describes *this serving stack and model family*, not a frontier reasoning model's
+disclosure policy. What it does establish is that a standard three-benchmark safety
+evaluation, run and logged normally, leaves an external evaluator with no deliberation
+evidence whatsoever.
+
+### The Mythos 5 incident transcript — 33.3%, and a flat profile
+
+On the only public incident transcript a frontier lab has released, **raw reasoning is
+readable for 33.3% of assistant turns** (686 / 2,061; Wilson 95% CI 0.313–0.353).
+Uninspectable share **0.667** [0.647, 0.687]. With a *perfect* second stage (r₂ = 1),
+that caps a deliberation-gated monitor at **0.333 recall** averaged over the trajectory,
+and **0.295 against an action taken at its weakest position**.
 
 The positional profile is **flat** — 0.295 to 0.372 across ten decile bins, every
 interval overlapping every other — across a real 20-hour long-horizon agentic
 trajectory. This is a datapoint against transferring the sharply-varying per-step
-profiles reported on short multi-hop QA to agentic settings, which those papers'
-own Limitations sections already decline to claim.
+profiles reported on short multi-hop QA to agentic settings, which those papers' own
+Limitations sections already decline to claim.
 
-**Read these caveats before citing any of the above.** n = 1 trajectory, one model, one
-incident. It is not a sample. The Wilson intervals assume within-trajectory
-independence, which is false; they are descriptive, not inferential. `cluster.py`
-refuses to compute a clustered interval from a single cluster rather than emitting a
-finite one that would look inferential.
+**Caveats, before citing any of it.** n = 1 trajectory, one model, one incident. It is
+not a sample. The Wilson intervals assume within-trajectory independence, which is
+false; they are descriptive, not inferential. `cluster.py` refuses to compute a
+clustered interval from a single cluster rather than emitting a finite one that would
+look inferential.
 
 Reasoning in this corpus is in-band `<thinking>…</thinking>` markup inside a content
 string, not a structured field. "The transcript contains reasoning" and "the transcript
 exposes a reasoning field an evaluator could read programmatically" are different
 claims, and only the first is true.
 
+### Two detectors, one corpus, two different answers
+
+Validated on WikiTactics (3,865 utterances), the two instruments disagree on
+normative-objection recall by 3×, **with non-overlapping intervals**:
+
+| detector | OBJ recall | 95% CI |
+|---|---|---|
+| `tree_coder` 1.0 | 0.072 | [0.046, 0.111] |
+| `nli_detector` 1.0 | 0.218 | [0.171, 0.273] |
+
+They are reported side by side and never averaged. A rate from a single instrument
+inherits that spread before it inherits any sampling error, which is why no rate is
+reported from `collusion_wiki` at all.
+
+### Where peer disagreement is even possible
+
+Of 4,024 collusion.wiki pages carrying an agent revision, **2,824 (70.2%) have exactly
+one agent** and cannot contain peer disagreement by construction. RQ3 is structurally
+feasible on under a third of the corpus, and `rq3.rq3_endpoint` returns a bound and its
+blockers rather than a rate.
+
 ## Status
 
-Steps 0–7 of the build order are the paper and have shipped. Steps 8–12 — the
-inter-agent channel arm, the validation ladder, the detectors and the published incident
-record — are the secondary arm and are **not built**. `BUILD_LOG.md` is the honest
-account, including what did not run and why; `RESULTS_SUMMARY.md` has the numbers in
-citable form.
+All twelve steps of the build order have shipped. 159 tests pass with no network at 89%
+coverage; `ruff` and `mypy --strict` are clean.
 
-The emission table is currently **one row**. The three-benchmark × three-model
-measurement it was designed around needs Inspect `.eval` logs that are not on this
-machine; see `BUILD_LOG.md`, Q1.
+`channels gate` **exits 1** on the real corpora. That is the intended demonstration, not
+a defect: the two emission gates fail and `codebook_drift` passes. The floor and ceiling
+in `config/channels.yaml` are **illustrative defaults, not safety claims** — nothing in
+the literature establishes what share of turns must expose raw reasoning before a
+deliberation-gated monitor is trustworthy. Do not cite them as a standard.
+
+What is **not** built: rung-2 validation (transfer from human prose to agent protocol
+strings), so no rate is reported from `collusion_wiki`; test–retest reliability of the
+codebook, which needs a second human coder; and the `reasoning_effort` breakdown, which
+does not exist because no log in this corpus records the setting.
+
+`BUILD_LOG.md` is the honest account, including an assessment of the artifact's biggest
+weakness. `RESULTS_SUMMARY.md` has every number in citable form, including a table of
+the numbers that do not exist and why.
 
 ## Install
 

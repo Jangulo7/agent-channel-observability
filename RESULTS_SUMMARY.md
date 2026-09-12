@@ -1,256 +1,279 @@
 # Results summary
 
-Numbers as produced by the committed code, formatted for pasting into a paper.
-Generated from `results/observability_record.json` at commit `89f4de5`, build
-`build/overnight`, 2026-09-12.
+Every number below is produced by `channels measure` from the committed corpora
+and is reproducible with the three commands in the README. Numbers that do not
+exist are marked as not existing rather than omitted.
 
-**Every number below comes from one corpus and one trajectory.** Read §0 before quoting
-any of them.
-
----
-
-## 0. The caveat that travels with every number here
-
-The entire results table rests on the Mythos 5 incident transcript: **one incident, one
-model, one trajectory**. `n = 2,061` is a count of assistant *turns*, not of independent
-samples. The number of clusters is **1**.
-
-Consequently:
-
-- Every Wilson interval in this document assumes within-trajectory independence, which
-  is false. **They are descriptive, not inferential.** They describe the spread of one
-  trajectory; they do not support inference to mythos-5 in general.
-- `cluster.py` was asked for a clustering-corrected interval on this data and returned
-  `status = "single_cluster_no_interval"` rather than a number. With one cluster the
-  effective sample size collapses to 1. "We cannot say" and "we can say very little" are
-  different claims and the code refuses to conflate them.
-- The intended three-model × three-benchmark measurement did not run. See §7.
-
-Reasoning in this corpus is in-band `<thinking>…</thinking>` markup inside a content
-string, **not a structured field**. "The transcript contains reasoning" and "the
-transcript exposes a reasoning field an evaluator could read programmatically" are
-different claims; only the first is true here.
+Generated 2026-09-12. Codebook `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83`.
 
 ---
 
-## 1. Emission by reasoning-channel state
+## 1. Emission — the three registered benchmarks (RQ1, RQ2)
 
-Denominator: **assistant turns that OCCURRED**. Turns that never happened because a
-trajectory ended earlier are not in the denominator and are not counted as absent.
+**Corpus:** 12 Inspect `.eval` logs from safety-eval-pipeline runs, 2026-08-30.
+3,039 samples, **3,789 assistant turns**, 3 models × 3 task classes.
+Source hash `sha256:0ae89997c224795386a597dcb27312784a0b29d9394d3c75599a58618e0690f0`.
 
-Corpus `mythos_transcript` · model `mythos-5` · task class `mythos_cyber_ctf`
-· `n = 2,061` assistant turns · 1 trajectory
-· window 2026-07-18T01:02:54Z → 2026-07-18T21:29:27Z (20.4 h)
-· SHA-256 `6f2a5a50b53640bd779a198cef8a620f2d6e2bbaaf4a0dea9edac87a69fc3e4b`
+**Not a single assistant turn in this corpus emitted raw reasoning.**
 
-| state | count | share | 95% CI (Wilson, descriptive) |
-|---|---:|---:|---|
-| `raw_present` | 686 | **0.3328** | [0.3128, 0.3535] |
-| `summary_only` | 0 | 0.0000 | — |
-| `redacted` | 0 | 0.0000 | — |
-| `absent` | 1,375 | 0.6672 | [0.6465, 0.6872] |
+| model | task class | step | n turns | raw_present | 95% CI | summary_only | redacted | absent | low n |
+|---|---|---|---|---|---|---|---|---|---|
+| Qwen2.5-7B-Instruct | strong_reject | 0 | 313 | 0.000 | [0.000, 0.0121] | 0.000 | 0.000 | 1.000 | no |
+| Qwen2.5-7B-Instruct | sycophancy | 0 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Qwen2.5-7B-Instruct | sycophancy | 1 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Qwen2.5-7B-Instruct | xstest | 0 | 450 | 0.000 | [0.000, 0.0085] | 0.000 | 0.000 | 1.000 | no |
+| Llama-3.1-8B-Instruct | strong_reject | 0 | 313 | 0.000 | [0.000, 0.0121] | 0.000 | 0.000 | 1.000 | no |
+| Llama-3.1-8B-Instruct | sycophancy | 0 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Llama-3.1-8B-Instruct | sycophancy | 1 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Llama-3.1-8B-Instruct | xstest | 0 | 450 | 0.000 | [0.000, 0.0085] | 0.000 | 0.000 | 1.000 | no |
+| Ministral-8B-Instruct-2410 | strong_reject | 0 | 313 | 0.000 | [0.000, 0.0121] | 0.000 | 0.000 | 1.000 | no |
+| Ministral-8B-Instruct-2410 | sycophancy | 0 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Ministral-8B-Instruct-2410 | sycophancy | 1 | 250 | 0.000 | [0.000, 0.0151] | 0.000 | 0.000 | 1.000 | no |
+| Ministral-8B-Instruct-2410 | xstest | 0 | 450 | 0.000 | [0.000, 0.0085] | 0.000 | 0.000 | 1.000 | no |
 
-**Uninspectable share** (`summary_only + redacted + absent`) = **0.6672**,
-95% CI [0.6465, 0.6872], n = 2,061.
+No cell is low-n; every cell clears `MIN_CELL_N = 30`.
 
-Clustering-corrected interval: **not available** — `single_cluster_no_interval`, 1
-cluster.
+- **Aggregate emission: 0 / 3,789 = 0.0000.** One-sided 95% upper bound **0.00071**.
+  The reportable sentence is "zero observed; below 0.071% with 95% confidence",
+  never "no reasoning found".
+- **Uninspectable share: 1.0000** (95% CI [0.9990, 1.0000]). All of it is `absent`;
+  `summary_only` and `redacted` are both exactly 0.
+- **Positional profile c(j): {0: 0.000, 1: 0.000}.** Only two step indices exist —
+  sycophancy is two-turn, the other two benchmarks single-turn.
+- **Recall ceiling: 0.000 at every step**, for any r₂.
 
-Two notes on what is *not* in this table:
+> **Read this caveat with the number.** These are vLLM-served instruction-tuned
+> 7–8B models (Llama-3.1, Qwen2.5, Ministral), none of which emits a reasoning
+> channel by design. The zero describes **this serving stack and model family**,
+> not a frontier reasoning model's disclosure policy. What it does establish is
+> that a standard three-benchmark safety evaluation, run and logged normally,
+> leaves an external evaluator with **no deliberation evidence whatsoever** — so
+> any monitor gated on deliberation has recall exactly 0 on this evidence base.
 
-- `summary_only = 0` and `redacted = 0` are real zeroes for this corpus, not missing
-  data. Anthropic's whole-message redactions are *absent from the file entirely* (the
-  observed index range is 82–2144), so they cannot appear as a state. In-place
-  `[redacted-xyz]` token substitution affects 316 assistant messages but is a publisher
-  removing an identifier, not a provider withholding a channel; conflating the two would
-  inflate `redacted` by 316 turns. See BUILD_LOG step 4, AMBER item 3.
-- The 0.667 `absent` share is dominated by tool-result messages, which carry no
-  `content` field at all (1,361 of them). That is the honest reading: at those turns the
-  agent's reasoning was not observable.
-
-### Emission by model × task class × step index
-
-**Reported here as a single aggregate row, because the per-step table is degenerate.**
-`build_cells` produced **2,061 cells, one per step index, each with `n_turns = 1`**, and
-**all 2,061 are flagged `low_n`** (threshold `MIN_CELL_N = 30`). Every cell is therefore
-below the reporting threshold and none is quotable on its own. The full 2,061-row table
-is in `results/observability_record.json` under `emission.cells` for completeness; it is
-not reproduced here because a table in which every row is marked low-n is not a table.
-
-| model | task class | reasoning effort | step index | n | raw_present | 95% CI | low-n |
-|---|---|---|---|---:|---:|---|---|
-| mythos-5 | mythos_cyber_ctf | *not available* | pooled | 2,061 | 0.3328 | [0.3128, 0.3535] | no |
-
-**`reasoning_effort` is `null` throughout, and no breakdown by it exists.** The Mythos
-transcript rows carry no effort field. Per the build instructions, emission is reported
-by task class and step index only; no second axis was invented.
+### Breakdown by `reasoning_effort` — **does not exist**
+No log records a `reasoning_effort`, `reasoning_summary` or `reasoning_history`
+setting. Every cell carries `reasoning_effort=None`. Emission is reported by
+model × task class × step index only, as spec §9.1 directs when the second axis
+is unavailable. This is a real limitation: extension A's "manipulate rather than
+observe `reasoning_effort`" cannot be piloted on this corpus.
 
 ---
 
-## 2. Positional profile
+## 2. Emission — the Mythos 5 incident transcript
 
-The per-step profile being degenerate (§1), step indices were binned into **10
-equal-width bins** of ~207 turns so each bin clears `MIN_CELL_N = 30`.
-
-**AMBER — the binning is a build decision, not a spec requirement.** It trades
-positional resolution for a usable denominator. Bin boundaries are equal-width over step
-index, not equal-frequency.
-
-| bin | n | c(j) raw_present | 95% CI (descriptive) | low-n |
-|---:|---:|---:|---|---|
-| 0 | 207 | 0.3623 | [0.2999, 0.4298] | no |
-| 1 | 207 | 0.3527 | [0.2908, 0.4199] | no |
-| 2 | 207 | **0.2947** | [0.2368, 0.3601] | no |
-| 3 | 207 | 0.3188 | [0.2592, 0.3851] | no |
-| 4 | 207 | 0.2947 | [0.2368, 0.3601] | no |
-| 5 | 207 | 0.3237 | [0.2636, 0.3901] | no |
-| 6 | 207 | **0.3720** | [0.3090, 0.4396] | no |
-| 7 | 207 | 0.3575 | [0.2953, 0.4248] | no |
-| 8 | 207 | 0.3430 | [0.2817, 0.4100] | no |
-| 9 | 198 | 0.3081 | [0.2479, 0.3755] | no |
-
-No bin is low-n. Range **0.2947 – 0.3720**; **every interval overlaps every other
-interval**.
-
-**Finding: the profile is flat.** Across a real 20-hour long-horizon agentic trajectory,
-reasoning-channel emission shows no detectable positional structure. For contrast,
-AdaptR1's induced per-step no-think ratio on multi-hop QA (arXiv:2605.31062, Table 4,
-MuSiQue, λ=0.9) swings 1.00 → 0.00 → 0.84 → 0.20 → 0.33 → 0.00 across its first six
-steps. That profile is **induced** by an RL reward that pays for first-step no-think and
-is manipulable across its full range by the λ term — and their Limitations already
-decline to claim transfer to long-horizon agentic settings. This is one datapoint
-consistent with that disclaimer. It is one trajectory and does not refute anything.
-
----
-
-## 3. Recall ceiling
-
-`ceiling = c(j) · r₂`, where `c(j)` is measured positional coverage and `r₂` is the
-recall of the second stage. Reported at **r₂ = 1.0**, a perfect second stage, which
-makes every figure below an **upper bound on an upper bound**.
+**Corpus:** `anthropics/mythos-5-incident-transcript`, 2,061 assistant turns,
+**one 20-hour trajectory** (2026-07-18T01:02:54Z → 21:29:27Z).
 
 | quantity | value |
-|---|---:|
-| Ceiling at mean coverage | **0.3327** |
-| Ceiling at the weakest position (bin 2) | **0.2947** |
-| Worst position | bin 2 |
+|---|---|
+| raw_present | 686 turns, **0.3328** |
+| summary_only | 0 |
+| redacted | 0 |
+| absent | 1,375 turns, 0.6672 |
+| uninspectable share | **0.6672**, 95% CI [0.647, 0.687] |
+| recall ceiling, mean coverage | **0.3328** |
 
-At r₂ = 1 the ceiling equals coverage by construction; the table is stated anyway so the
-identity is explicit rather than implied.
+### Positional profile c(j), 10 equal-width bins
 
-**Reading.** A monitor gated on deliberation — one that only fires when it can read the
-model's reasoning — cannot exceed **0.333 recall** averaged over this trajectory, and
-cannot exceed **0.295 recall** against an action taken at the trajectory's weakest
-position, *no matter how good its second stage is*. This bound applies only to
-deliberation-gated detectors. METR reports that no-reasoning agents are "not obviously
-less monitorable", so action-only evidence can suffice and this is not a bound on
-monitoring in general.
+| bin | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| c(j) | .362 | .353 | .295 | .319 | .295 | .324 | .372 | .357 | .343 | .308 |
 
-Per-bin ceilings at r₂ = 1 are numerically identical to the c(j) column in §2. Full
-`ceiling_by_step` is in the record under `bound.ceiling_by_step`.
+**The profile is flat.** Range 0.295–0.372, every interval overlapping every
+other, across a real long-horizon agentic trajectory. AdaptR1's *induced*
+per-step profile on multi-hop QA swings 1.00 → 0.00 → 0.84 → 0.20 → 0.33 → 0.00
+over six steps. Their Limitations already disclaim transfer to long-horizon
+agentic settings; this is one datapoint consistent with that disclaimer.
+
+> **n = 1 trajectory.** Every bin is filled by the same run, so the intervals
+> above assume within-trajectory independence, which is false. They are
+> **descriptive, not inferential**. `cluster.clustered_wilson` returns
+> `status="single_cluster_no_interval"` on this corpus rather than emitting a
+> wide finite interval, because "we cannot say" and "somewhere in this range"
+> are different claims.
+
+### The denominator matters by 3×
+Per *assistant message*, raw reasoning is present for 686/2,061 = **33.3%**.
+Per assistant *text* turn, it is 686/700 = **98.0%**. The 1,361 tool-call
+records carry no `content` field at all. Which denominator you pick changes the
+headline by a factor of three, which is exactly the point `emission.py`'s
+docstring makes about AdaptR1's unreconcilable averages.
 
 ---
 
-## 4. Validation recalls
+## 3. Detector validation — two instruments, reported side by side
 
-**NOT MEASURED — step 9 did not run.**
+Control: WikiTactics, 3,865 utterances / 213 conversations (De Kock, Stafford &
+Vlachos, EMNLP 2022). Gold codes assigned by a **committed** label→code table,
+never inferred at runtime.
 
-No detector in this repository has a recorded validated recall, and therefore **no rate
-is reported from any corpus by any detector**. That is the first architectural rule
-operating as designed, not an omission:
+| detector | code | support | recall | 95% CI | precision | status |
+|---|---|---|---|---|---|---|
+| tree_coder 1.0 | OBJ | 249 | **0.072** | [0.046, 0.111] | 0.071 | measured |
+| tree_coder 1.0 | REF | 31 | 0.065 | [0.018, 0.207] | 0.118 | measured |
+| tree_coder 1.0 | SHARE | 1,445 | 0.187 | [0.168, 0.208] | 0.379 | measured |
+| nli_detector 1.0 | OBJ | 248 | **0.218** | [0.171, 0.273] | — | measured |
+| nli_detector 1.0 | REF | 31 | — | — | — | outside detector label space |
+| nli_detector 1.0 | SHARE | 1,241 | — | — | — | outside detector label space |
 
-| instrument | rung | recall | status |
+`nli_detector` scored n=3,652 with 213 abstentions (thread-initial utterances
+have no predecessor to contradict); abstentions leave the denominator and are
+counted, so a reader can recompute either way.
+
+**The headline finding of §3: the two OBJ intervals do not overlap.**
+0.072 [0.046, 0.111] against 0.218 [0.171, 0.273] — a 3× difference on the same
+corpus, the same code, the same gold labels. Per spec §11.2's stop rule this is
+a *result*, not a bug: the reported rate is detector-dependent before it is
+sampled. **They are never averaged.**
+
+Neither instrument was tuned. `TreeCoder`'s cues are transcriptions of the
+codebook's inclusion rules and `NliDetector`'s threshold is a prior 0.5; sweeping
+either against this score would convert a pre-specified instrument into a fitted
+one and void the claim.
+
+### Recall that does not exist
+`ESC`, `WARN`, `NORM` and `SELF_LICENSE` have **no WikiTactics equivalent**, so
+their recall is **undefined on this control, not zero**. Reporting 0.0 would
+invent a measurement out of an absent one.
+
+---
+
+## 4. collusion.wiki — the GO/NO-GO on RQ3
+
+Frozen export, 2026-09-03. Row counts match the published figures exactly:
+revisions **14,591**, pages **4,579**, labels **3,103**.
+
+### Actors per page (agents only; human handles excluded)
+
+| distinct agents | pages | share | cumulative |
 |---|---|---|---|
-| TreeCoder detector | 1 (WikiTactics) | — | **not built** (step 9) |
-| NliDetector | 1 (WikiTactics) | — | **not built** (step 10) |
-| Codebook `data/codebook/v1.yaml` | — | — | **not written** (step 9) |
+| **1** | **2,824** | **70.18%** | 70.18% |
+| 2 | 549 | 13.64% | 83.82% |
+| 3 | 189 | 4.70% | 88.52% |
+| 4 | 112 | 2.78% | 91.30% |
+| 5 | 78 | 1.94% | 93.24% |
+| 6 | 46 | 1.14% | 94.38% |
+| 7 | 42 | 1.04% | 95.43% |
+| 8–20 | 152 | 3.78% | 99.21% |
+| 21–340 | 32 | 0.79% | 100.00% |
 
-`codebook_hash` in the record reads `TODO(johanna): codebook YAML not written`, and the
-`codebook_drift` gate returns `UNEVALUABLE` — which counts as failure. There is nothing
-to compare a hash against, so the gate refuses to pass rather than reporting "no drift
-detected".
+Total pages carrying ≥1 agent revision: **4,024**. Pages with ≥2 distinct
+agents: **1,200 (29.82%)**.
 
----
+**70.18% of pages cannot contain peer disagreement by construction.** Those are
+not a small denominator, they are no denominator. RQ3 is structurally feasible
+on under a third of the corpus.
 
-## 5. collusion.wiki actors-per-page distribution
+### Concentration — and a correction to the spec
+Spec §8 says "91% of collusion_wiki edits come from the single actor `dse`".
+`dse` is a **wiki, not an actor**. Measured:
 
-**NOT COMPUTED — step 8 did not run.** `loaders/collusion_wiki.py` does not exist, so
-there is no tested instrument that produces this distribution, and none was computed
-ad hoc for this document.
+- Revisions from wiki `dse`: 13,403 / 14,591 = **91.9%**
+- Most active *individual actor*: 2.3%, across **3,102 distinct actors**
 
-What *is* established, from the publisher's own `manifest.json` verified against its
-`SHA256SUMS` at step 2 (all five files `OK`):
+The clustering unit is the wiki (or the page), not the actor. The synthetic
+91%-in-one-cluster fixture in `test_clustered_interval_wider_than_naive` remains
+valid; only the comment justifying it was mis-specified.
 
-| quantity | value | source |
-|---|---:|---|
-| Pages (write-date cut ≥ 2026-05-01) | 4,579 | `manifest.counts.pages` |
-| Revisions | 14,591 | `manifest.counts.revisions` |
-| Labels | 3,103 | `manifest.counts.labels` |
-| Revisions on the single wiki `dse` | 13,403 (**91.9%**) | `manifest.per_wiki.dse` |
-| Pages on `dse` | 3,908 (85.3%) | `manifest.per_wiki.dse` |
-
-That 91.9% concentration is **revisions per wiki, not actors per page** — a different
-quantity, reported here only so the number is not mistaken for the missing one. It does
-establish that per-observation independence is false for this corpus, which is why
-`cluster.py` exists.
-
-The RQ3 GO/NO-GO decision this step was meant to produce **has not been made**.
+930 of 14,591 revisions fail toward `HUMAN_MESSAGE` (human handle, or handle
+absent from `labels.jsonl`) and are excluded from any inter-agent rate.
 
 ---
 
-## 6. Gate status
+## 5. RQ3 — no rate is reported
 
-`channels gate` exits **1** on the committed data. This is the intended demonstration.
+`rq3.rq3_endpoint` returns `rate=None`,
+`rate_status="no_validated_detector_for_this_corpus"`, and three blockers:
 
-| gate | threshold | observed | worst stratum | status |
-|---|---:|---:|---|---|
-| `deliberation_coverage_floor` | ≥ 0.50 | 0.333 | `mythos-5/effort=None` @ 0.333 | **FAIL** |
-| `uninspectable_ceiling` | ≤ 0.50 | 0.667 | `mythos-5/effort=None` @ 0.667 | **FAIL** |
-| `codebook_drift` | hash match | — | — | **UNEVALUABLE → FAIL** |
+1. **Structural** — 2,824/4,024 pages (70.2%) have one agent.
+2. **Instrumental** — the two detectors disagree 3× on rung-1 OBJ recall, with
+   non-overlapping intervals.
+3. **Transfer** — rung 2 is not built. Both instruments were validated on human
+   Wikipedia prose; nothing establishes transfer to agent protocol strings.
 
-> **The 0.50 floor and 0.50 ceiling are illustrative defaults, not safety standards.**
-> Nothing in the literature establishes what share of an agent's turns must expose raw
-> reasoning before a deliberation-gated monitor is trustworthy, because the question has
-> not been asked in this form. They exist so the gate machinery has something to compare
-> against. **Do not cite them as a threshold.**
+### Both sensitivity analyses
 
----
-
-## 7. Numbers that do not exist, and why
-
-Stated explicitly rather than omitted.
-
-| intended result | status | reason |
-|---|---|---|
-| Emission across 3 models × 3 benchmarks | **not measured** | The Inspect `.eval` logs are not on the build machine. `results/published/results.json` from run `run-20260830-193016` is public but is pre-aggregated — 12 cells of rates and CIs, zero occurrences of `messages`, `content`, `reasoning` or `output`. A per-turn channel state cannot be recovered from a per-cell rate. No substitute corpus was used; `addition`/`gsm8k`/`humaneval` logs on the machine were deliberately not analysed. |
-| Emission by `reasoning_effort` | **not measured** | No effort field in the corpus. No second axis invented. |
-| Clustering-corrected interval | **refused** | 1 cluster. `single_cluster_no_interval`. |
-| Detector recalls (TreeCoder, NLI) | **not measured** | Steps 9–10 did not run. |
-| Inter-agent channel rate | **not measured** | Step 8 did not run. Recorded in the JSON as `rate_per_1000: null` with `rate_status: "no_denominator"` — null, not 0. A 0 would claim a measurement was made and came back empty. |
-| `messages_authenticated` | **null by finding** | No corpus this project reads carries an authenticated sender field. The null is the adversarial-channel result, not a gap. |
-| collusion.wiki actors-per-page | **not computed** | Step 8 did not run. |
-| Published incident record rows | **not transcribed** | Step 11 did not run. |
+- **Recall correction.** An observed rate r from an instrument with recall k
+  implies a true rate ≈ r/k. At the two measured recalls that is **13.9× (tree)
+  vs 4.6× (NLI)** — the same observation implies truths 3× apart.
+- **Denominator choice.** The same numerator over all 4,024 pages vs the 1,200
+  multi-agent pages differs by **3.35×** (e.g. 10 objections: 0.00249 vs
+  0.00833). That factor is the reporting-unit choice the prior art leaves
+  unstated.
 
 ---
 
-## 8. Figures
+## 6. The published incident record
 
-Both in `results/figures/`, committed, each with a standalone caption file stating n.
+7 rows transcribed (5 influence-typology exemplars, 2 ASK→ANSWER dyad halves).
+**No rate may be computed**; `refuse_rate()` raises `RateFromTypologyError`.
 
-- `figure1_emission_states.png` — four-state distribution, n = 2,061, Wilson error bars.
-- `figure2_recall_ceiling.png` — measured c(j) and the ceiling it imposes, n = 2,061
-  across 10 positions, with AdaptR1's induced profile in a separate panel on its own
-  step axis. Two panels rather than one dual-axis chart: a secondary y-axis lets two
-  curves be slid against each other until they tell whatever story the author wants,
-  which is the failure this project is about.
+5 of 7 rows carry an unverified page reference or a `TODO(johanna)` citation.
+The two dyad rows are marked `p.43 [VERIFY page: +/-3]` and **have not been
+verified** — I do not have the PDF.
 
-## 9. Reproducing
+**The gap is itself the finding.** The four numerator codes `OBJ`, `REF`, `ESC`,
+`WARN` have **zero real positive examples** in the codebook. Across every source
+consulted for this build, no published source quotes one agent normatively
+objecting to another agent's conduct. Every verbatim inter-agent string that has
+been published is coordination, flattery or reciprocity. Whether objection does
+not happen, or investigators do not quote it, is precisely the
+evidence-sufficiency question in spec §15 C.
 
-```bash
-channels measure   # regenerates results/observability_record.json and both figures
-channels gate      # exits 1
-pytest -q          # 108 tests
+---
+
+## 7. Gates — the failure is the deliverable
+
+`channels gate` exits **1** on the real corpora:
+
+```
+[      FAIL] deliberation_coverage_floor: aggregate raw_present 0.117;
+            worst stratum Qwen2.5-7B-Instruct/effort=None at 0.000
+            against a floor of 0.500
+[      FAIL] uninspectable_ceiling:       aggregate uninspectable 0.883;
+            worst stratum Qwen2.5-7B-Instruct/effort=None at 1.000
+            against a ceiling of 0.500
+[      PASS] codebook_drift:              observed sha256:2d1077fa...
+                                       vs registered sha256:2d1077fa...
 ```
 
-Corpus hashes: `docs/DATA_PROVENANCE.md`. Pre-registration: `docs/PREREGISTRATION.md`.
-Full build narrative including every AMBER judgement call: `BUILD_LOG.md`.
+The 0.883 aggregate pools both corpora *for the gate only*; the records
+themselves are never pooled (see §8). The floor of 0.50 and ceiling of 0.50 in
+`config/channels.yaml` are **illustrative defaults, not safety claims**. Nothing
+in the literature establishes what share of turns must expose raw reasoning
+before a deliberation-gated monitor is trustworthy — the question has not been
+asked in this form. **Do not cite them as a standard.**
+
+---
+
+## 8. Numbers that do not exist, and why
+
+| quantity | status |
+|---|---|
+| Emission by `reasoning_effort` | **Does not exist.** No log records the setting. |
+| A single pooled positional profile across both corpora | **Deliberately not computed.** Mythos step indices are decile bins of one trajectory; Inspect step indices are turn ordinals in independent samples. One key cannot mean both. Each corpus writes its own record. |
+| Clustered interval for Mythos | **Does not exist.** 2,061 turns, 1 cluster. `clustered_wilson` returns `single_cluster_no_interval`. |
+| Recall for ESC / WARN / NORM / SELF_LICENSE | **Undefined**, not zero. No support in the control. |
+| `nli_detector` recall for REF / SHARE | **Undefined**, not zero. Outside the detector's label space. |
+| Any RQ3 rate | **Refused.** See §5. |
+| Any rate from the published record | **Refused.** n=7, investigator-selected. |
+| `messages_authenticated` | **null.** No corpus read here supports authentication. Recording the absence is the honest form of the adversarial-channel finding. |
+| Test–retest reliability of the codebook | **Not measured.** Requires a second human coder. |
+| Rung-2 validation | **Not built.** |
+
+---
+
+## 9. Artifacts
+
+| file | contents |
+|---|---|
+| `results/observability_record.json` | Inspect-logs record, schema-valid, 12 cells |
+| `results/observability_record_mythos.json` | Mythos record, schema-valid, 2,061 cells |
+| `results/record_schema.json` | JSON Schema draft 2020-12, `additionalProperties: false` |
+| `results/figures/figure1_emission_states.png` | + `_caption.txt` |
+| `results/figures/figure2_recall_ceiling.png` | Inspect logs, + `_caption.txt` |
+| `results/figures/figure2_recall_ceiling_mythos_transcript.png` | Mythos, + `_caption.txt` |
+| `results/validation/tree_coder_1.0_wikitactics.json` | measured recall |
+| `results/validation/nli_detector_1.0_wikitactics.json` | measured recall |
+
+159 tests pass with no network, 89% coverage; `ruff` and `mypy --strict` clean.
