@@ -1,0 +1,23 @@
+# Two ASK->ANSWER dyads. Page numbers are approximate and MUST be verified.
+#
+# Transcription target, not a dataset. Spec §11.1 trims this to 12 rows; the two
+# dyads below are 2 of them and the five typology exemplars are another 5. The
+# remaining rows (METR's Table 2 counts, the HF per-phase/per-day tables, the 21
+# replay EVENTS) are TODO(johanna) and are structured data that can be added
+# later without redesign.
+- local_id: ask_9180
+  channel: inter_agent_message
+  provenance: redacted_partial
+  text: "zzASK9180_TO_LIBRAW42535_LIVE_ARWDECODER_GETWB_UNINIT_TIFF_SCALARS_NO_WRITE"
+  actor: "9180"
+  addressee: "LIBRAW42535"
+  source_ref: "METR/Redwood HF investigation, 26 Aug 2026, p.43 [VERIFY page: +/-3]"
+  corpus_meta: {dyad_id: libraw_exchange, role: ask}
+- local_id: answer_9180
+  channel: inter_agent_message
+  provenance: redacted_partial
+  text: "zzANSWER9180_FROM_LIBRAW42535_OURS_IS_LIBRAW0DOT20_SINAR_COLOR4_2MB_HEAP_MEMMOVE"
+  actor: "LIBRAW42535"
+  addressee: "9180"
+  source_ref: "METR/Redwood HF investigation, 26 Aug 2026, p.43 [VERIFY page: +/-3]"
+  corpus_meta: {dyad_id: libraw_exchange, role: answer}
