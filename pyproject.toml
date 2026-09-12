@@ -21,6 +21,21 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# transformers/torch back NliDetector only (step 10). Kept out of the core
+# install so that `uv sync` for the primary emission result does not pull
+# ~2.5 GB of wheels. The detector refuses to download at analysis time; the
+# checkpoint is cached once, out of band.
+nli = ["transformers>=4.44", "torch>=2.4"]
+
+# Running NEW measurements (not needed to read or verify existing ones).
+# `openai` is the client inspect-ai's openrouter provider imports at runtime;
+# `inspect_evals` supplies the three benchmark task definitions. Neither is
+# imported by `channels` itself.
+evals = ["openai>=1.0", "inspect_evals==0.18.0"]
+
+# Verifying transcribed citations against source PDFs (scripts/verify_citations).
+verify = ["pypdf>=6.0"]
+
 dev = ["pytest>=8", "pytest-cov", "ruff>=0.6", "mypy>=1.11", "types-PyYAML"]
 
 [project.scripts]
