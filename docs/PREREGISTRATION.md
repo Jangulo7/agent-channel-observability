@@ -20,7 +20,7 @@
 |---|---|
 | Registration commit SHA | `TODO(johanna)` — fill at the moment of the public commit |
 | Registration timestamp (UTC) | `TODO(johanna)` |
-| Codebook SHA-256 | `CODEBOOK_HASH_PLACEHOLDER` |
+| Codebook SHA-256 | `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83` |
 | Corpus freeze hashes | see [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md) |
 
 `gates.codebook_drift` compares `codebook.codebook_hash()` against the codebook hash

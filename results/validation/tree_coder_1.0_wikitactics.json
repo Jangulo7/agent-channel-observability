@@ -1,0 +1,107 @@
+{
+  "codebook_hash": "sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83",
+  "control_corpus": "wikitactics",
+  "detector_name": "tree_coder",
+  "detector_version": "1.0",
+  "generated_utc": "2026-09-12T18:55:17Z",
+  "n_utterances": 3865,
+  "scores": {
+    "ESC": {
+      "code": "ESC",
+      "f1": null,
+      "precision": null,
+      "predicted": 39,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    },
+    "NORM": {
+      "code": "NORM",
+      "f1": null,
+      "precision": null,
+      "predicted": 182,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    },
+    "OBJ": {
+      "code": "OBJ",
+      "f1": 0.07142857142857142,
+      "precision": 0.07058823529411765,
+      "predicted": 255,
+      "recall": 0.07228915662650602,
+      "recall_ci95": [
+        0.0462124027648073,
+        0.11136246255404937
+      ],
+      "status": "measured",
+      "support": 249,
+      "true_positives": 18
+    },
+    "REF": {
+      "code": "REF",
+      "f1": 0.08333333333333333,
+      "precision": 0.11764705882352941,
+      "predicted": 17,
+      "recall": 0.06451612903225806,
+      "recall_ci95": [
+        0.017874783521914572,
+        0.20718636736298127
+      ],
+      "status": "measured",
+      "support": 31,
+      "true_positives": 2
+    },
+    "SELF_LICENSE": {
+      "code": "SELF_LICENSE",
+      "f1": null,
+      "precision": null,
+      "predicted": 18,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    },
+    "SHARE": {
+      "code": "SHARE",
+      "f1": 0.25023169601482853,
+      "precision": 0.37868162692847124,
+      "predicted": 713,
+      "recall": 0.18685121107266436,
+      "recall_ci95": [
+        0.1675932533460149,
+        0.2077697344465638
+      ],
+      "status": "measured",
+      "support": 1445,
+      "true_positives": 270
+    },
+    "UNCL": {
+      "code": "UNCL",
+      "f1": null,
+      "precision": null,
+      "predicted": 2609,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    },
+    "WARN": {
+      "code": "WARN",
+      "f1": null,
+      "precision": null,
+      "predicted": 32,
+      "recall": null,
+      "recall_ci95": null,
+      "status": "no_support_in_control",
+      "support": 0,
+      "true_positives": 0
+    }
+  }
+}

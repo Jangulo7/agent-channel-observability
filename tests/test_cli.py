@@ -48,6 +48,32 @@ SYNTHETIC_ROWS: list[dict[str, object]] = [
 ]
 
 
+#: The same shape with only one of four turns carrying <thinking>, so raw_present
+#: is 0.25 and the deliberation floor of 0.50 is genuinely breached.
+LOW_COVERAGE_ROWS: list[dict[str, object]] = [
+    SYNTHETIC_ROWS[0],
+    SYNTHETIC_ROWS[1],
+    SYNTHETIC_ROWS[2],
+    {
+        "record": "message", "index": 3, "role": "Assistant", "type": "TextMessage",
+        "timestamp": "2026-01-01T00:00:02Z",
+        "content": "SYNTHETIC OUTPUT WITH NO REASONING",
+    },
+    SYNTHETIC_ROWS[4],
+]
+
+
+@pytest.fixture
+def low_coverage_transcript(tmp_path: Path) -> Path:
+    """An obviously synthetic transcript whose coverage is below the floor."""
+    path = tmp_path / "synthetic_low_coverage.jsonl"
+    path.write_text(
+        "\n".join(json.dumps(row) for row in LOW_COVERAGE_ROWS) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 @pytest.fixture
 def transcript(tmp_path: Path) -> Path:
     """An obviously synthetic transcript in the real row format."""
@@ -135,16 +161,23 @@ def test_measured_rate_matches_the_synthetic_trajectory(
     assert record["observability_record"]["emission"]["uninspectable_share"] == 0.5
 
 
-def test_measure_records_the_codebook_hash_as_a_todo_until_it_exists(
+def test_measure_records_the_real_codebook_hash(
     transcript: Path, tmp_path: Path
 ) -> None:
-    """No codebook yet means an explicit TODO in the record, not a blank or a guess."""
+    """The record carries the codebook hash the measurement was made under.
+
+    Before step 9 built data/codebook/v1.yaml this asserted an explicit
+    TODO(johanna) marker instead. Now that the codebook exists the record must
+    pin the hash, because that is what makes `codebook_drift` meaningful.
+    """
+    from channels.codebook import codebook_hash
+
     results = tmp_path / "results"
     main(["measure", *args(transcript, "--results", str(results))])
     record = json.loads(
         (results / "observability_record_mythos.json").read_text()
     )
-    assert record["observability_record"]["codebook_hash"].startswith("TODO(johanna)")
+    assert record["observability_record"]["codebook_hash"] == codebook_hash()
 
 
 def test_measure_refuses_when_no_corpus_is_available(
@@ -170,12 +203,27 @@ def test_measure_refuses_when_no_corpus_is_available(
 # --- gate -------------------------------------------------------------------------
 
 
-def test_gate_exits_non_zero_when_a_gate_fails(
+def test_gate_exits_non_zero_when_coverage_is_below_the_floor(
+    low_coverage_transcript: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """0.25 coverage against a 0.50 floor fails, and the failure is the deliverable."""
+    assert main(["gate", *args(low_coverage_transcript)]) == 1
+    out = capsys.readouterr().out
+    assert "[      FAIL] deliberation_coverage_floor" in out
+    assert "[      PASS] codebook_drift" in out
+
+
+def test_gate_passes_at_exactly_the_floor(
     transcript: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """0.5 coverage against a 0.5 floor still fails, on the unregistered codebook."""
-    assert main(["gate", *args(transcript)]) == 1
-    assert "codebook_drift" in capsys.readouterr().out
+    """The floor comparison is inclusive: 0.50 coverage meets a 0.50 floor.
+
+    Before step 9 this fixture exited non-zero, but only because the codebook had
+    no registered hash and `codebook_drift` was UNEVALUABLE. With the codebook
+    registered, the boundary behaviour is visible on its own.
+    """
+    assert main(["gate", *args(transcript)]) == 0
+    assert "[      PASS] codebook_drift" in capsys.readouterr().out
 
 
 def test_gate_exits_non_zero_when_nothing_could_be_measured(tmp_path: Path) -> None:
