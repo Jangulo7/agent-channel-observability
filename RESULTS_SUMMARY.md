@@ -71,7 +71,7 @@ OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
 comparable. Scoring disabled: we measure the channel, not performance.
 
 <!-- BEGIN:reasoning-status -->
-**3 of 9 arms complete**, 3,789 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `claude-haiku-4.5`, `deepseek-v3.2-reasoning-on`. Not yet run: `deepseek-v3.2`, `gpt-5-nano-low`, `gpt-5-nano-medium`, `gpt-5-nano-high`.
+**4 of 9 arms complete**, 5,052 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `deepseek-v3.2-reasoning-on`. Not yet run: `deepseek-v3.2`, `gpt-5-nano-low`, `gpt-5-nano-medium`, `gpt-5-nano-high`.
 <!-- END:reasoning-status -->
 
 Arms below are complete. Pending arms are **not** included in any figure or
@@ -86,6 +86,7 @@ the n actually measured.
 | `gpt-oss-120b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
 | `qwen3-32b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
 | `glm-4.7-flash` | 1,263 | **0.9976** | [0.9930, 0.9992] | 0.0000 | 0.0000 | 0.0024 |
+| `claude-haiku-4.5` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
 <!-- END:reasoning-arms -->
 
 Zero samples errored. Incomplete logs are excluded and counted, not partially
