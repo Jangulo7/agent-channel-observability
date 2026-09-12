@@ -156,3 +156,34 @@ AMBER, three judgement calls, all marked `# NEEDS REVIEW` or argued in a docstri
    a channel and a publisher removing an IP address are different events; the first is
    `ReasoningState`, the second is `Provenance.REDACTED_PARTIAL`, which every Mythos
    utterance already carries. Conflating them would inflate `REDACTED` by 316 turns.
+
+## Step 5 — priors, bound, cluster, figures ✅
+`priors.py` (constants only, transcribed verbatim from spec §6; a test parses its AST
+and fails if any executable logic appears), `bound.py` (scalar + positional ceilings,
+`worst_step`), `cluster.py`, `figures.py`. **63 tests pass.**
+
+`cluster.py` earns its place twice over. `test_clustered_interval_wider_than_naive`
+uses collusion.wiki's real shape (91% of mass in one cluster) and confirms the widening.
+And `clustered_wilson` on the Mythos data returns
+`status="single_cluster_no_interval"` — 2,061 turns but **one** trajectory, so there is
+no clustered interval to compute. It says "we cannot say" rather than emitting a wide
+finite interval, which are different claims.
+
+**Both figures rendered from real data and committed** to `results/figures/`, each with
+a standalone caption file stating n.
+
+Two deviations from the spec's figure brief, both to avoid a misleading chart:
+1. **Figure 2 is two panels, not one with a secondary axis.** The spec asks for c(j) on
+   the primary axis and c·r₂ on the secondary. A dual y-scale lets two curves be slid
+   against each other until they tell whatever story the author wants — the exact
+   failure this project is about. Both quantities are probabilities, so they share one
+   y-axis instead. Separately, AdaptR1's x-axis is *step index* and ours is *decile bin*;
+   plotting them on one x would assert their step 2 equals our position 2. They now sit
+   in adjacent panels sharing the y-axis, which keeps the real comparison (same
+   probability scale) and drops the false one.
+2. **At r₂ = 1 the ceiling line is not drawn**, because it coincides exactly with c(j)
+   and two identical lines imply two findings. The identity is annotated on the panel.
+Palettes were validated with the colour checker rather than eyeballed: Figure 1 uses a
+single-hue ordinal ramp (the four states are *ordered*, not categorical) passing
+monotonicity, adjacent-step and light-end contrast; Figure 2's series pass all-pairs
+CVD separation.
