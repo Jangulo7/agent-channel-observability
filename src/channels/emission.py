@@ -222,3 +222,50 @@ def _merge(existing: RateWithCI, cell: EmissionCell) -> RateWithCI:
         n_clusters=cell.n_clusters,
         low_n=n_turns < MIN_CELL_N,
     )
+
+
+def binned_profile(
+    cells: Iterable[EmissionCell], n_bins: int = 10
+) -> dict[int, RateWithCI]:
+    """Emission by *bin* of step index, for corpora too thin for a per-step profile.
+
+    A per-step profile needs many trajectories: with one trajectory every step index
+    has n_turns = 1 and every cell is low_n, so `positional_profile` returns 2000 cells
+    that individually say nothing. Binning trades positional resolution for a usable
+    denominator.
+
+    The bins are equal-width over the observed step range, not equal-count, so bin k
+    always means the same region of the trajectory across models.
+
+    The returned intervals assume turns within a bin are independent. **They are not**
+    when the bin is filled by a single trajectory. `n_clusters` on each returned rate
+    carries the number of distinct trajectories, and `cluster.py` refuses to compute a
+    clustered interval from one cluster rather than pretending it can.
+    """
+    selected = list(cells)
+    if not selected:
+        return {}
+    max_step = max(cell.step_index for cell in selected)
+    width = max(1, (max_step + 1 + n_bins - 1) // n_bins)
+
+    grouped: dict[int, list[EmissionCell]] = defaultdict(list)
+    for cell in selected:
+        grouped[min(cell.step_index // width, n_bins - 1)].append(cell)
+
+    profile: dict[int, RateWithCI] = {}
+    for bin_index, members in sorted(grouped.items()):
+        n_turns = sum(cell.n_turns for cell in members)
+        successes = sum(cell.counts[ReasoningState.RAW_PRESENT] for cell in members)
+        clusters = {c.n_clusters for c in members if c.n_clusters is not None}
+        interval = wilson_interval(successes, n_turns)
+        profile[bin_index] = RateWithCI(
+            rate=successes / n_turns,
+            ci_low=interval.low,
+            ci_high=interval.high,
+            n=n_turns,
+            method=interval.method,
+            weighting=f"binned-{width}-steps-per-bin",
+            n_clusters=max(clusters) if clusters else None,
+            low_n=n_turns < MIN_CELL_N,
+        )
+    return profile

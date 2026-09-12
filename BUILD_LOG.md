@@ -62,7 +62,13 @@ Real numbers:
 - So per *assistant message*, raw reasoning is present for 686/2061 = **33.3%**; per
   assistant *text* turn, 98.0%. Which denominator you pick changes the answer by 3×,
   which is exactly the point `emission.py`'s docstring makes.
-- 19 TextMessages are `[redacted]`; 640 carry visible text outside the thinking block.
+- 640 carry visible text outside the thinking block.
+- **Correction to my first pass:** I initially wrote "19 TextMessages are `[redacted]`".
+  That was a substring match. **Zero** assistant messages are wholly redacted — Anthropic's
+  whole-message redactions (1–81, >2145) are simply *absent from the file*, which is why the
+  observed index range is 82–2144. What the 19 actually contain is the inline token
+  `[redacted]`; separately, **316 assistant messages and 1,084 tool messages** carry in-place
+  `[redacted-xyz]` markers. Measured `REDACTED` in the Mythos corpus is therefore 0, correctly.
 
 Canary GUID is present in the metadata row's `notice`. It is quarantined: the corpus is
 gitignored and `tests/test_publication_safety.py` asserts the string appears in no
@@ -114,3 +120,39 @@ AMBER: spec §9.1 says to read `ChatMessageAssistant.reasoning`. That attribute 
 exist in the pinned `inspect-ai==0.3.260` (fields are `id, content, source, metadata,
 role, tool_calls, model`). Read defensively via `getattr` and fall back to the content
 blocks, where 0.3.260 actually stores `ContentReasoning`. Marked `# NEEDS REVIEW`.
+
+## Step 4 — Mythos loader ✅ **first real measurement**
+`loaders/mythos_transcript.py` + 11 tests. Emits `TurnObservation`s with
+`task_class="mythos_cyber_ctf"`, withholds all text (`text=None`), marks every utterance
+`Provenance.REDACTED_PARTIAL` and `do_not_train: True`.
+
+**Measured, on the real transcript (n = 2,061 assistant turns, 1 trajectory):**
+- `raw_present` 686, `absent` 1,375, `summary_only` 0, `redacted` 0.
+- **Emission rate 0.3328** (action-weighted over turns).
+- **Uninspectable share 0.6672**, Wilson 95% [0.647, 0.687].
+- Date range 2026-07-18T01:02:54Z → 2026-07-18T21:29:27Z. One 20-hour incident.
+
+Added `emission.binned_profile()` because n=1 trajectory makes the per-step profile
+degenerate — every one of 2,061 step indices has `n_turns = 1` and is `low_n`. Binned
+into 10 equal-width bins (~207 turns each):
+
+| bin | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| rate | .362 | .353 | .295 | .319 | .295 | .324 | .372 | .357 | .343 | .308 |
+
+**This is a result.** The profile is *flat* — 0.295 to 0.372, every interval overlapping
+every other — across a real 20-hour long-horizon agentic trajectory. AdaptR1's induced
+per-step profile on multi-hop QA swings 1.00 → 0.00 → 0.84 → 0.20 → 0.33 → 0.00 over its
+first six steps. Their Limitations already disclaim transfer to long-horizon agentic
+settings; this is one datapoint consistent with that disclaimer.
+
+AMBER, three judgement calls, all marked `# NEEDS REVIEW` or argued in a docstring:
+1. **Binning is mine, not the spec's.** Equal-width, 10 bins, chosen so bins clear
+   `MIN_CELL_N=30`. It trades positional resolution for a usable denominator.
+2. **`n_clusters = 1` in every bin.** The Wilson intervals above assume within-trajectory
+   independence, which is false. They are descriptive, not inferential. `cluster.py`
+   (step 5) refuses to compute a clustered interval from one cluster rather than faking it.
+3. **In-place `[redacted-xyz]` does not make a turn `REDACTED`.** A provider withholding
+   a channel and a publisher removing an IP address are different events; the first is
+   `ReasoningState`, the second is `Provenance.REDACTED_PARTIAL`, which every Mythos
+   utterance already carries. Conflating them would inflate `REDACTED` by 316 turns.
