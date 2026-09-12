@@ -70,26 +70,34 @@ observe `reasoning_effort`" cannot be piloted on this corpus.
 OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
 comparable. Scoring disabled: we measure the channel, not performance.
 
-**The sweep is still running.** Arms below are complete; the remaining arms —
-`glm-4.7-flash`, `claude-haiku-4.5`, `deepseek-v3.2` (default config) and
-`gpt-5-nano` at low/medium/high effort — are pending and are **not** included in
-any figure or total. Every n stated is the n actually measured.
+<!-- BEGIN:reasoning-status -->
+**3 of 9 arms complete**, 3,789 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `claude-haiku-4.5`, `deepseek-v3.2-reasoning-on`. Not yet run: `deepseek-v3.2`, `gpt-5-nano-low`, `gpt-5-nano-medium`, `gpt-5-nano-high`.
+<!-- END:reasoning-status -->
+
+Arms below are complete. Pending arms are **not** included in any figure or
+total, so a partial sweep cannot be read as a finished one. Every n stated is
+the n actually measured.
 
 ### Arms complete
 
+<!-- BEGIN:reasoning-arms -->
 | arm | n turns | raw_present | 95% CI | summary_only | redacted | absent |
 |---|---|---|---|---|---|---|
-| `gpt-oss-120b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.000 | 0.000 | 0.000 |
-| `qwen3-32b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.000 | 0.000 | 0.000 |
-| `deepseek-v3.2-reasoning-on` | 763 | **0.9777** | [0.9646, 0.9860] | 0.000 | 0.000 | 0.022 |
+| `gpt-oss-120b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
+| `qwen3-32b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
+| `glm-4.7-flash` | 1,263 | **0.9976** | [0.9930, 0.9992] | 0.0000 | 0.0000 | 0.0024 |
+<!-- END:reasoning-arms -->
 
-No cell is low-n; every cell clears `MIN_CELL_N = 30`. Zero samples errored.
-One incomplete log is excluded and counted, not partially included.
+Zero samples errored. Incomplete logs are excluded and counted, not partially
+included.
 
-- **Pooled uninspectable share: 0.0073** (n = 3,289), against **1.0000** for the
-  vLLM baseline in §1.
-- **Positional profile c(j):** {0: 0.992, 1: 1.000}. Only two step indices exist.
-- **Recall ceiling: 0.996** at mean coverage, against **0.000** for the baseline.
+Across completed arms the uninspectable share is **under 0.005**, against
+**1.0000** for the vLLM baseline in §1, and the recall ceiling rises from
+**0.000** to essentially **1.000**. Current pooled values, including partially
+run arms, are in `results/observability_record_reasoning.json`, which regenerates
+with the sweep. Only two step indices exist in these benchmarks, so the
+positional profile is nearly flat by construction and carries no information
+here.
 
 ### The headline contrast
 
@@ -97,9 +105,10 @@ One incomplete log is excluded and counted, not partially included.
 |---|---|---|
 | Llama-3.1-8B, Qwen2.5-7B, Ministral-8B (vLLM) | 3,789 | **0.0000** |
 | `deepseek-v3.2`, reasoning **not requested** | probe | **0.0000** (0 reasoning tokens) |
-| `deepseek-v3.2`, reasoning **requested** | 763 | **0.9777** |
+| `deepseek-v3.2`, reasoning **requested** | 763 so far | **0.9777** (arm still running) |
 | `gpt-oss-120b` | 1,263 | **1.0000** |
 | `qwen3-32b` | 1,263 | **1.0000** |
+| `glm-4.7-flash` | 1,263 | **0.9976** |
 | `gpt-5-nano` | probe | reasoning **encrypted** → `redacted` |
 
 **This is the result the baseline alone could not support.** A reviewer reading
@@ -114,10 +123,18 @@ shipping the chain encrypted, so an external evaluator receives nothing readable
 Taken together: **what an evaluator can see is set by disclosure policy and
 request configuration, not by model capability.**
 
-> **Caveats.** The DeepSeek default-config arm is a *probe*, not yet a full
-> 1,013-sample run; it is reported as a probe until that arm completes. The
-> `gpt-5-nano` row is likewise a probe. Both are marked as such rather than
-> given an n they do not have.
+> **Caveats, and they matter for this table specifically.** Three of its six
+> rows are not yet complete arms. The `deepseek-v3.2` default-config row and the
+> `gpt-5-nano` row are **single-prompt probes**, not 1,013-sample runs; the
+> `deepseek-v3.2` reasoning-requested row is a **partial arm** (763 of 1,263
+> turns). They are labelled rather than given an n they do not have, and none of
+> them enters the generated table above, which contains complete arms only.
+>
+> The contrast is therefore **suggestive, not yet established**. It becomes a
+> measured result when the DeepSeek pair is two complete arms. Until then the
+> defensible claim is the one the completed arms already support: four models
+> that are asked for reasoning expose ~100% of turns, while three that are not
+> expose 0%.
 
 ### `reasoning_effort` — still not measured
 
