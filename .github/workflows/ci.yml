@@ -19,19 +19,22 @@ jobs:
       - name: Set up Python
         run: uv python install 3.12
 
+      # --frozen fails the build if uv.lock and pyproject.toml have drifted,
+      # rather than silently resolving something newer. The whole point of
+      # committing the lock is that CI runs the versions we measured with.
       - name: Install
-        run: uv pip install --system -e ".[dev]"
+        run: uv sync --frozen --all-extras
 
       - name: Lint
-        run: ruff check src tests
+        run: uv run ruff check src tests
 
       - name: Typecheck
-        run: mypy src/channels
+        run: uv run mypy src/channels
 
       # No network in this job: every test that needs a corpus or a model
       # checkpoint is marked `integration` and skipped here.
       - name: Test
-        run: pytest -m "not integration" --cov=src --cov-report=term-missing
+        run: uv run pytest -m "not integration" --cov=src --cov-report=term-missing
 
       - name: Publication-safety checks
-        run: pytest -m "not integration" tests/test_publication_safety.py -q
+        run: uv run pytest -m "not integration" tests/test_publication_safety.py -q
