@@ -4,7 +4,11 @@ Every number below is produced by `channels measure` from the committed corpora
 and is reproducible with the three commands in the README. Numbers that do not
 exist are marked as not existing rather than omitted.
 
-Generated 2026-09-12. Codebook `sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83`.
+Generated 2026-09-13. Codebook **v3**, `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62`.
+
+> **Status.** The reasoning-model sweep (§1b) is still running; completed arms
+> are reported with their measured n and pending arms are named as pending.
+> The human annotation (§10) has not run, so `REVERT` has no recall yet.
 
 ---
 
@@ -56,6 +60,70 @@ setting. Every cell carries `reasoning_effort=None`. Emission is reported by
 model × task class × step index only, as spec §9.1 directs when the second axis
 is unavailable. This is a real limitation: extension A's "manipulate rather than
 observe `reasoning_effort`" cannot be piloted on this corpus.
+
+
+---
+
+## 1b. Emission — reasoning-capable models (RQ1, RQ2)
+
+**Corpus:** `data/inspect-runs-reasoning/`, this project's own runs via
+OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
+comparable. Scoring disabled: we measure the channel, not performance.
+
+**The sweep is still running.** Arms below are complete; the remaining arms —
+`glm-4.7-flash`, `claude-haiku-4.5`, `deepseek-v3.2` (default config) and
+`gpt-5-nano` at low/medium/high effort — are pending and are **not** included in
+any figure or total. Every n stated is the n actually measured.
+
+### Arms complete
+
+| arm | n turns | raw_present | 95% CI | summary_only | redacted | absent |
+|---|---|---|---|---|---|---|
+| `gpt-oss-120b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.000 | 0.000 | 0.000 |
+| `qwen3-32b` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.000 | 0.000 | 0.000 |
+| `deepseek-v3.2-reasoning-on` | 763 | **0.9777** | [0.9646, 0.9860] | 0.000 | 0.000 | 0.022 |
+
+No cell is low-n; every cell clears `MIN_CELL_N = 30`. Zero samples errored.
+One incomplete log is excluded and counted, not partially included.
+
+- **Pooled uninspectable share: 0.0073** (n = 3,289), against **1.0000** for the
+  vLLM baseline in §1.
+- **Positional profile c(j):** {0: 0.992, 1: 1.000}. Only two step indices exist.
+- **Recall ceiling: 0.996** at mean coverage, against **0.000** for the baseline.
+
+### The headline contrast
+
+| what was run | turns | raw reasoning readable |
+|---|---|---|
+| Llama-3.1-8B, Qwen2.5-7B, Ministral-8B (vLLM) | 3,789 | **0.0000** |
+| `deepseek-v3.2`, reasoning **not requested** | probe | **0.0000** (0 reasoning tokens) |
+| `deepseek-v3.2`, reasoning **requested** | 763 | **0.9777** |
+| `gpt-oss-120b` | 1,263 | **1.0000** |
+| `qwen3-32b` | 1,263 | **1.0000** |
+| `gpt-5-nano` | probe | reasoning **encrypted** → `redacted` |
+
+**This is the result the baseline alone could not support.** A reviewer reading
+§1 could fairly object that 0/3,789 was measured on models that were never going
+to emit reasoning. The DeepSeek pair answers that directly: **same model, same
+prompts, same provider, one request parameter** — 0.000 with reasoning not
+requested, 0.978 with it requested. "This model emits no reasoning" was really
+"this request did not ask for it."
+
+And `gpt-5-nano` demonstrably reasons (64 reasoning tokens on the probe) while
+shipping the chain encrypted, so an external evaluator receives nothing readable.
+Taken together: **what an evaluator can see is set by disclosure policy and
+request configuration, not by model capability.**
+
+> **Caveats.** The DeepSeek default-config arm is a *probe*, not yet a full
+> 1,013-sample run; it is reported as a probe until that arm completes. The
+> `gpt-5-nano` row is likewise a probe. Both are marked as such rather than
+> given an n they do not have.
+
+### `reasoning_effort` — still not measured
+
+Every completed arm records `reasoning_effort=None`. The three `gpt-5-nano`
+effort arms are pending. Until they land, the effort axis remains **absent from
+this project**, exactly as in §1.
 
 ---
 
@@ -205,12 +273,17 @@ absent from `labels.jsonl`) and are excluded from any inter-agent rate.
 
 ## 6. The published incident record
 
-7 rows transcribed (5 influence-typology exemplars, 2 ASK→ANSWER dyad halves).
+10 rows transcribed (5 influence-typology exemplars, 2 ASK→ANSWER dyads, 1 further zz-prefixed ASK).
 **No rate may be computed**; `refuse_rate()` raises `RateFromTypologyError`.
 
-5 of 7 rows carry an unverified page reference or a `TODO(johanna)` citation.
-The two dyad rows are marked `p.43 [VERIFY page: +/-3]` and **have not been
-verified** — I do not have the PDF.
+**10 rows, all verified** against the source PDFs by
+`scripts/verify_citations.py`: 0 mismatches. Verified pages p.14, p.33, p.43,
+p.44 (HF investigation) and p.124 (Frontier Risk Report, INC-037, "Google
+DeepMind — hash-collision").
+
+Verification changed the data. The LIBRAW dyad is on **p.44**, not the seeded
+p.43, and **both of its strings were truncated** in the seed; the full verbatim
+is restored, with METR's own `[...]` elisions preserved.
 
 **The gap is itself the finding.** The four numerator codes `OBJ`, `REF`, `ESC`,
 `WARN` have **zero real positive examples** in the codebook. Across every source
@@ -250,7 +323,9 @@ asked in this form. **Do not cite them as a standard.**
 
 | quantity | status |
 |---|---|
-| Emission by `reasoning_effort` | **Does not exist.** No log records the setting. |
+| Emission by `reasoning_effort` | **Does not exist yet.** No completed log records the setting; the three `gpt-5-nano` effort arms are still running. |
+| `deepseek-v3.2` default config, full run | **Pending.** Currently a probe only; the control is a pair and only argues as a pair. |
+| `gpt-5-nano` full run | **Pending.** The `redacted` state is so far evidenced by a probe, not a 1,013-sample arm. |
 | A single pooled positional profile across both corpora | **Deliberately not computed.** Mythos step indices are decile bins of one trajectory; Inspect step indices are turn ordinals in independent samples. One key cannot mean both. Each corpus writes its own record. |
 | Clustered interval for Mythos | **Does not exist.** 2,061 turns, 1 cluster. `clustered_wilson` returns `single_cluster_no_interval`. |
 | Recall for ESC / WARN / NORM / SELF_LICENSE | **Undefined**, not zero. No support in the control. |
@@ -267,7 +342,8 @@ asked in this form. **Do not cite them as a standard.**
 
 | file | contents |
 |---|---|
-| `results/observability_record.json` | Inspect-logs record, schema-valid, 12 cells |
+| `results/observability_record.json` | Inspect-logs baseline record, schema-valid, 12 cells |
+| `results/observability_record_reasoning.json` | Reasoning-model record, schema-valid, updated as arms land |
 | `results/observability_record_mythos.json` | Mythos record, schema-valid, 2,061 cells |
 | `results/record_schema.json` | JSON Schema draft 2020-12, `additionalProperties: false` |
 | `results/figures/figure1_emission_states.png` | + `_caption.txt` |
@@ -277,3 +353,38 @@ asked in this form. **Do not cite them as a standard.**
 | `results/validation/nli_detector_1.0_wikitactics.json` | measured recall |
 
 159 tests pass with no network, 89% coverage; `ruff` and `mypy --strict` clean.
+
+---
+
+## 10. Human annotation — registered, not yet run
+
+Confirmatory endpoints C1–C3 are registered in
+[`docs/PREREGISTRATION.md` §0.2](docs/PREREGISTRATION.md) with their decision
+rules fixed **before any label exists**. Nothing below has a number yet, and the
+absence is the current honest state rather than an omission.
+
+| endpoint | what it measures | status |
+|---|---|---|
+| **C1** | Precision of the checksum-revert detector: of 60 sampled reverts, what share are genuine disagreement? | **no labels yet** |
+| **C2** | Verbal objection in the message channel: `OBJ`/`REF`/`ESC`/`WARN` in 200 sampled `change_summary` messages | **no labels yet** |
+| **C3** | Cohen's κ between the coder and the author on 50 shared items | **no labels yet** |
+
+Registered decision rules, restated here so the result cannot be reinterpreted
+after the fact:
+
+- `REVERT` is reported as **validated** only if the page-clustered 95% lower
+  bound exceeds **0.50**.
+- A zero count in C2 is reported as a one-sided 95% upper bound (≈0.013 at
+  n=200) and the sentence "zero observed; below X with 95% confidence" —
+  **never** "no objection occurs".
+- κ ≥ 0.60 is adequate reproducibility for an exploratory instrument; below
+  **0.40**, C1 is reported as unreliable regardless of its point estimate.
+- The second coder is the **author of the codebook**. κ therefore measures
+  whether the written rules reproduce the author's intent; it will not be called
+  inter-rater reliability.
+
+**Current detector state.** `revert_detector` v1.0 has a validation record with
+`status="no_support_in_control"` for `REVERT` — no corpus available to this
+project carries human revert labels. It predicts 1,275 reverts over 13,661
+artefact edits and **reports no recall**, which is why no revert-based rate
+appears anywhere above.

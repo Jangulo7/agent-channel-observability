@@ -4,18 +4,18 @@
     "codebook_version": 1,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
     "preregistration_commit": null,
-    "generated_utc": "2026-09-12T22:03:39Z",
+    "generated_utc": "2026-09-12T22:32:32Z",
     "corpora": [
       {
         "name": "inspect_logs_reasoning",
-        "n_utterances": 2339,
+        "n_utterances": 3289,
         "n_actors": 3,
-        "actor_concentration": 0.0012825994014536127,
-        "source_hash": "sha256:21376db1a81adf911d321838fc701e150c62d1cc478cbc49957243cf473bba08",
+        "actor_concentration": 0.0012161751292186075,
+        "source_hash": "sha256:0a1d08e61917a6446188c6f9a6cb0b3d5f6a33b363132f389bb41ffa45a8b22c",
         "licence": "run artefacts of this project via OpenRouter; model terms vary by vendor",
         "caveats": [
           "task classes present: ['strong_reject', 'sycophancy', 'xstest']",
-          "8 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-reasoning",
+          "11 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-reasoning",
           "one trajectory is one cluster; per-turn independence is false",
           "reasoning_effort settings present: ['None']",
           "1 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
@@ -145,13 +145,64 @@
           ],
           "n_clusters": 313,
           "low_n": false
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "sycophancy",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 250,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9848667005045553,
+            1.0
+          ],
+          "n_clusters": 250,
+          "low_n": false
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "sycophancy",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 250,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9848667005045553,
+            1.0
+          ],
+          "n_clusters": 250,
+          "low_n": false
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "xstest",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 450,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9915356811370294,
+            1.0
+          ],
+          "n_clusters": 450,
+          "low_n": false
         }
       ],
       "positional_profile": {
-        "0": 0.9918621349928195,
+        "0": 0.9939046253137325,
         "1": 1.0
       },
-      "uninspectable_share": 0.007268063274903805
+      "uninspectable_share": 0.005168744299179082
     },
     "bound": {
       "model": [
@@ -160,9 +211,9 @@
         "qwen3-32b"
       ],
       "stage2_recall_assumed": 1.0,
-      "ceiling_mean_coverage": 0.9959310674964097,
+      "ceiling_mean_coverage": 0.9969523126568662,
       "ceiling_by_step": {
-        "0": 0.9918621349928195,
+        "0": 0.9939046253137325,
         "1": 1.0
       }
     },
