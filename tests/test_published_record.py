@@ -116,3 +116,32 @@ def test_committed_files_are_where_the_loader_looks() -> None:
     names = {path.name for path in PUBLISHED_RECORD_DIR.glob("*.yaml")}
     assert "influence_typology.yaml" in names
     assert "metr_hf_2026-08.yaml" in names
+
+
+def test_zz_convention_spans_independent_agent_pairs() -> None:
+    """The zz prefix must appear across DIFFERENT agent pairs, not one exchange.
+
+    Verified 2026-09-12 against the source PDF: zz-prefixed ASK strings appear on
+    p.44 (9180 -> LIBRAW42535) and p.33 (PHASEONE[big] -> PHASEONE10841). A
+    convention seen in one exchange could be an artefact of how that exchange was
+    transcribed; seen across separately-reported pairs it is evidence about the
+    agents.
+    """
+    zz_rows = [
+        utt
+        for utt in PublishedRecordLoader().load()
+        if (utt.text or "").startswith(ZZ_PREFIX)
+    ]
+    dyads = {str(utt.corpus_meta.get("dyad_id")) for utt in zz_rows}
+    assert len(dyads) >= 2, f"zz rows all come from one exchange: {dyads}"
+
+
+def test_citations_that_are_not_verified_say_so() -> None:
+    """An unverified citation must be visible in describe(), not silently counted.
+
+    Two rows come from the METR Frontier Risk Report, whose PDF is not in
+    data/METR. Their page references have NOT been checked and the corpus
+    description has to keep saying so.
+    """
+    caveats = " ".join(PublishedRecordLoader().describe().caveats)
+    assert "2 of 10 rows carry an unverified" in caveats
