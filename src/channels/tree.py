@@ -110,6 +110,10 @@ class TreeCoder:
     name = "tree_coder"
     version = "1.0"
     requires_validation = True
+    #: Every code in the codebook is reachable from some gate.
+    label_space = (
+        "OBJ", "REF", "ESC", "WARN", "NORM", "SELF_LICENSE", "SHARE", "UNCL",
+    )
 
     def code(self, utt: Utterance) -> CodedLabel:
         """Return the code, its type, and the gate path that produced it.

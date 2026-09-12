@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import random
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -48,6 +48,7 @@ class ValidationRecord:
     control_corpus: str
     n_utterances: int
     scores: dict[str, CodeScore]
+    n_skipped: int = 0
     generated_utc: str = field(
         default_factory=lambda: datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     )
@@ -116,6 +117,51 @@ def validate(
     )
 
 
+def validate_from_result(
+    result: object,
+    control: Iterable[Utterance],
+    codebook_hash: str,
+    control_name: str,
+    codes: Sequence[str],
+) -> ValidationRecord:
+    """Score a DetectorResult against a labelled control, aligning on uid.
+
+    Utterances the detector declined to label are excluded from the denominator
+    AND counted in `n_skipped`. A detector that abstains on an item has not got
+    it wrong, but it has not got it right either, and burying abstentions in the
+    denominator would flatter or punish it arbitrarily. The count is reported so
+    a reader can recompute either way.
+    """
+    labels = {label.uid: label.code for label in result.labels}  # type: ignore[attr-defined]
+    gold: list[str | None] = []
+    predicted: list[str] = []
+    n_skipped = 0
+    for utt in control:
+        if utt.uid not in labels:
+            n_skipped += 1
+            continue
+        gold.append(utt.corpus_meta.get("gold_code"))
+        predicted.append(labels[utt.uid])
+    label_space = set(getattr(result, "label_space", ()) or codes)
+    scores: dict[str, CodeScore] = {}
+    for code in codes:
+        score = _score_one_code(code, gold, predicted)
+        if code not in label_space:
+            # The detector cannot emit this code at all. Its zero is a property of
+            # the instrument, not a measurement of the corpus.
+            score = replace(score, status="outside_detector_label_space")
+        scores[code] = score
+    return ValidationRecord(
+        detector_name=result.detector_name,  # type: ignore[attr-defined]
+        detector_version=result.detector_version,  # type: ignore[attr-defined]
+        codebook_hash=codebook_hash,
+        control_corpus=control_name,
+        n_utterances=len(gold),
+        scores=scores,
+        n_skipped=n_skipped,
+    )
+
+
 def write_validation(
     record: ValidationRecord, directory: Path = VALIDATION_DIR
 ) -> Path:
@@ -151,6 +197,7 @@ def load_validations(
             control_corpus=raw["control_corpus"],
             n_utterances=raw["n_utterances"],
             scores=scores,
+            n_skipped=raw.get("n_skipped", 0),
             generated_utc=raw["generated_utc"],
         )
         records[record.key] = record

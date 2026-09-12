@@ -1,0 +1,53 @@
+{
+  "codebook_hash": "sha256:2d1077fad571ec02c5bbbef5cfdc5f3541b46305ab9e9004e318bd37ea56af83",
+  "control_corpus": "wikitactics",
+  "detector_name": "nli_detector",
+  "detector_version": "1.0",
+  "generated_utc": "2026-09-12T19:07:39Z",
+  "n_skipped": 213,
+  "n_utterances": 3652,
+  "scores": {
+    "OBJ": {
+      "code": "OBJ",
+      "f1": 0.10650887573964499,
+      "precision": 0.07049608355091384,
+      "predicted": 766,
+      "recall": 0.21774193548387097,
+      "recall_ci95": [
+        0.1708939776025,
+        0.27320072921987004
+      ],
+      "status": "measured",
+      "support": 248,
+      "true_positives": 54
+    },
+    "REF": {
+      "code": "REF",
+      "f1": null,
+      "precision": null,
+      "predicted": 0,
+      "recall": 0.0,
+      "recall_ci95": [
+        0.0,
+        0.11025539546043596
+      ],
+      "status": "outside_detector_label_space",
+      "support": 31,
+      "true_positives": 0
+    },
+    "SHARE": {
+      "code": "SHARE",
+      "f1": null,
+      "precision": null,
+      "predicted": 0,
+      "recall": 0.0,
+      "recall_ci95": [
+        0.0,
+        0.003085902058831932
+      ],
+      "status": "outside_detector_label_space",
+      "support": 1241,
+      "true_positives": 0
+    }
+  }
+}
