@@ -65,14 +65,22 @@ STATE_LABELS: dict[ReasoningState, str] = {
 
 
 def figure_one(
-    cells: Sequence[EmissionCell], out_path: Path
+    cells: Sequence[EmissionCell], out_path: Path, by_task: bool = True
 ) -> tuple[Path, str]:
-    """Stacked four-state distribution by model and task class, with Wilson bars.
+    """Stacked four-state distribution by model (and task class), with Wilson bars.
 
     Low-n cells are excluded from the plot and named in the caption, per the
     small-cell rule. Returns the path written and the caption text.
+
+    `by_task=False` collapses task classes into one bar per model. Use it only
+    when the within-model spread across task classes has been checked and is
+    small: collapsing an axis that carries variation hides the variation, which
+    is the reporting-unit failure this package exists to name.
+    `task_class_spread` computes that check.
     """
-    grouped = _group_by_model_task(cells)
+    grouped = (
+        _group_by_model_task(cells) if by_task else _group_by_model(cells)
+    )
     plotted = {
         key: group for key, group in grouped.items() if _n_of(group) >= MIN_CELL_N
     }
@@ -82,7 +90,7 @@ def figure_one(
     figure.patch.set_facecolor(SURFACE)
     axes.set_facecolor(SURFACE)
 
-    labels = [f"{_display_model(model)}\n{task}" for model, task in plotted]
+    labels = [_bar_label(key) for key in plotted]
     bottoms = [0.0] * len(plotted)
     for state in ReasoningState:
         heights = [_share_of(group, state) for group in plotted.values()]
@@ -284,7 +292,7 @@ def _style_axes(axes: Any, ylabel: str, xlabel: str = "") -> None:
 
 def _group_by_model_task(
     cells: Sequence[EmissionCell],
-) -> dict[tuple[str, str], list[EmissionCell]]:
+) -> dict[tuple[str, ...], list[EmissionCell]]:
     """Group cells into the figure's bars: one bar per model x task class."""
     grouped: dict[tuple[str, str], list[EmissionCell]] = {}
     for cell in cells:
@@ -320,6 +328,46 @@ def _pooled_rate(group: Sequence[EmissionCell]) -> RateWithCI:
     return cell_rate(merged)
 
 
+def _bar_label(key: tuple[str, ...]) -> str:
+    """Axis label for one bar: model alone, or model over task class."""
+    if len(key) == 2:
+        return f"{_display_model(key[0])}\n{key[1]}"
+    return _display_model(key[0])
+
+
+def _group_by_model(
+    cells: Sequence[EmissionCell],
+) -> dict[tuple[str, ...], list[EmissionCell]]:
+    """Group cells into one bar per model, pooling task classes."""
+    grouped: dict[tuple[str, ...], list[EmissionCell]] = {}
+    for cell in cells:
+        grouped.setdefault((cell.model,), []).append(cell)
+    return grouped
+
+
+def task_class_spread(cells: Sequence[EmissionCell]) -> dict[str, float]:
+    """Max-minus-min raw_present across task classes, per model.
+
+    The number that decides whether `figure_one(by_task=False)` is honest. A
+    model whose spread is ~0 loses nothing by having its task classes pooled;
+    one whose spread is large must keep them separate.
+    """
+    by_model_task: dict[str, dict[str, list[EmissionCell]]] = {}
+    for cell in cells:
+        by_model_task.setdefault(cell.model, {}).setdefault(
+            cell.task_class, []
+        ).append(cell)
+    spread: dict[str, float] = {}
+    for model, tasks in by_model_task.items():
+        rates = []
+        for group in tasks.values():
+            rate = _pooled_rate(group)
+            if rate.rate is not None:
+                rates.append(rate.rate)
+        spread[model] = max(rates) - min(rates) if rates else 0.0
+    return spread
+
+
 def _display_model(model: str) -> str:
     """Shorten a provider-qualified model id for an axis tick.
 
@@ -331,12 +379,14 @@ def _display_model(model: str) -> str:
 
 
 def _caption_one(
-    plotted: Mapping[tuple[str, str], Sequence[EmissionCell]],
-    excluded: Sequence[tuple[str, str]],
+    plotted: Mapping[tuple[str, ...], Sequence[EmissionCell]],
+    excluded: Sequence[tuple[str, ...]],
 ) -> str:
     """Standalone-readable caption for Figure 1, stating every n."""
     parts = []
-    for (model, task), group in plotted.items():
+    for key, group in plotted.items():
+        model = key[0]
+        task = key[1] if len(key) == 2 else "all task classes"
         rate = _pooled_rate(group)
         shares = {
             state: _share_of(group, state) for state in ReasoningState
@@ -359,7 +409,7 @@ def _caption_one(
     if excluded:
         caption += (
             f" Excluded from the plot for n < {MIN_CELL_N}: "
-            + ", ".join(f"{model}/{task}" for model, task in excluded)
+            + ", ".join("/".join(str(part) for part in key) for key in excluded)
             + " (these appear in the appendix table)."
         )
     return caption

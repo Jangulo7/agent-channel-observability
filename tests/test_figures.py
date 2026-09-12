@@ -63,3 +63,45 @@ def test_figure_two_states_the_worst_position(tmp_path: Path) -> None:
     profile = binned_profile(cells, n_bins=2)
     _, caption = figure_two(profile, tmp_path / "fig2.png")
     assert "lowest at position" in caption
+
+
+def _model_task_turns(
+    model: str, task: str, state: ReasoningState, n: int
+) -> list:
+    """n single-turn synthetic samples for one model and task class."""
+    observations = []
+    for index in range(n):
+        observations.extend(
+            turns([state], model=model, task_class=task,
+                  sample_id=f"SYNTHETIC_{model}_{task}_{index}")
+        )
+    return observations
+
+
+def test_task_class_spread_detects_within_model_variation() -> None:
+    """The check that decides whether pooling task classes is honest."""
+    from channels.figures import task_class_spread
+
+    flat = build_cells(
+        _model_task_turns("SYNTHETIC-FLAT", "task_a", RAW, MIN_CELL_N)
+        + _model_task_turns("SYNTHETIC-FLAT", "task_b", RAW, MIN_CELL_N)
+    )
+    assert task_class_spread(flat)["SYNTHETIC-FLAT"] == 0.0
+
+    varying = build_cells(
+        _model_task_turns("SYNTHETIC-VARY", "task_a", RAW, MIN_CELL_N)
+        + _model_task_turns("SYNTHETIC-VARY", "task_b", ABSENT, MIN_CELL_N)
+    )
+    assert task_class_spread(varying)["SYNTHETIC-VARY"] == 1.0
+
+
+def test_figure_one_can_pool_task_classes(tmp_path: Path) -> None:
+    """by_task=False gives one bar per model, and the caption says so."""
+    cells = build_cells(
+        _model_task_turns("SYNTHETIC-POOL", "task_a", RAW, MIN_CELL_N)
+        + _model_task_turns("SYNTHETIC-POOL", "task_b", RAW, MIN_CELL_N)
+    )
+    path, caption = figure_one(cells, tmp_path / "f1_pooled.png", by_task=False)
+    assert path.is_file()
+    assert "all task classes" in caption
+    assert f"n={2 * MIN_CELL_N}" in caption
