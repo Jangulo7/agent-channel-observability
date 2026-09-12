@@ -71,7 +71,7 @@ OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
 comparable. Scoring disabled: we measure the channel, not performance.
 
 <!-- BEGIN:reasoning-status -->
-**6 of 9 arms complete**, 7,578 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Partially run, excluded from the table: `gpt-5-nano-low`. Not yet run: `gpt-5-nano-medium`, `gpt-5-nano-high`.
+**7 of 9 arms complete**, 8,841 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Not yet run: `gpt-5-nano-medium`, `gpt-5-nano-high`.
 <!-- END:reasoning-status -->
 
 Arms below are complete. Pending arms are **not** included in any figure or
@@ -89,6 +89,7 @@ the n actually measured.
 | `claude-haiku-4.5` | 1,263 | **1.0000** | [0.9970, 1.0000] | 0.0000 | 0.0000 | 0.0000 |
 | `deepseek-v3.2` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 0.0000 | 1.0000 |
 | `deepseek-v3.2-reasoning-on` | 1,263 | **0.9802** | [0.9709, 0.9866] | 0.0000 | 0.0000 | 0.0198 |
+| `gpt-5-nano-low` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 1.0000 | 0.0000 |
 <!-- END:reasoning-arms -->
 
 Zero samples errored. Incomplete logs are excluded and counted, not partially
@@ -113,7 +114,7 @@ here.
 | `qwen3-32b` | 1,263 | **1.0000** |
 | `claude-haiku-4.5` | 1,263 | **1.0000** |
 | `glm-4.7-flash` | 1,263 | **0.9976** |
-| `gpt-5-nano` | probe | reasoning **encrypted** → `redacted` |
+| **`gpt-5-nano` (effort=low)** | **1,263** | **0.0000** — reasoning **encrypted**, 341,726 reasoning tokens |
 
 **This is the result the baseline alone could not support.** A reviewer reading
 §1 could fairly object that 0/3,789 was measured on models that were never going
@@ -123,10 +124,41 @@ same benchmarks, same 1,013 sample ids, 1,263 turns on each side — **0.0000 wi
 reasoning not requested, 0.9802 with it requested.** "This model emits no
 reasoning" was really "this request did not ask for it."
 
-And `gpt-5-nano` demonstrably reasons (64 reasoning tokens on the probe) while
-shipping the chain encrypted, so an external evaluator receives nothing readable.
-Taken together: **what an evaluator can see is set by disclosure policy and
-request configuration, not by model capability.**
+### Reasoning that happens and cannot be read
+
+`gpt-5-nano` at `reasoning_effort=low`, 1,263 turns, complete arm:
+
+| quantity | value |
+|---|---|
+| reasoning tokens emitted | **341,726** |
+| `raw_present` | **0.0000** [0.0000, 0.0030] |
+| `redacted` | **1.0000** |
+
+The model reasoned across every turn — a third of a million tokens of it — and
+an external evaluator can read **none** of it. This is a different failure from
+the DeepSeek default arm, which produced no reasoning at all, and the two are
+distinguishable only because the four-state classification separates `absent`
+from `redacted`. A binary "was reasoning visible?" would have scored them
+identically at zero and lost the distinction that matters:
+
+| arm | reasoning tokens | state | what it means for an evaluator |
+|---|---|---|---|
+| `deepseek-v3.2` default | 0 | `absent` 1.000 | nothing to read, because nothing was produced |
+| `gpt-5-nano` low | 341,726 | `redacted` 1.000 | plenty was produced; you are not permitted to read it |
+| `deepseek-v3.2` reasoning-on | 539,635 | `raw_present` 0.980 | produced and readable |
+
+**Taken together: what an evaluator can see is set by disclosure policy and
+request configuration, not by model capability.** That is H1, measured on three
+complete arms of one thousand samples each.
+
+> **Why `summary_only` is 0.0000 everywhere.** OpenRouter returns both an
+> encrypted chain *and* a short summary for `gpt-5-nano`. `coverage.py` records
+> the **strongest limitation** present, so a turn carrying both is classified
+> `redacted`, never `summary_only`. That is the documented rule (spec §4) and it
+> biases against observability, which is the safe direction — but it does mean
+> `summary_only` is structurally unobservable whenever a provider ships a
+> summary alongside an encrypted chain. A reader should not read the zero as
+> "no provider offers summaries".
 
 ### The within-model control, measured
 
