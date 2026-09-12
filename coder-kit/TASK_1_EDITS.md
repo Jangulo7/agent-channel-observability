@@ -65,12 +65,13 @@ probably `d`. If you thought "someone had to tidy that up", it is probably `h`.
 
 - Lines starting with **`-`** were **removed** by the undo.
 - Lines starting with **`+`** were **put back** by the undo.
-- Long diffs stop after 24 lines to keep the screen readable. When they do, you
-  will see a line like `... 85 more diff lines - press [m] to see them`.
-  **Press `m` to show the whole thing**, then answer as normal.
-- Use `m` whenever the visible part does not settle it. Only fall back to `u`
-  when the *full* diff still does not settle it.
-- If you would rather always see everything, add `--full-diff` to the command.
+- **The whole diff is always shown.** Nothing is hidden or cut off. In this
+  sample the typical item is about 38 diff lines and the longest is 109, so a
+  long one may scroll — just scroll back up if you need to.
+- The line just above the question repeats which item and page you are on, so
+  you do not lose your place on a long diff.
+- Because you can always see everything, `u` should mean "the full evidence does
+  not settle it", never "I could not see enough".
 
 In the example above, the removed content is a wall of nearly identical links.
 That reads as junk, so `h` would be a reasonable answer.
@@ -92,6 +93,8 @@ to judge.
 
 - **Take a break every 30–40 minutes.** Accuracy drops after that, and the tool
   resumes perfectly.
+- The menu only ever contains judgements about the item, plus skip and quit.
+  There are no display commands to learn.
 - **Don't go back to change earlier answers.** Your first instinct is what we
   want. The tool doesn't let you go back, on purpose.
 - **Don't try to be consistent with a pattern you think you're forming.** Judge
