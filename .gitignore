@@ -85,3 +85,6 @@ results/annotations/*__smoke*.json
 
 # Third long-horizon family (OS tasks, Docker).
 data/inspect-runs-osbench/
+
+# Follow-up arms R1-R3 staging (moved into the family corpus dirs when complete).
+data/inspect-runs-followup/

@@ -16,17 +16,14 @@ dependencies = [
     "pyyaml>=6.0",
     "jsonschema>=4.21",
     "matplotlib>=3.8",
-    "transformers>=4.44",   # NliDetector only; cached checkpoint, no network in CI
+    # transformers/torch back NliDetector (spec §1.4 core list, author decision
+    # 2026-09-13: they stay core, not an extra). The detector never downloads at
+    # analysis time; the checkpoint is cached once, out of band.
+    "transformers>=4.44",
     "torch>=2.4",
 ]
 
 [project.optional-dependencies]
-# transformers/torch back NliDetector only (step 10). Kept out of the core
-# install so that `uv sync` for the primary emission result does not pull
-# ~2.5 GB of wheels. The detector refuses to download at analysis time; the
-# checkpoint is cached once, out of band.
-nli = ["transformers>=4.44", "torch>=2.4"]
-
 # Running NEW measurements (not needed to read or verify existing ones).
 # `openai` is the client inspect-ai's openrouter provider imports at runtime;
 # `inspect_evals` supplies the three benchmark task definitions. Neither is

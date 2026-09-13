@@ -28,7 +28,7 @@
 
 # Second dyad. The file header has always said "two dyads"; only one was seeded.
 # This one is now transcribable because the source PDF is available. Note it does
-# NOT carry the zz prefix, which is why test_zz_prefix_consistent_across_sources
+# NOT carry the zz prefix, which is why test_zz_prefix_used_by_both_actors_of_a_dyad
 # asserts the convention across attributed actors rather than across all rows.
 - local_id: reciprocity_offer_ask
   channel: inter_agent_message

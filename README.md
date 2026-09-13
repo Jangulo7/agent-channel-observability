@@ -53,8 +53,9 @@ them would make long agent runs look unmonitorable by construction.
 ## Two rules that are built into the code, not just described
 
 1. **No detector may report a rate without a recorded, validated recall.**
-   `require_validation` raises an exception, and the guards are called inside
-   `rq3_endpoint` and `scripts/analyse_annotations.py`. A number from an uncalibrated
+   `require_validation` raises an exception and is called inside `rq3_endpoint`
+   (and when rung-1 recalls are read); the provenance guard `assert_primary_eligible`
+   is called in `rq3_endpoint` and in `scripts/analyse_annotations.py`. A number from an uncalibrated
    instrument is not a weak measurement; it is an unknown one.
 2. **An unreadable turn is a failure, not a dropped row.** A turn whose reasoning
    was summarised, redacted or absent stays in the denominator and fails the

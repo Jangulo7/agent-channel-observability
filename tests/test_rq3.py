@@ -35,9 +35,20 @@ def test_endpoint_refuses_a_rate_without_a_validated_detector() -> None:
     assert len(result.blockers) == 3
 
 
-def test_zero_observed_gives_a_bound_not_a_bare_zero() -> None:
-    """'Zero observed' states nothing; 'below X with 95% confidence' does."""
-    result = rq3_endpoint(Counter({1: 70, 2: 30}), observed_objections=0)
+def test_zero_observed_gives_a_bound_not_a_bare_zero(tmp_path: Path) -> None:
+    """'Zero observed' states nothing; 'below X with 95% confidence' does.
+
+    The count must come from a validated detector over primary-eligible utterances
+    (spec §0 rule 1), so the setup supplies both. Updated 2026-09-13 by author
+    decision after the guards were wired into rq3_endpoint; assertions unchanged.
+    """
+    _write_synthetic_record(tmp_path, "tree_coder", 0.5, (0.4, 0.6))
+    _write_synthetic_record(tmp_path, "nli_detector", 0.25, (0.2, 0.3))
+    result = rq3_endpoint(
+        Counter({1: 70, 2: 30}), observed_objections=0,
+        utterances=[_synthetic_utt("1", Provenance.VERBATIM)],
+        detector=TreeCoder(), codebook=SYNTHETIC_HASH, validation_dir=tmp_path,
+    )
     assert result.rate is None
     assert result.rate_status == "one_sided_bound_only"
     assert result.upper_bound_95 is not None

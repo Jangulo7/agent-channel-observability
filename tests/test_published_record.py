@@ -34,12 +34,15 @@ def test_every_row_is_agent_prose_not_investigator_summary() -> None:
         assert utt.provenance in {Provenance.VERBATIM, Provenance.REDACTED_PARTIAL}
 
 
-def test_zz_prefix_consistent_across_sources() -> None:
-    """The zz protocol convention appears in rows attributed to independent sources.
+def test_zz_prefix_used_by_both_actors_of_a_dyad() -> None:
+    """The zz protocol convention appears on both sides of an ASK/ANSWER exchange.
 
-    The ASK/ANSWER strings carry a `zz` prefix. If that convention showed up in
-    only one source it could be a transcription artefact of that report; showing
-    up under separate attributions is weak evidence it is the agents' own framing.
+    What this establishes is narrow: the prefix is attributed to at least two
+    distinct agents, so it is not one speaker's idiosyncrasy. It is NOT cross-source
+    corroboration: every zz-prefixed row transcribed here comes from a single
+    document (the METR/Redwood HF investigation). Renamed 2026-09-13 from
+    `test_zz_prefix_consistent_across_sources`, whose name claimed independent
+    sources the repository does not contain.
     """
     zz_rows = [
         utt

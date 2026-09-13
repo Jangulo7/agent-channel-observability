@@ -29,7 +29,8 @@ PUBLISHED_RECORD_DIR = Path(__file__).resolve().parents[3] / "data" / "published
 REQUIRED_FIELDS = ("local_id", "channel", "provenance", "text", "source_ref")
 
 #: The convention the incident's agents used to frame protocol strings. Asserted
-#: across independently attributed sources by `test_zz_prefix_consistent_...`.
+#: across distinct actors (not independent sources: every zz row comes from one
+#: document) by `test_zz_prefix_used_by_both_actors_of_a_dyad`.
 ZZ_PREFIX = "zz"
 
 

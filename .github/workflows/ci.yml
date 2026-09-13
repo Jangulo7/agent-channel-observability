@@ -22,7 +22,7 @@ jobs:
       # --frozen fails the build if uv.lock and pyproject.toml have drifted,
       # rather than silently resolving something newer. The whole point of
       # committing the lock is that CI runs the versions we measured with.
-      # Only the dev extra. `nli`, `evals` and `verify` exist to RUN new
+      # Only the dev extra (transformers/torch are core). `evals` and `verify` exist to RUN new
       # measurements or verify citations; no test needs them. The NLI test skips
       # itself when the checkpoint cache is absent, which it always is in CI.
       - name: Install

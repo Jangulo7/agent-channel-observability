@@ -43,10 +43,6 @@ evals = [
     { name = "inspect-evals" },
     { name = "openai" },
 ]
-nli = [
-    { name = "torch" },
-    { name = "transformers" },
-]
 verify = [
     { name = "pypdf" },
 ]
@@ -66,12 +62,10 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
     { name = "torch", specifier = ">=2.4" },
-    { name = "torch", marker = "extra == 'nli'", specifier = ">=2.4" },
     { name = "transformers", specifier = ">=4.44" },
-    { name = "transformers", marker = "extra == 'nli'", specifier = ">=4.44" },
     { name = "types-pyyaml", marker = "extra == 'dev'" },
 ]
-provides-extras = ["nli", "evals", "verify", "dev"]
+provides-extras = ["evals", "verify", "dev"]
 
 [[package]]
 name = "agent-client-protocol"

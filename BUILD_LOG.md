@@ -34,25 +34,18 @@ asked and how it was settled.
 
 ### Open decisions that are yours, not blockers
 
-1. **Pre-registration is ready to register, and §0 makes it honest.** Several
-   analyses were already run, so the document now separates them: §0.1 lists
-   them as **exploratory**, §0.2 registers **C1–C3** (the human annotation) as
-   confirmatory with decision rules fixed before any label exists. Run
-   `scripts/register.sh` when you are ready — it stamps the timestamp, commits,
-   records the SHA and tells you to push. **Push before the coder starts**, or
-   the registration post-dates the labels.
+1. *(Done: registered at `ae377b0`, 2026-09-12T23:15Z; `cd0fa2c` records the SHA;
+   every record carries it.)* §0.1 lists the earlier analyses as **exploratory**;
+   §0.2 registers **C1–C3** (the human annotation) as confirmatory. Still owed: an
+   independent dated timestamp for the two hashes.
 2. **`config/channels.yaml` thresholds are still illustrative** (floor 0.50,
    ceiling 0.50). Nothing in the literature sets these. They must not be cited
    as a standard, and the README says so.
 3. *(Resolved in session 5: the verifier now reports trailing unpaired calls as
    informational unless the provider billed reasoning on them; exit 0.)*
-   **`scripts/verify_coverage.py` now exits non-zero, on three benign cases —
-   your call how to score them** (AMBER, found 2026-09-13 audit). All three are
-   `qwen3-32b` trajectories whose *final* model call never became an assistant
-   turn: one hit a provider 400 (context length), two hit the 600 s time limit.
-   None reports reasoning tokens, so none is billed-but-unrecorded reasoning. I
-   did not change the script: counting a call-vs-turn mismatch as a failure is
-   the conservative reading, and loosening a verifier is not mine to decide.
+   The three cases were `qwen3-32b` trajectories whose final model call never became
+   an assistant turn (one provider 400, two 600 s time limits), none reporting
+   reasoning tokens.
 
 ---
 
@@ -411,8 +404,9 @@ abstentions leave the denominator and are counted in `n_skipped`.
 ## Step 11 — the published record ✅
 7 rows seeded verbatim from your prompt. `refuse_rate()` raises by design.
 Validator requires a non-empty `source_ref` and enum-valid channel/provenance on
-every row. `test_zz_prefix_consistent_across_sources` asserts the `zz` convention
-appears under ≥2 independently attributed actors. Page numbers unverified (Q7).
+every row. `test_zz_prefix_consistent_across_sources` (renamed in session 5 to
+`test_zz_prefix_used_by_both_actors_of_a_dyad`) asserts the `zz` convention
+appears under ≥2 distinct actors — not independent sources. Page numbers unverified (Q7).
 
 ## Step 12 — RQ3 returns a bound and its blockers, never a rate ✅
 `rate=None`, `rate_status="no_validated_detector_for_this_corpus"`, three
@@ -953,8 +947,9 @@ pass. Private outputs: `.research-plan/conclusions.md`,
   six corpora into shared strata; 11 whole-message Mythos redactions were ABSENT.
 - **Guards were never called in production.** `require_validation` and
   `assert_primary_eligible` existed and were tested but no entry point called them; rq3
-  hard-coded both detectors' recalls. Now wired at `rq3_endpoint` and
-  `analyse_annotations`; recalls read from the validation records.
+  hard-coded both detectors' recalls. Now both guards run in `rq3_endpoint`,
+  `assert_primary_eligible` also in `analyse_annotations` (C1); recalls read from the
+  validation records.
 - **Claims audit: ~50 mismatches** in README, RESULTS_SUMMARY, DATA_PROVENANCE,
   CITATION.cff and this log, including two headline supports that were false ("5,818
   reasoning tokens then exactly zero"; "verify_coverage: no disagreements"), a Mythos
