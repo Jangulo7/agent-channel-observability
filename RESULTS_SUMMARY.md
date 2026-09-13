@@ -786,18 +786,37 @@ its assertions unchanged), so the suite is green.
 
 ---
 
-## 10. Human annotation — registered, not yet run
+## 10. Human annotation — the confirmatory endpoints, measured
 
-Confirmatory endpoints C1–C3 are registered in
+Confirmatory endpoints C1–C3 were registered in
 [`docs/PREREGISTRATION.md` §0.2](docs/PREREGISTRATION.md) with their decision
-rules fixed **before any label exists**. Nothing below has a number yet, and the
-absence is the current honest state rather than an omission.
+rules fixed **before any label existed**. Labels arrived 2026-09-13 from a blind
+coder (`JAG`) and the author as second coder (`JAD`); `scripts/analyse_annotations.py`
+applies the fixed rules and writes `results/annotations/analysis_results.json`. **These
+are the only confirmatory results in the project; everything else is exploratory.**
 
-| endpoint | what it measures | status |
-|---|---|---|
-| **C1** | Precision of the checksum-revert detector: of 60 sampled reverts, what share are genuine disagreement? | **no labels yet** |
-| **C2** | Verbal objection in the message channel: `OBJ`/`REF`/`ESC`/`WARN` in 200 sampled `change_summary` messages | **no labels yet** |
-| **C3** | Cohen's κ between the coder and the author on 50 shared items | **no labels yet** |
+| endpoint | measured | registered rule | verdict |
+|---|---|---|---|
+| **C1** revert precision (coder JAG, n=60) | 42 genuine / 14 housekeeping / 4 unclear; precision **0.700**; page-clustered 95% CI **[0.174, 0.963]** (3 page clusters), actor-clustered [0.481, 0.855] | validated only if page-clustered lower bound > 0.50 | **NOT validated** (lower bound 0.174) |
+| **C2** verbal objection (coder JAG, n=156 coded of 200) | **0** OBJ/REF/ESC/WARN | zero → one-sided upper bound, never "no objection occurs" | **zero observed; rate < 0.017 (95%)** |
+| **C3** reliability κ (JAG vs author JAD, n=60) | percent agreement 0.683; **κ = 0.229** | κ<0.40 ⇒ C1 unreliable; ≥0.60 adequate | **below 0.40 → C1 reported unreliable** |
+
+**What this resolves.** The registration worked as designed: the revert detector is
+**not** a validated instrument — its page-clustered precision lower bound (0.174) is far
+below the 0.50 floor, *and* coder/author reliability (κ = 0.229) is below 0.40, so C1 is
+unreliable regardless of its point estimate. The two coders diverge on what a genuine
+revert is (the blind coder calls 14/60 housekeeping; the author 2/60), which is exactly
+the kind of instrument disagreement the reliability check exists to catch. **No
+revert-based RQ3 rate is reported**, and the verbal-objection channel is bounded at
+essentially zero. `κ` measures whether the written codebook reproduces the author's
+intent, not inter-rater reliability (the second coder wrote the codebook).
+
+> **Two deviations from §0.2, both logged.** (a) The author (JAD) coded all 60 revert
+> items, not the registered first 50, so κ is on the 60 shared items (more data, same
+> test). (b) `analyse_annotations.py` selected C1's primary coder by file-name order
+> until 2026-09-13; it now enforces the registered roles explicitly (blind coder = C1
+> primary, author = C3 second). κ is symmetric, so C3 is unaffected; C1's primary is now
+> JAG (0.700) rather than JAD (0.817). See `BUILD_LOG.md`.
 
 Registered decision rules, restated here so the result cannot be reinterpreted
 after the fact:
@@ -813,8 +832,9 @@ after the fact:
   whether the written rules reproduce the author's intent; it will not be called
   inter-rater reliability.
 
-**Current detector state.** `revert_detector` v1.0 has a validation record with
-`status="no_support_in_control"` for `REVERT` — no corpus available to this
-project carries human revert labels. It predicts 1,275 reverts over 13,661
-artefact edits and **reports no recall**, which is why no revert-based rate
-appears anywhere above.
+**Detector state.** `revert_detector` v1.0's validation record still carries
+`status="no_support_in_control"` (its automated recall was never established on a labelled
+control). The human annotation above measures its **precision** on 60 sampled predictions
+instead — 0.700 point, but not validated (page-clustered lower bound 0.174) and unreliable
+(κ 0.229). It predicts 1,275 reverts over 13,661 artefact edits and, consistent with all
+of the above, **no revert-based rate is reported anywhere in this document.**

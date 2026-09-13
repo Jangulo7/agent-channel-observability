@@ -1,0 +1,53 @@
+{
+  "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
+  "registered_rules": {
+    "revert_validated_lower_bound": 0.5,
+    "kappa_adequate": 0.6,
+    "kappa_unreliable": 0.4
+  },
+  "endpoints": {
+    "c1": {
+      "coder": "JAG",
+      "n": 60,
+      "disagreement": 42,
+      "housekeeping": 14,
+      "unclear": 4,
+      "precision": 0.7,
+      "naive_ci95": [
+        0.5749129205308552,
+        0.8010183386123089
+      ],
+      "clustered": {
+        "page": {
+          "ci95": [
+            0.1742696239014651,
+            0.962682467101196
+          ],
+          "n_clusters": 3
+        },
+        "actor": {
+          "ci95": [
+            0.4810271816464765,
+            0.8545227551323956
+          ],
+          "n_clusters": 33
+        }
+      },
+      "verdict": "NOT validated"
+    },
+    "c2": {
+      "coder": "JAG",
+      "n": 156,
+      "objections": 0,
+      "zero_upper_bound_95": 0.017047567433446167
+    },
+    "c3": {
+      "coder": "JAG",
+      "author": "JAD",
+      "n": 60,
+      "percent_agreement": 0.6833333333333333,
+      "kappa": 0.22868741542625173,
+      "verdict": "unreliable"
+    }
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
+  "coder_id": "JAG",
+  "labels": [
+    {
+      "choice": "d",
+      "seconds": 16.97,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1872:edit",
+      "utc": "2026-09-13T13:44:07Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 10.48,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1175:edit",
+      "utc": "2026-09-13T13:44:17Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 19.03,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2163:edit",
+      "utc": "2026-09-13T13:44:36Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 17.91,
+      "uid": "collusion_wiki:dse~StartSeite@500:edit",
+      "utc": "2026-09-13T13:44:54Z"
+    },
+    {
+      "choice": "u",
+      "seconds": 172.46,
+      "uid": "collusion_wiki:dse~TestSeite@747:edit",
+      "utc": "2026-09-13T13:47:47Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 41.4,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@653:edit",
+      "utc": "2026-09-13T13:48:28Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 11.22,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1012:edit",
+      "utc": "2026-09-13T13:48:39Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 14.89,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@202:edit",
+      "utc": "2026-09-13T13:48:54Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 15.78,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@846:edit",
+      "utc": "2026-09-13T13:49:10Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 104.68,
+      "uid": "collusion_wiki:dse~StartSeite@529:edit",
+      "utc": "2026-09-13T13:50:55Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 15.87,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@549:edit",
+      "utc": "2026-09-13T13:51:11Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 12.98,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1440:edit",
+      "utc": "2026-09-13T13:51:24Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 20.07,
+      "uid": "collusion_wiki:dse~StartSeite@426:edit",
+      "utc": "2026-09-13T13:51:44Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 32.71,
+      "uid": "collusion_wiki:dse~TestSeite@872:edit",
+      "utc": "2026-09-13T13:52:16Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 12.66,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2288:edit",
+      "utc": "2026-09-13T13:52:29Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 6.08,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2255:edit",
+      "utc": "2026-09-13T13:52:35Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 91.98,
+      "uid": "collusion_wiki:dse~StartSeite@635:edit",
+      "utc": "2026-09-13T13:54:07Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 7.11,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1574:edit",
+      "utc": "2026-09-13T13:54:14Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 13.6,
+      "uid": "collusion_wiki:dse~TestSeite@919:edit",
+      "utc": "2026-09-13T13:54:28Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 16.02,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@723:edit",
+      "utc": "2026-09-13T13:54:44Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 17.53,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@226:edit",
+      "utc": "2026-09-13T13:55:01Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 11.49,
+      "uid": "collusion_wiki:dse~StartSeite@532:edit",
+      "utc": "2026-09-13T13:55:13Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 9.35,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@772:edit",
+      "utc": "2026-09-13T13:55:22Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 8.44,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1108:edit",
+      "utc": "2026-09-13T13:55:31Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 12.59,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1460:edit",
+      "utc": "2026-09-13T13:55:43Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 14.87,
+      "uid": "collusion_wiki:dse~StartSeite@558:edit",
+      "utc": "2026-09-13T13:55:58Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 21.63,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@813:edit",
+      "utc": "2026-09-13T13:56:20Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 14.9,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@858:edit",
+      "utc": "2026-09-13T13:56:35Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 12.2,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2170:edit",
+      "utc": "2026-09-13T13:56:47Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 51.41,
+      "uid": "collusion_wiki:dse~StartSeite@508:edit",
+      "utc": "2026-09-13T13:57:38Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 14.04,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1455:edit",
+      "utc": "2026-09-13T13:57:52Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 19.09,
+      "uid": "collusion_wiki:dse~StartSeite@494:edit",
+      "utc": "2026-09-13T13:58:12Z"
+    },
+    {
+      "choice": "u",
+      "seconds": 56.12,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@741:edit",
+      "utc": "2026-09-13T13:59:08Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 15.59,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1129:edit",
+      "utc": "2026-09-13T13:59:23Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 5.8,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1777:edit",
+      "utc": "2026-09-13T13:59:29Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 6.18,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2259:edit",
+      "utc": "2026-09-13T13:59:35Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 70.0,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@115:edit",
+      "utc": "2026-09-13T14:00:45Z"
+    },
+    {
+      "choice": "u",
+      "seconds": 24.02,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@673:edit",
+      "utc": "2026-09-13T14:01:09Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 10.88,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1096:edit",
+      "utc": "2026-09-13T14:01:20Z"
+    },
+    {
+      "choice": "u",
+      "seconds": 24.93,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@787:edit",
+      "utc": "2026-09-13T14:01:45Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 7.11,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1829:edit",
+      "utc": "2026-09-13T14:01:52Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 11.88,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@754:edit",
+      "utc": "2026-09-13T14:02:04Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 8.8,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1263:edit",
+      "utc": "2026-09-13T14:02:13Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 16.19,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1043:edit",
+      "utc": "2026-09-13T14:02:29Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 13.83,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@842:edit",
+      "utc": "2026-09-13T14:02:43Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 12.69,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1290:edit",
+      "utc": "2026-09-13T14:02:56Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 4.85,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2067:edit",
+      "utc": "2026-09-13T14:03:00Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 19.47,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1023:edit",
+      "utc": "2026-09-13T14:03:20Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 18.39,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@713:edit",
+      "utc": "2026-09-13T14:03:38Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 19.75,
+      "uid": "collusion_wiki:dse~StartSeite@571:edit",
+      "utc": "2026-09-13T14:03:58Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 10.68,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@768:edit",
+      "utc": "2026-09-13T14:04:09Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 11.57,
+      "uid": "collusion_wiki:dse~StartSeite@533:edit",
+      "utc": "2026-09-13T14:04:20Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 10.91,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@995:edit",
+      "utc": "2026-09-13T14:04:31Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 46.87,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1419:edit",
+      "utc": "2026-09-13T14:05:18Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 8.93,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@504:edit",
+      "utc": "2026-09-13T14:05:27Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 13.8,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@639:edit",
+      "utc": "2026-09-13T14:05:41Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 5.3,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@2275:edit",
+      "utc": "2026-09-13T14:05:46Z"
+    },
+    {
+      "choice": "d",
+      "seconds": 6.69,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@1845:edit",
+      "utc": "2026-09-13T14:05:53Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 13.85,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@372:edit",
+      "utc": "2026-09-13T14:06:07Z"
+    },
+    {
+      "choice": "h",
+      "seconds": 6.91,
+      "uid": "collusion_wiki:dse~WillkommenImWiki@318:edit",
+      "utc": "2026-09-13T14:06:14Z"
+    }
+  ],
+  "n_requested": 60,
+  "sample_id": "revert_validity_n60_seed7",
+  "seed": 7,
+  "started_utc": "2026-09-13T13:43:50Z",
+  "task": "revert_validity"
+}

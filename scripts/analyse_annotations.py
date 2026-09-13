@@ -20,6 +20,8 @@ from channels.loaders.collusion_wiki import CollusionWikiLoader
 from channels.provenance import assert_primary_eligible
 from channels.schema import Channel
 
+RESULTS: dict = {}
+
 CORPUS = Path("data/german-collusion-wiki")
 
 #: Registered in PREREGISTRATION §0.2. Not adjustable here, by design.
@@ -33,6 +35,13 @@ OBJECTION_CODES = {"o", "r", "e", "w"}
 #: under whatever codebook happened to be current at the time.
 EXCLUDED_CODERS = frozenset({"practice", "smoke_test", "smoke_test_b"})
 
+#: The codebook author's coder id. Registration §0.2 fixes two roles that the
+#: file-name sort cannot: the BLIND coder is C1's primary, and the AUTHOR is only
+#: ever the SECOND coder for the C3 reliability check (never C1's primary, because
+#: the author is not blind). This orders records so the author is last; it does not
+#: change kappa, which is symmetric.
+AUTHOR_CODER_ID = "JAD"
+
 
 def _records(task: str) -> list:
     """Every saved record for one task, newest coder last."""
@@ -41,6 +50,9 @@ def _records(task: str) -> list:
         record = load_record(path)
         if record.task == task and record.coder_id not in EXCLUDED_CODERS:
             records.append(record)
+    # Registered roles, not alphabetical order: the author is always last so C1's
+    # primary is the blind coder and C3's second coder is the author (§0.2).
+    records.sort(key=lambda r: r.coder_id == AUTHOR_CODER_ID)
     return records
 
 
@@ -70,6 +82,10 @@ def c1_revert_precision() -> None:
     unclear = sum(1 for c in labels.values() if c == "u")
 
     interval = wilson_interval(disagreement, n)
+    RESULTS["c1"] = {"coder": primary.coder_id, "n": n, "disagreement": disagreement,
+                     "housekeeping": n - disagreement - unclear, "unclear": unclear,
+                     "precision": disagreement / n,
+                     "naive_ci95": [interval.low, interval.high]}
     print(f"C1 — revert precision   coder={primary.coder_id}  n={n}")
     print(f"  disagreement {disagreement}, housekeeping "
           f"{n - disagreement - unclear}, unclear {unclear}")
@@ -97,6 +113,8 @@ def _c1_clustered(disagreement: int, labels: dict[str, str]) -> None:
         for field, rate in both_clusterings(disagreement, coded).items():
             low = f"{rate.ci_low:.4f}" if rate.ci_low is not None else "n/a"
             high = f"{rate.ci_high:.4f}" if rate.ci_high is not None else "n/a"
+            RESULTS.setdefault("c1", {}).setdefault("clustered", {})[field] = {
+                "ci95": [rate.ci_low, rate.ci_high], "n_clusters": rate.n_clusters}
             print(f"  clustered by {field:6s} [{low}, {high}] "
                   f"n_clusters={rate.n_clusters}")
             if field == "page":
@@ -105,6 +123,7 @@ def _c1_clustered(disagreement: int, labels: dict[str, str]) -> None:
                     and rate.ci_low > REVERT_VALIDATED_LOWER_BOUND
                     else "NOT validated"
                 )
+                RESULTS["c1"]["verdict"] = verdict
                 print(f"  -> REVERT is {verdict} "
                       f"(registered rule: page-clustered lower bound > "
                       f"{REVERT_VALIDATED_LOWER_BOUND})")
@@ -121,10 +140,12 @@ def c2_message_objection() -> None:
     labels = [label.choice for label in primary.labels]
     n = len(labels)
     objections = sum(1 for c in labels if c in OBJECTION_CODES)
+    RESULTS["c2"] = {"coder": primary.coder_id, "n": n, "objections": objections}
     print(f"C2 — verbal objection   coder={primary.coder_id}  n={n}")
     print(f"  OBJ/REF/ESC/WARN: {objections}")
     if objections == 0:
         bound = wilson_upper_bound(0, n)
+        RESULTS["c2"]["zero_upper_bound_95"] = bound
         print(f"  -> zero observed; rate below {bound:.4f} with 95% confidence")
         print("     (registered wording: never 'no objection occurs')")
     else:
@@ -147,6 +168,11 @@ def c3_reliability() -> None:
     b = {label.uid: label.choice for label in second.labels}
     kappa, overlap = cohens_kappa(a, b)
     agreed = sum(1 for uid in set(a) & set(b) if a[uid] == b[uid])
+    reliable = "unreliable" if kappa < KAPPA_UNRELIABLE else (
+        "adequate" if kappa >= KAPPA_ADEQUATE else "marginal")
+    RESULTS["c3"] = {"coder": first.coder_id, "author": second.coder_id,
+                     "n": overlap, "percent_agreement": agreed / overlap,
+                     "kappa": kappa, "verdict": reliable}
     print(f"C3 — reliability   {first.coder_id} vs {second.coder_id}  n={overlap}")
     print(f"  percent agreement {agreed / overlap:.4f}   kappa {kappa:.4f}")
     if kappa >= KAPPA_ADEQUATE:
@@ -171,6 +197,17 @@ def main() -> int:
     c1_revert_precision()
     c2_message_objection()
     c3_reliability()
+    import json
+    out = ANNOTATION_DIR / "analysis_results.json"
+    out.write_text(json.dumps(
+        {"codebook_hash": codebook_hash(),
+         "registered_rules": {
+             "revert_validated_lower_bound": REVERT_VALIDATED_LOWER_BOUND,
+             "kappa_adequate": KAPPA_ADEQUATE,
+             "kappa_unreliable": KAPPA_UNRELIABLE,
+         },
+         "endpoints": RESULTS}, indent=2) + "\n")
+    print(f"wrote {out}")
     return 0
 
 

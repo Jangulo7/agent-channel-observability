@@ -1017,3 +1017,40 @@ about deliberation.* Until provider token accounting is part of the record (Q10)
 with interleaved thinking, ≈ $4–12) — the one experiment that turns the surviving
 positional finding from "consistent with" into established or refuted. Not more arms.
 
+---
+
+# Session 6 — 2026-09-13, the coder's labels arrived (C1–C3 measured)
+
+Blind coder `JAG` returned the two label files and feedback; the author coded the same
+60 revert items as `JAD`. `scripts/analyse_annotations.py` applied the §0.2 rules and
+wrote `results/annotations/analysis_results.json`. These are the project's only
+**confirmatory** results.
+
+- **C1 revert precision (JAG, n=60): 0.700**, page-clustered 95% CI **[0.174, 0.963]**
+  (3 page clusters), actor-clustered [0.481, 0.855]. Lower bound 0.174 < 0.50 →
+  **REVERT NOT validated.**
+- **C2 verbal objection (JAG, n=156 of 200 coded): 0** → rate **< 0.017 (95%)**. As
+  predicted. Coder feedback: ~60% of messages felt context-dependent and `u` vs `s` was
+  hard, so the channel is coded overwhelmingly `u`; the zero-objection endpoint is robust
+  to that (neither `u` nor `s` is an objection).
+- **C3 reliability κ (JAG vs author JAD, n=60): 0.229**, percent agreement 0.683 → below
+  0.40 → **C1 reported unreliable regardless of its point estimate.** The blind coder
+  calls 14/60 housekeeping, the author 2/60: they disagree on what a genuine revert is.
+
+**Net:** the registration did its job. The revert detector is not a validated instrument
+(precision lower bound far below floor AND κ below 0.40), and no revert-based RQ3 rate is
+reported. The secondary arm closes as a bounded null plus an unreliable-instrument finding.
+
+**AMBER — two deviations from §0.2, both logged in `docs/PREREGISTRATION.md` §11 and here.**
+1. The author coded all **60** revert items, not the registered first **50**; κ is on the
+   60 shared items (more data, same test).
+2. `analyse_annotations.py` chose C1's primary coder by file-name order, which put the
+   author (JAD) first and would have made C1 report the author's 0.817 — the non-blind
+   coder. Found when the labels arrived. Fixed by enforcing the registered roles
+   explicitly (`AUTHOR_CODER_ID`, blind coder = C1 primary, author = C3 second). κ is
+   symmetric so C3 is unchanged; C1's primary is now correctly JAG (0.700). Both numbers
+   are on the record. This is a code change made after labels existed, disclosed rather
+   than hidden; it implements the pre-registered design, it does not choose a result.
+
+Passing: ruff, mypy --strict, pytest 311. CI green (run 34766424769).
+

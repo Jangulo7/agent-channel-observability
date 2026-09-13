@@ -1,13 +1,13 @@
 """Long-horizon arm: SWE-bench Verified on cheap open models, for coverage by step.
 
-The transfer question the project could not answer: does reasoning disclosure hold over
-long agentic trajectories, or decay with depth? SWE-bench gives real multi-step tool use
-in a per-instance Docker sandbox. We measure the reasoning channel, not the solve rate, so
-scoring is off; the point is the trajectory and its coverage by step, not whether the bug
-was fixed. Cheap open models are used deliberately (running long trajectories on frontier
-APIs is the cost wall); whether a cheap model sustains a long trajectory is itself part of
-the answer. The same instances run under every model so the comparison is clean and the
-2 GB images are pulled once.
+The transfer question the project could not answer: does reasoning disclosure hold
+over long agentic trajectories, or decay with depth? SWE-bench gives real multi-step
+tool use in a per-instance Docker sandbox. We measure the reasoning channel, not the
+solve rate, so scoring is off; the point is the trajectory and its coverage by step,
+not whether the bug was fixed. Cheap open models are used deliberately (running long
+trajectories on frontier APIs is the cost wall); whether a cheap model sustains a long
+trajectory is itself part of the answer. The same instances run under every model, so
+the comparison is clean and the 2 GB images are pulled once.
 
     set -a; source .env; set +a
     .venv/bin/python scripts/run_swebench_arm.py --limit 10
