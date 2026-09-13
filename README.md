@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1367457116.svg)](https://doi.org/10.5281/zenodo.22739095)
+
 # agent-channel-observability
 
 **What this does, in one sentence:** it measures how often you can actually *see*
