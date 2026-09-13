@@ -17,6 +17,7 @@ from channels.annotate import ANNOTATION_DIR, cohens_kappa, load_record
 from channels.cluster import both_clusterings
 from channels.codebook import codebook_hash
 from channels.loaders.collusion_wiki import CollusionWikiLoader
+from channels.provenance import assert_primary_eligible
 from channels.schema import Channel
 
 CORPUS = Path("data/german-collusion-wiki")
@@ -75,13 +76,23 @@ def c1_revert_precision() -> None:
     print(f"  precision {disagreement / n:.4f} "
           f"naive 95% CI [{interval.low:.4f}, {interval.high:.4f}]")
 
-    # Clustered by page (primary) and actor (sensitivity), as registered.
+    _c1_clustered(disagreement, labels)
+    print()
+
+
+def _c1_clustered(disagreement: int, labels: dict[str, str]) -> None:
+    """Clustered by page (primary) and actor (sensitivity), as registered."""
+    n = len(labels)
     utts = {
         u.uid: u
         for u in CollusionWikiLoader(CORPUS).load()
         if u.channel is Channel.ARTEFACT_EDIT
     }
     coded = [utts[uid] for uid in labels if uid in utts]
+    # These utterances are the C1 denominator, so they are where the provenance
+    # guard belongs. It raises rather than filtering, so a paraphrased or
+    # investigator-written edit cannot quietly shrink the denominator.
+    assert_primary_eligible(coded)
     if len(coded) == n:
         for field, rate in both_clusterings(disagreement, coded).items():
             low = f"{rate.ci_low:.4f}" if rate.ci_low is not None else "n/a"
@@ -97,7 +108,6 @@ def c1_revert_precision() -> None:
                 print(f"  -> REVERT is {verdict} "
                       f"(registered rule: page-clustered lower bound > "
                       f"{REVERT_VALIDATED_LOWER_BOUND})")
-    print()
 
 
 def c2_message_objection() -> None:

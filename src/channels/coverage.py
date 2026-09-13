@@ -31,15 +31,28 @@ def classify_reasoning(block: Any) -> ReasoningState:
 
     Order matters: a redacted block may still carry a summary, and we record the
     stronger limitation. See Inspect's ContentReasoning fields (reasoning, summary,
-    signature, redacted).
+    signature, redacted). A reasoning or summary string that is blank after stripping
+    carries nothing an evaluator could read, so it counts as empty.
     """
     if getattr(block, "redacted", False):
         return ReasoningState.REDACTED
-    if getattr(block, "reasoning", None):
+    if _has_text(getattr(block, "reasoning", None)):
         return ReasoningState.RAW_PRESENT
-    if getattr(block, "summary", None):
+    if _has_text(getattr(block, "summary", None)):
         return ReasoningState.SUMMARY_ONLY
     return ReasoningState.ABSENT
+
+
+def _has_text(value: Any) -> bool:
+    """Return whether a reasoning or summary field holds any non-whitespace text.
+
+    A bare truthiness test would call "\\n\\n" readable reasoning: providers emit
+    whitespace-only blocks when they reasoned but disclosed nothing, and scoring those
+    RAW_PRESENT would count an empty channel as evidence of monitorability.
+    """
+    if isinstance(value, str):
+        return bool(value.strip())
+    return bool(value)
 
 
 def classify_turn(states: Sequence[ReasoningState]) -> ReasoningState:
@@ -69,6 +82,20 @@ def reasoning_blocks(message: Any) -> list[Any]:
     return [block for block in content if getattr(block, "type", None) == "reasoning"]
 
 
+def trajectory_id(sample: Any) -> str:
+    """Return the cluster key for one trajectory: the sample id, qualified by epoch.
+
+    Inspect reuses a sample's id across epochs, so a bare id would merge repeated
+    runs of the same task into one cluster and understate the number of
+    trajectories. Epoch 1 keeps the bare id so single-epoch records are unchanged.
+    """
+    sample_id = str(getattr(sample, "id", "unknown"))
+    epoch = getattr(sample, "epoch", None)
+    if epoch is None or epoch == 1:
+        return sample_id
+    return f"{sample_id}#epoch{epoch}"
+
+
 def observe_turns(
     sample: Any,
     model: str,
@@ -83,7 +110,7 @@ def observe_turns(
     positional profile is about.
     """
     observations: list[TurnObservation] = []
-    sample_id = str(getattr(sample, "id", "unknown"))
+    sample_id = trajectory_id(sample)
     step_index = 0
     for message in getattr(sample, "messages", []) or []:
         if getattr(message, "role", None) != "assistant":
@@ -130,6 +157,6 @@ def _state_for_message(message: Any) -> ReasoningState:
     # NEEDS REVIEW: spec §9.1 says to read `ChatMessageAssistant.reasoning`; that
     # field does not exist in the pinned inspect-ai 0.3.260. Read defensively.
     attribute = getattr(message, "reasoning", None)
-    if attribute:
+    if _has_text(attribute):
         return ReasoningState.RAW_PRESENT
     return ReasoningState.ABSENT

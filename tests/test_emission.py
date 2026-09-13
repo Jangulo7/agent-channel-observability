@@ -103,3 +103,93 @@ def test_cells_are_split_by_reasoning_effort() -> None:
     cells = build_cells(observations)
     assert len(cells) == 2
     assert {c.reasoning_effort for c in cells} == {"high", "low"}
+
+
+def test_pooled_step_counts_distinct_trajectories_not_the_last_stratum() -> None:
+    """Pooling efforts at a step counts every distinct trajectory once.
+
+    Ten trajectories at effort high and three more at effort low give 13
+    trajectories at step 0; keeping the last stratum's count reported 10 or 3.
+    """
+    observations = [
+        *(
+            obs
+            for index in range(10)
+            for obs in turns([RAW], effort="high", sample_id=f"SYNTHETIC_H{index}")
+        ),
+        *(
+            obs
+            for index in range(3)
+            for obs in turns([ABSENT], effort="low", sample_id=f"SYNTHETIC_L{index}")
+        ),
+    ]
+    profile = positional_profile(
+        build_cells(observations), "SYNTHETIC-MODEL-A", "synthetic_task"
+    )
+    assert profile[0].n == 13
+    assert profile[0].n_clusters == 13
+    assert profile[0].rate == 10 / 13
+
+
+def test_trajectory_rate_counts_distinct_trajectories_across_steps() -> None:
+    """Three trajectories of different lengths are three clusters, not max-per-cell."""
+    observations = [
+        *turns([RAW, RAW, RAW], sample_id="SYNTHETIC_A"),
+        *turns([RAW, ABSENT], sample_id="SYNTHETIC_B"),
+        *turns([ABSENT], sample_id="SYNTHETIC_C"),
+    ]
+    mean, _ = trajectory_rate(
+        build_cells(observations), "SYNTHETIC-MODEL-A", "synthetic_task"
+    )
+    assert mean.n == 6
+    assert mean.n_clusters == 3
+
+
+def test_pooled_raw_present_is_clustered_and_refuses_one_trajectory() -> None:
+    """Pooled over steps the interval is clustered; one trajectory gets none."""
+    from channels.emission import pooled_raw_present
+
+    many = [
+        obs
+        for index in range(40)
+        for obs in turns([RAW, RAW, ABSENT], sample_id=f"SYNTHETIC_{index}")
+    ]
+    clustered = pooled_raw_present(build_cells(many))
+    assert clustered.n_clusters == 40
+    assert clustered.method == "clustered-wilson"
+    assert clustered.ci_low is not None and clustered.ci_high is not None
+    assert clustered.ci_low <= clustered.rate <= clustered.ci_high
+
+    single = pooled_raw_present(build_cells(turns([RAW, ABSENT] * 20)))
+    assert single.ci_low is None and single.ci_high is None
+    assert single.status == "single_cluster_no_interval"
+
+
+def test_arm_profile_unit_follows_the_trajectory_count() -> None:
+    from channels.emission import arm_profiles
+
+    two = [
+        *turns([RAW, ABSENT], sample_id="SYNTHETIC_A"),
+        *turns([RAW, ABSENT], sample_id="SYNTHETIC_B"),
+    ]
+    (stepped,) = arm_profiles(build_cells(two))
+    assert (stepped.unit, stepped.bin_width) == ("step", None)
+    assert stepped.n_trajectories == 2
+    assert sorted(stepped.points) == [0, 1]
+
+    (binned,) = arm_profiles(build_cells(turns([RAW] * 25)), n_bins=5)
+    assert (binned.unit, binned.bin_width, binned.n_trajectories) == ("bin", 5, 1)
+    assert sorted(binned.points) == [0, 1, 2, 3, 4]
+
+
+def test_arm_profile_raises_without_trajectory_ids() -> None:
+    """Missing ids make the unit undecidable, so the profile refuses to guess."""
+    import pytest
+
+    from channels.emission import arm_profiles
+    from channels.errors import MissingActorError
+    from channels.schema import TurnObservation
+
+    anonymous = [TurnObservation("SYNTHETIC-MODEL-A", "synthetic_task", 0, RAW)]
+    with pytest.raises(MissingActorError):
+        arm_profiles(build_cells(anonymous))

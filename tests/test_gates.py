@@ -200,3 +200,40 @@ def test_load_config_rejects_a_non_mapping(tmp_path: Path) -> None:
     path.write_text(yaml.safe_dump(["a", "list"]))
     with pytest.raises(ValueError, match="did not parse to a mapping"):
         load_config(path)
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_tied_worst_strata_are_all_listed_regardless_of_input_order(
+    reverse: bool,
+) -> None:
+    """Two strata at exactly the same worst rate are both named, in sorted order.
+
+    Choosing one by input order made the reported stratum depend on which log was
+    read first, which is not a property of the measurement.
+    """
+    cells = [
+        cell(raw=0, absent=313, model="SYNTHETIC-MODEL-B"),
+        cell(raw=0, absent=500, model="SYNTHETIC-MODEL-A"),
+        cell(raw=90, absent=10, model="SYNTHETIC-MODEL-C"),
+    ]
+    if reverse:
+        cells.reverse()
+    expected = "SYNTHETIC-MODEL-A/effort=None, SYNTHETIC-MODEL-B/effort=None"
+    coverage = deliberation_coverage_floor(cells, floor=0.5)
+    assert coverage.worst_stratum == expected
+    assert "worst strata (tied, 2)" in coverage.detail
+    ceiling = uninspectable_ceiling(cells, ceiling=0.5)
+    assert ceiling.worst_stratum == expected
+
+
+def test_tied_strata_take_the_most_severe_verdict() -> None:
+    """Equal rates with different n: the thin stratum's interval straddles the floor.
+
+    0.6 at n=10 is MARGINAL against 0.5; 0.6 at n=1000 is PASS. The gate must read
+    MARGINAL whichever stratum comes first.
+    """
+    thin = cell(raw=6, absent=4, model="SYNTHETIC-MODEL-THIN")
+    thick = cell(raw=600, absent=400, model="SYNTHETIC-MODEL-THICK")
+    for cells in ([thin, thick], [thick, thin]):
+        result = deliberation_coverage_floor(cells, floor=0.5)
+        assert result.status is GateStatus.MARGINAL

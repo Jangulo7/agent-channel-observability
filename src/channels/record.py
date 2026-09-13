@@ -13,26 +13,28 @@ from typing import Any
 
 import jsonschema
 
+from channels.bound import recall_ceiling
 from channels.emission import (
     DENOMINATOR_STATEMENT,
     MIN_CELL_N,
+    ArmProfile,
     EmissionCell,
     cell_rate,
     state_shares,
     uninspectable_share,
 )
-from channels.schema import CorpusDescription, RateWithCI, ReasoningState
+from channels.schema import CorpusDescription, ReasoningState
 
-SCHEMA_VERSION = "3.0"
+SCHEMA_VERSION = "4.0"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "results" / "record_schema.json"
 
 
 def build_record(
     corpora: Sequence[CorpusDescription],
     cells: Sequence[EmissionCell],
-    positional: Mapping[int, RateWithCI],
+    profiles: Sequence[ArmProfile],
     codebook_hash: str,
-    codebook_version: int = 1,
+    codebook_version: int | None = None,
     preregistration_commit: str | None = None,
     stage2_recall: float = 1.0,
     inter_agent: Mapping[str, Any] | None = None,
@@ -43,10 +45,10 @@ def build_record(
     Every field that has no measurement behind it is emitted as null with its status,
     never as a plausible default. `messages_authenticated` is the clearest case: no
     corpus this project reads supports authentication, and recording that as null is
-    the honest form of the adversarial-channel finding.
+    the honest form of the adversarial-channel finding. Provenance fields default
+    to null for the same reason.
     """
     uninspectable = uninspectable_share(cells)
-    profile = {str(step): rate.rate for step, rate in positional.items()}
     return {
         "observability_record": {
             "schema_version": SCHEMA_VERSION,
@@ -59,10 +61,10 @@ def build_record(
                 "denominator": DENOMINATOR_STATEMENT,
                 "min_cell_n": MIN_CELL_N,
                 "cells": [_cell_block(cell) for cell in cells],
-                "positional_profile": profile,
+                "positional_profile": [_profile_block(arm) for arm in profiles],
                 "uninspectable_share": uninspectable.rate,
             },
-            "bound": _bound_block(positional, stage2_recall, cells),
+            "bound": [_bound_block(arm, stage2_recall) for arm in profiles],
             "inter_agent_channel": dict(inter_agent or _empty_inter_agent()),
             "detectors": [dict(item) for item in (detectors or [])],
         }
@@ -102,51 +104,84 @@ def _cell_block(cell: EmissionCell) -> dict[str, Any]:
     }
 
 
-def _bound_block(
-    positional: Mapping[int, RateWithCI],
-    stage2_recall: float,
-    cells: Sequence[EmissionCell],
-) -> dict[str, Any]:
-    """The recall ceiling block, scalar and positional."""
-    from channels.bound import recall_ceiling
-
-    models = sorted({cell.model for cell in cells})
-    rates = [rate.rate for rate in positional.values() if rate.rate is not None]
-    mean_coverage = sum(rates) / len(rates) if rates else None
+def _arm_identity(arm: ArmProfile) -> dict[str, Any]:
+    """The fields that name an arm and say what its profile keys mean."""
     return {
-        "model": models[0] if len(models) == 1 else models,
-        "stage2_recall_assumed": stage2_recall,
-        "ceiling_mean_coverage": (
-            recall_ceiling(mean_coverage, stage2_recall)
-            if mean_coverage is not None
-            else None
-        ),
-        "ceiling_by_step": {
-            str(step): (
-                recall_ceiling(rate.rate, stage2_recall)
-                if rate.rate is not None
-                else None
-            )
-            for step, rate in positional.items()
+        "model": arm.model,
+        "task_class": arm.task_class,
+        "reasoning_effort": arm.reasoning_effort,
+        "unit": arm.unit,
+        "bin_width": arm.bin_width,
+    }
+
+
+def _profile_block(arm: ArmProfile) -> dict[str, Any]:
+    """One arm's c(j), keyed by step or bin as `unit` says, every point with its n."""
+    return {
+        **_arm_identity(arm),
+        "n_trajectories": arm.n_trajectories,
+        "profile": {
+            str(key): {
+                "rate": rate.rate,
+                "ci95": [rate.ci_low, rate.ci_high],
+                "n_turns": rate.n,
+                "low_n": rate.low_n,
+                "interval_status": rate.status,
+            }
+            for key, rate in arm.points.items()
         },
     }
+
+
+def _bound_block(arm: ArmProfile, stage2_recall: float) -> dict[str, Any]:
+    """One arm's recall ceiling: action-weighted mean, by step, and at its worst step.
+
+    The mean is the pooled raw_present share over every turn the arm took, not an
+    unweighted mean over positions: averaging positions lets a thin late step count as
+    much as a step every trajectory reached. The worst step is chosen among powered
+    positions only, because the minimum over low-n points is mostly noise.
+    """
+    coverage = arm.raw_present.rate
+    powered = arm.powered()
+    worst = min(powered, key=lambda key: (powered[key].rate or 0.0, key), default=None)
+    return {
+        **_arm_identity(arm),
+        "stage2_recall_assumed": stage2_recall,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": _ceiling(coverage, stage2_recall),
+        "ceiling_by_step": {
+            str(key): _ceiling(rate.rate, stage2_recall)
+            for key, rate in arm.points.items()
+        },
+        "ceiling_at_worst_powered_step": (
+            None if worst is None
+            else {"step": worst,
+                  "value": _ceiling(powered[worst].rate, stage2_recall)}
+        ),
+    }
+
+
+def _ceiling(coverage: float | None, stage2_recall: float) -> float | None:
+    """The recall ceiling at one coverage, or None where coverage was not measured."""
+    return None if coverage is None else recall_ceiling(coverage, stage2_recall)
 
 
 def _empty_inter_agent() -> dict[str, Any]:
     """The inter-agent block when nothing was measured. Nulls, not zeroes.
 
-    A rate of 0 would claim a measurement was made and came back empty. `null` with
-    `rate_status` says no measurement was made at all.
+    A count of 0 would claim a measurement was made and came back empty, and
+    `no_denominator` would claim a denominator was sought and not found. Neither
+    happened: `not_measured` with null counts says no measurement was made at all.
     """
     return {
-        "n_messages": 0,
-        "n_human_excluded": 0,
+        "n_messages": None,
+        "n_human_excluded": None,
         "denominator_code": "SHARE",
-        "n_denominator": 0,
+        "n_denominator": None,
         "rate_per_1000": None,
-        "rate_status": "no_denominator",
+        "rate_status": "not_measured",
         "zero_case_upper_bound_95": None,
-        "codes": {"OBJ": 0, "REF": 0, "ESC": 0, "WARN": 0, "NORM": 0},
+        "codes": None,
         # No corpus this project reads carries an authenticated sender field.
         # Recording that as null rather than omitting it is the finding.
         "messages_authenticated": None,

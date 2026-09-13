@@ -12,11 +12,12 @@ and reading only the first silently drops sub-agent traffic.
 """
 
 from collections.abc import Iterator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from channels.coverage import observe_turns
-from channels.errors import CorpusUnavailableError
+from channels.errors import CorpusUnavailableError, SchemaDiscoveryError
 from channels.loaders.base import actor_concentration, file_hash
 from channels.schema import (
     Channel,
@@ -28,6 +29,15 @@ from channels.schema import (
 
 # Inspect writes both formats; a run directory may contain either.
 LOG_SUFFIXES = (".eval", ".json")
+
+
+@dataclass(frozen=True)
+class ErroredSampleTally:
+    """Samples whose `error` is set, split by whether they produced assistant turns."""
+
+    with_turns: int      # errored samples that still contributed assistant turns
+    turns: int           # the assistant turns those samples contributed
+    without_turns: int   # errored samples that contributed no assistant turn
 
 
 class InspectLogLoader:
@@ -67,13 +77,13 @@ class InspectLogLoader:
         return bool(self.log_paths())
 
     def errored_samples(self) -> int:
-        """Samples that errored and so contributed no assistant turn.
+        """Return how many requested samples the log headers report as not completed.
 
-        A sample that died mid-run is not a turn that emitted nothing; it is a
-        turn that never happened, and it leaves the denominator. That is correct
-        - but it is only honest if the shortfall is REPORTED, because a rate
-        computed over quietly fewer turns is the dropped-denominator failure this
-        package exists to name.
+        This is the header's arithmetic (total_samples - completed_samples), and it
+        says nothing about turns: a sample can error after taking many turns, which
+        are counted because they occurred (see `errored_sample_tally`). A header that
+        cannot be read raises rather than being skipped, because skipping it would
+        make the reported shortfall silently smaller than the real one.
         """
         from inspect_ai.log import read_eval_log
 
@@ -81,8 +91,11 @@ class InspectLogLoader:
         for path in self.log_paths():
             try:
                 header = read_eval_log(str(path), header_only=True)
-            except Exception:
-                continue
+            except Exception as error:
+                raise CorpusUnavailableError(
+                    f"could not read the header of {path} while counting errored "
+                    f"samples: {error!r}"
+                ) from error
             stats = getattr(header.results, "completed_samples", None)
             requested = getattr(header.results, "total_samples", None)
             if stats is not None and requested is not None:
@@ -149,10 +162,35 @@ class InspectLogLoader:
         for path in self.require_available():
             yield from self._utterances_for_log(path)
 
+    def errored_sample_tally(self) -> ErroredSampleTally:
+        """Return errored samples split by whether they contributed assistant turns.
+
+        The turns of an errored sample occurred and stay in every denominator; what
+        must be reported is that they came from a sample that did not finish, and
+        separately how many errored samples left no turn at all.
+        """
+        return self._observations_and_errors()[1]
+
+    def _observations_and_errors(
+        self,
+    ) -> tuple[list[TurnObservation], ErroredSampleTally]:
+        """Return every observation and the errored-sample tally from one read pass."""
+        observations: list[TurnObservation] = []
+        with_turns = turns = without_turns = 0
+        for path in self.require_available():
+            for sample, sample_observations in self._sample_observations(path):
+                observations.extend(sample_observations)
+                if not getattr(sample, "error", None):
+                    continue
+                with_turns += bool(sample_observations)
+                without_turns += not sample_observations
+                turns += len(sample_observations)
+        return observations, ErroredSampleTally(with_turns, turns, without_turns)
+
     def describe(self) -> CorpusDescription:
         """Summarise the log directory, including which task classes it covers."""
         paths = self.require_available()
-        observations = list(self.observations())
+        observations, errored = self._observations_and_errors()
         samples = [o.sample_id for o in observations]
         task_classes = sorted({o.task_class for o in observations})
         return CorpusDescription(
@@ -172,9 +210,14 @@ class InspectLogLoader:
                 f"{len(self.incomplete_logs())} incomplete log(s) EXCLUDED "
                 "(run not finished); their samples are absent from every "
                 "denominator rather than partially counted",
-                f"{self.errored_samples()} sample(s) errored and contributed no "
+                f"{errored.with_turns} errored sample(s) contributed "
+                f"{errored.turns} assistant turn(s); those turns occurred and are "
+                "counted in every denominator",
+                f"{errored.without_turns} errored sample(s) contributed no "
                 "assistant turn; they are absent from the denominator, not "
                 "counted as emitting nothing",
+                f"log headers report {self.errored_samples()} requested sample(s) "
+                "not completed (total_samples - completed_samples)",
             ),
         )
 
@@ -186,22 +229,29 @@ class InspectLogLoader:
 
     def _observations_for_log(self, path: Path) -> Iterator[TurnObservation]:
         """Stream one log file and classify every assistant turn it contains."""
+        for _, sample_observations in self._sample_observations(path):
+            yield from sample_observations
+
+    def _sample_observations(
+        self, path: Path
+    ) -> Iterator[tuple[Any, list[TurnObservation]]]:
+        """Stream one log file, yielding each sample with its classified turns."""
         from inspect_ai.log import read_eval_log, read_eval_log_samples
 
         header = read_eval_log(str(path), header_only=True)
-        model = self._label_for(path, _model_of(header))
-        task_class = _task_class_of(header)
+        model = self._label_for(path, _model_of(header, path))
+        task_class = _task_class_of(header, path)
         effort = _reasoning_effort_of(header)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
-            yield from observe_turns(sample, model, task_class, effort)
+            yield sample, observe_turns(sample, model, task_class, effort)
 
     def _utterances_for_log(self, path: Path) -> Iterator[Utterance]:
         """Stream one log file and emit tool calls and inter-agent messages."""
         from inspect_ai.log import read_eval_log, read_eval_log_samples
 
         header = read_eval_log(str(path), header_only=True)
-        model = self._label_for(path, _model_of(header))
-        task_class = _task_class_of(header)
+        model = self._label_for(path, _model_of(header, path))
+        task_class = _task_class_of(header, path)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
             yield from sample_utterances(sample, model, task_class, self.name)
 
@@ -271,25 +321,49 @@ def _subagent_utterances(
         )
 
 
-def _model_of(header: Any) -> str:
-    """Model identifier from the log header, or an explicit unknown marker."""
-    spec = getattr(header, "eval", None)
-    return str(getattr(spec, "model", None) or "unknown_model")
+def _model_of(header: Any, path: Path) -> str:
+    """Return the model identifier from the log header, raising when it is absent.
+
+    An "unknown_model" label would become a cell, a bar and a gate stratum of its
+    own, and a rate for an unnamed model cannot be attributed to anything.
+    """
+    model = getattr(getattr(header, "eval", None), "model", None)
+    if not model:
+        raise SchemaDiscoveryError(_missing_header_field(header, path, "model"))
+    return str(model)
 
 
-def _task_class_of(header: Any) -> str:
-    """Task class from the log's task name.
+def _task_class_of(header: Any, path: Path) -> str:
+    """Return the task class from the log's task name, raising when it is absent.
 
     Required rather than optional: the reporting-unit argument is that a rate without
     a task class is not interpretable, so a log that cannot name one is a problem to
     surface, not a default to fill in.
     """
-    spec = getattr(header, "eval", None)
-    task = getattr(spec, "task", None)
+    task = getattr(getattr(header, "eval", None), "task", None)
     if not task:
-        return "unknown_task_class"
+        raise SchemaDiscoveryError(_missing_header_field(header, path, "task"))
     # Inspect prefixes registry tasks, e.g. "inspect_evals/sycophancy".
     return str(task).rsplit("/", maxsplit=1)[-1]
+
+
+def _missing_header_field(header: Any, path: Path, field: str) -> str:
+    """The error message for a header lacking `eval.<field>`, with the keys seen."""
+    spec = getattr(header, "eval", None)
+    seen = _keys_of(spec) if spec is not None else _keys_of(header)
+    where = "eval" if spec is not None else "header (no eval block)"
+    return (
+        f"{path}: log header has no eval.{field}; expected it on every Inspect log. "
+        f"Keys seen on {where}: {seen}"
+    )
+
+
+def _keys_of(obj: Any) -> list[str]:
+    """Field names present on a header object, pydantic or plain."""
+    fields = getattr(type(obj), "model_fields", None)
+    if isinstance(fields, dict):
+        return sorted(name for name in fields if getattr(obj, name, None) is not None)
+    return sorted(key for key, value in vars(obj).items() if value is not None)
 
 
 def _reasoning_effort_of(header: Any) -> str | None:

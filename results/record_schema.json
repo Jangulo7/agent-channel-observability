@@ -6,6 +6,21 @@
   "type": "object",
   "required": ["observability_record"],
   "additionalProperties": false,
+  "$defs": {
+    "unit": {
+      "enum": ["step", "bin"],
+      "description": "What the profile keys are: a 0-based step_index (arms with >= 2 trajectories) or an equal-width bin index (single-trajectory arms)."
+    },
+    "bin_width": {
+      "type": ["integer", "null"], "minimum": 1,
+      "description": "Steps per bin when unit is bin; null when unit is step."
+    },
+    "unit_coherence": {
+      "if": {"properties": {"unit": {"const": "step"}}},
+      "then": {"properties": {"bin_width": {"type": "null"}}},
+      "else": {"properties": {"bin_width": {"type": "integer"}}}
+    }
+  },
   "properties": {
     "observability_record": {
       "type": "object",
@@ -16,10 +31,16 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": {"const": "3.0"},
-        "codebook_version": {"type": "integer", "minimum": 1},
+        "schema_version": {"const": "4.0"},
+        "codebook_version": {
+          "type": ["integer", "null"], "minimum": 1,
+          "description": "The `version` field of data/codebook/v1.yaml, read at measure time. null when it could not be read, never a guessed default."
+        },
         "codebook_hash": {"type": "string", "minLength": 1},
-        "preregistration_commit": {"type": ["string", "null"]},
+        "preregistration_commit": {
+          "type": ["string", "null"],
+          "description": "Registration commit SHA from docs/PREREGISTRATION.md, read at measure time. null when it could not be found."
+        },
         "generated_utc": {
           "type": "string",
           "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
@@ -77,23 +98,87 @@
               }
             },
             "positional_profile": {
-              "type": "object",
-              "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+              "type": "array",
+              "description": "One entry per arm (model x task_class x reasoning_effort). Arms are never pooled.",
+              "items": {
+                "type": "object",
+                "required": ["model", "task_class", "reasoning_effort", "unit", "bin_width", "n_trajectories", "profile"],
+                "allOf": [{"$ref": "#/$defs/unit_coherence"}],
+                "additionalProperties": false,
+                "properties": {
+                  "model": {"type": "string"},
+                  "task_class": {"type": "string"},
+                  "reasoning_effort": {"type": ["string", "null"]},
+                  "unit": {"$ref": "#/$defs/unit"},
+                  "bin_width": {"$ref": "#/$defs/bin_width"},
+                  "n_trajectories": {"type": "integer", "minimum": 1},
+                  "profile": {
+                    "type": "object",
+                    "propertyNames": {"pattern": "^[0-9]+$"},
+                    "additionalProperties": {
+                      "type": "object",
+                      "required": ["rate", "ci95", "n_turns", "low_n", "interval_status"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+                        "ci95": {
+                          "type": "array", "minItems": 2, "maxItems": 2,
+                          "items": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+                        },
+                        "n_turns": {"type": "integer", "minimum": 1},
+                        "low_n": {"type": "boolean"},
+                        "interval_status": {
+                          "type": "string",
+                          "description": "ok, or why no interval exists (single_cluster_no_interval for a single-trajectory arm)."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             },
             "uninspectable_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
           }
         },
         "bound": {
-          "type": "object",
-          "required": ["model", "stage2_recall_assumed", "ceiling_mean_coverage", "ceiling_by_step"],
-          "additionalProperties": false,
-          "properties": {
-            "model": {"type": ["string", "array"], "items": {"type": "string"}},
-            "stage2_recall_assumed": {"type": "number", "minimum": 0, "maximum": 1},
-            "ceiling_mean_coverage": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-            "ceiling_by_step": {
-              "type": "object",
-              "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+          "type": "array",
+          "description": "One recall-ceiling block per arm, keyed exactly as that arm's positional_profile entry.",
+          "items": {
+            "type": "object",
+            "required": [
+              "model", "task_class", "reasoning_effort", "unit", "bin_width",
+              "stage2_recall_assumed", "mean_weighting", "ceiling_mean_coverage",
+              "ceiling_by_step", "ceiling_at_worst_powered_step"
+            ],
+            "allOf": [{"$ref": "#/$defs/unit_coherence"}],
+            "additionalProperties": false,
+            "properties": {
+              "model": {"type": "string"},
+              "task_class": {"type": "string"},
+              "reasoning_effort": {"type": ["string", "null"]},
+              "unit": {"$ref": "#/$defs/unit"},
+              "bin_width": {"$ref": "#/$defs/bin_width"},
+              "stage2_recall_assumed": {"type": "number", "minimum": 0, "maximum": 1},
+              "mean_weighting": {
+                "const": "action-weighted",
+                "description": "ceiling_mean_coverage uses the pooled raw_present share over all the arm's turns, not an unweighted mean over positions."
+              },
+              "ceiling_mean_coverage": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+              "ceiling_by_step": {
+                "type": "object",
+                "propertyNames": {"pattern": "^[0-9]+$"},
+                "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+              },
+              "ceiling_at_worst_powered_step": {
+                "type": ["object", "null"],
+                "description": "The ceiling at the lowest-coverage position among positions with n_turns >= min_cell_n; null when no position is powered.",
+                "required": ["step", "value"],
+                "additionalProperties": false,
+                "properties": {
+                  "step": {"type": "integer", "minimum": 0},
+                  "value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+                }
+              }
             }
           }
         },
@@ -102,14 +187,17 @@
           "required": ["n_messages", "n_human_excluded", "denominator_code", "n_denominator", "rate_per_1000", "rate_status", "codes", "messages_authenticated"],
           "additionalProperties": false,
           "properties": {
-            "n_messages": {"type": "integer", "minimum": 0},
-            "n_human_excluded": {"type": "integer", "minimum": 0},
+            "n_messages": {"type": ["integer", "null"], "minimum": 0},
+            "n_human_excluded": {"type": ["integer", "null"], "minimum": 0},
             "denominator_code": {"type": "string"},
-            "n_denominator": {"type": "integer", "minimum": 0},
+            "n_denominator": {"type": ["integer", "null"], "minimum": 0},
             "rate_per_1000": {"type": ["number", "null"], "minimum": 0},
-            "rate_status": {"enum": ["ok", "no_denominator", "not_measured"]},
+            "rate_status": {
+              "enum": ["ok", "no_denominator", "not_measured"],
+              "description": "not_measured: nothing inter-agent was measured, so every count is null rather than 0."
+            },
             "zero_case_upper_bound_95": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-            "codes": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+            "codes": {"type": ["object", "null"], "additionalProperties": {"type": "integer", "minimum": 0}},
             "messages_authenticated": {
               "type": ["boolean", "null"],
               "description": "null by design. No corpus this project reads supports sender authentication. Recording the absence of a field we cannot populate is the honest form of the adversarial-channel finding."

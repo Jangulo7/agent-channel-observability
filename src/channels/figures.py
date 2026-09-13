@@ -21,11 +21,13 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 from channels.emission import (
     MIN_CELL_N,
+    ArmProfile,
     EmissionCell,
-    cell_rate,
+    pooled_raw_present,
 )
 from channels.priors import (
     ADAPTR1_STEP_PROFILE,
@@ -50,6 +52,9 @@ STATE_COLOURS: dict[ReasoningState, str] = {
 SERIES_MEASURED = "#2a78d6"
 SERIES_CEILING = "#eb6834"
 SERIES_INDUCED = "#1baf7a"
+# Low-n positions are drawn hollow and grey: present, so nothing is hidden, but
+# visibly not carrying the same weight as a position with a usable denominator.
+LOW_N_MARKER = "#9a988f"
 
 SURFACE = "#fcfcfb"
 TEXT_PRIMARY = "#0b0b0b"
@@ -71,7 +76,7 @@ STATE_LABELS: dict[ReasoningState, str] = {
 def figure_one(
     cells: Sequence[EmissionCell], out_path: Path, by_task: bool = True
 ) -> tuple[Path, str]:
-    """Stacked four-state distribution by model (and task class), with Wilson bars.
+    """Stacked four-state distribution by model (and task class), with clustered bars.
 
     Low-n cells are excluded from the plot and named in the caption, per the
     small-cell rule. Returns the path written and the caption text.
@@ -135,56 +140,35 @@ def figure_one(
 
 
 def figure_two(
-    profile: Mapping[int, RateWithCI],
+    arm: ArmProfile,
     out_path: Path,
     stage2_recall: float = 1.0,
-    step_label: str = "step index",
     panel_title: str = "Measured",
 ) -> tuple[Path, str]:
-    """Positional coverage c(j) and its ceiling, beside the induced prior art.
+    """Return the path and caption of one arm's c(j) and ceiling, beside prior art.
 
-    Two panels sharing one y-axis rather than one panel with two x-meanings. The
-    measured profile is indexed by our step positions and AdaptR1's is indexed by
-    theirs; drawing them on a shared x would assert that our position 2 and their
-    step 2 are the same thing, which they are not. Sharing the y-axis keeps the
-    comparison that is real — both are probabilities on the same scale — and drops
-    the one that is not.
+    Takes the same `ArmProfile` the record is written from, so the plotted and the
+    published numbers are one object. Multi-trajectory arms are drawn per step, with
+    low-n steps hollow and grey; a single-trajectory arm is drawn per bin.
 
-    A second y-scale is never used. Both quantities here are probabilities, and a
-    dual axis would let the curves be slid against each other until they told
-    whatever story the author wanted.
+    Two panels sharing one y-axis rather than one panel with two x-meanings: our
+    position 2 and AdaptR1's step 2 are not the same thing. A second y-scale is never
+    used, because it would let the curves be slid against each other.
     """
-    figure, (left, right) = plt.subplots(
-        1, 2, figsize=(9.4, 4.4), sharey=True,
-        gridspec_kw={"width_ratios": [2.0, 1.0]},
-    )
-    figure.patch.set_facecolor(SURFACE)
-    for axes in (left, right):
-        axes.set_facecolor(SURFACE)
-
-    steps = sorted(profile)
-    measured = [profile[step].rate or 0.0 for step in steps]
-    left.plot(steps, measured, color=SERIES_MEASURED, linewidth=2.0,
-              marker="o", markersize=5, label="measured c(j)")
-    _plot_interval_band(left, steps, profile)
+    figure, (left, right) = _two_panels()
+    _plot_measured(left, arm)
+    steps = sorted(arm.points)
+    measured = [arm.points[step].rate or 0.0 for step in steps]
     _plot_ceiling(left, steps, measured, stage2_recall)
-
-    _style_axes(left, ylabel="probability", xlabel=step_label)
+    _style_axes(left, ylabel="probability", xlabel=_position_label(arm))
     left.set_ylim(0.0, 1.05)
-    left.set_xticks(list(steps))
-    left.legend(frameon=False, fontsize=8, labelcolor=TEXT_SECONDARY, loc="upper right")
-    left.set_title(
-        panel_title,
-        color=TEXT_PRIMARY, fontsize=10, loc="left", pad=8,
-    )
+    left.xaxis.set_major_locator(MaxNLocator(integer=True))
+    # Legends sit below the axes: inside, they covered the low-n points they label.
+    left.legend(frameon=False, fontsize=8, labelcolor=TEXT_SECONDARY, ncol=2,
+                loc="upper center", bbox_to_anchor=(0.5, -0.16))
+    left.set_title(panel_title, color=TEXT_PRIMARY, fontsize=9, loc="left", pad=8)
 
     _plot_adaptr1_reference(right)
-    _style_axes(right, ylabel="", xlabel="step index (AdaptR1)")
-    right.set_title(
-        "Prior art: INDUCED, not observed",
-        color=TEXT_PRIMARY, fontsize=10, loc="left", pad=8,
-    )
-
     figure.suptitle(
         "Positional coverage and the recall ceiling it imposes",
         color=TEXT_PRIMARY, fontsize=11.5, x=0.008, ha="left", y=0.985,
@@ -193,7 +177,45 @@ def figure_two(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(out_path, dpi=200, facecolor=SURFACE)
     plt.close(figure)
-    return out_path, _caption_two(profile, stage2_recall)
+    return out_path, _caption_two(arm, stage2_recall)
+
+
+def _two_panels() -> tuple[Any, tuple[Any, Any]]:
+    """Return a figure with a wide measured panel and a narrow prior-art panel."""
+    figure, (left, right) = plt.subplots(
+        1, 2, figsize=(10.4, 5.0), sharey=True,
+        gridspec_kw={"width_ratios": [2.0, 1.0]},
+    )
+    figure.patch.set_facecolor(SURFACE)
+    for axes in (left, right):
+        axes.set_facecolor(SURFACE)
+    return figure, (left, right)
+
+
+def _position_label(arm: ArmProfile) -> str:
+    """The x-axis label, which says whether positions are steps or bins."""
+    if arm.unit == "bin":
+        return f"trajectory position (equal-width bins of {arm.bin_width} steps)"
+    return "step index (0-based assistant turn)"
+
+
+def _plot_measured(axes: Any, arm: ArmProfile) -> None:
+    """Draw c(j): filled where powered, hollow grey where low-n, with any intervals."""
+    steps = sorted(arm.points)
+    rates = [arm.points[step].rate or 0.0 for step in steps]
+    axes.plot(steps, rates, color=SERIES_MEASURED, linewidth=1.2, alpha=0.5)
+    for low_n, label in ((False, f"measured c(j), n ≥ {MIN_CELL_N}"),
+                         (True, f"low-n position, n < {MIN_CELL_N}")):
+        chosen = [step for step in steps if arm.points[step].low_n is low_n]
+        if not chosen:
+            continue
+        axes.plot(
+            chosen, [arm.points[step].rate or 0.0 for step in chosen],
+            linestyle="none", marker="o", markersize=5, label=label,
+            markerfacecolor="none" if low_n else SERIES_MEASURED,
+            markeredgecolor=LOW_N_MARKER if low_n else SERIES_MEASURED,
+        )
+    _plot_interval_bars(axes, arm.points)
 
 
 def _plot_ceiling(
@@ -219,32 +241,52 @@ def _plot_ceiling(
     )
 
 
+def adaptr1_thinking_share() -> dict[int, float]:
+    """Return AdaptR1's published per-step no-think ratio transformed to 1 - ratio.
+
+    The published value is a NO-think share; c(j) is a share of turns WITH readable
+    reasoning. Plotted untransformed beside c(j), a high point would read as high
+    coverage when it means the opposite. The transform lives here, not in priors.py,
+    because priors.py holds transcribed values only.
+    """
+    return {step: 1.0 - ratio for step, ratio in ADAPTR1_STEP_PROFILE.items()}
+
+
 def _plot_adaptr1_reference(axes: Any) -> None:
-    """Plot AdaptR1's induced step profile on its own axis, labelled as induced."""
-    steps = sorted(ADAPTR1_STEP_PROFILE)
-    values = [ADAPTR1_STEP_PROFILE[step] for step in steps]
+    """Plot AdaptR1's induced step profile as a thinking share, labelled as induced."""
+    share = adaptr1_thinking_share()
+    steps = sorted(share)
     axes.plot(
-        steps, values, color=SERIES_INDUCED, linewidth=1.8, linestyle=":",
-        marker="^", markersize=6, label="AdaptR1 no-think ratio",
+        steps, [share[step] for step in steps], color=SERIES_INDUCED, linewidth=1.8,
+        linestyle=":", marker="^", markersize=6,
+        label="AdaptR1: 1 - published no-think ratio\n"
+              "(induced by RL objective, not observed)",
     )
     axes.set_xticks(steps)
-    axes.legend(frameon=False, fontsize=8, labelcolor=TEXT_SECONDARY, loc="upper right")
-
-
-def _plot_interval_band(
-    axes: Any, steps: Sequence[int], profile: Mapping[int, RateWithCI]
-) -> None:
-    """Shade the measured interval, but only where an interval actually exists."""
-    lows = [profile[step].ci_low for step in steps]
-    highs = [profile[step].ci_high for step in steps]
-    if any(value is None for value in lows) or any(value is None for value in highs):
-        return
-    axes.fill_between(
-        list(steps),
-        [value for value in lows if value is not None],
-        [value for value in highs if value is not None],
-        color=SERIES_MEASURED, alpha=0.16, linewidth=0,
+    axes.legend(frameon=False, fontsize=8, labelcolor=TEXT_SECONDARY,
+                loc="upper center", bbox_to_anchor=(0.5, -0.16))
+    _style_axes(axes, ylabel="", xlabel="step index (AdaptR1)")
+    axes.set_title(
+        "Prior art: INDUCED, not observed",
+        color=TEXT_PRIMARY, fontsize=10, loc="left", pad=8,
     )
+
+
+def _plot_interval_bars(axes: Any, profile: Mapping[int, RateWithCI]) -> None:
+    """Draw each position's interval, only where one exists and in its point's style.
+
+    Bars rather than a shaded band, because a band interpolates across positions
+    that have no interval (a single trajectory) and across low-n gaps.
+    """
+    for step, rate in profile.items():
+        if rate.rate is None or rate.ci_low is None or rate.ci_high is None:
+            continue
+        axes.errorbar(
+            step, rate.rate,
+            yerr=[[rate.rate - rate.ci_low], [rate.ci_high - rate.rate]],
+            fmt="none", elinewidth=1.0, capsize=2,
+            ecolor=LOW_N_MARKER if rate.low_n else SERIES_MEASURED,
+        )
 
 
 def _label_segments(axes: Any, groups: Sequence[Sequence[EmissionCell]]) -> None:
@@ -269,9 +311,9 @@ def _label_segments(axes: Any, groups: Sequence[Sequence[EmissionCell]]) -> None
 def _overlay_raw_present_intervals(
     axes: Any, groups: Sequence[Sequence[EmissionCell]]
 ) -> None:
-    """Draw a Wilson interval on the raw_present share of each bar."""
+    """Draw a trajectory-clustered interval on each bar's raw_present share."""
     for position, group in enumerate(groups):
-        rate = _pooled_rate(group)
+        rate = pooled_raw_present(group)
         if rate.rate is None or rate.ci_low is None or rate.ci_high is None:
             continue
         axes.errorbar(
@@ -317,22 +359,6 @@ def _share_of(group: Sequence[EmissionCell], state: ReasoningState) -> float:
     return sum(cell.counts[state] for cell in group) / total
 
 
-def _pooled_rate(group: Sequence[EmissionCell]) -> RateWithCI:
-    """Pool a group of cells into one raw_present rate with a Wilson interval."""
-    merged = EmissionCell(
-        model=group[0].model,
-        task_class=group[0].task_class,
-        step_index=-1,
-        reasoning_effort=None,
-        n_turns=_n_of(group),
-        counts={
-            state: sum(cell.counts[state] for cell in group) for state in ReasoningState
-        },
-        n_clusters=max((c.n_clusters or 0) for c in group) or None,
-    )
-    return cell_rate(merged)
-
-
 def _ordered_for_story(
     grouped: dict[tuple[str, ...], list[EmissionCell]],
 ) -> dict[tuple[str, ...], list[EmissionCell]]:
@@ -347,7 +373,7 @@ def _ordered_for_story(
     comparable rather than interleaved.
     """
     def key(item: tuple[tuple[str, ...], list[EmissionCell]]) -> tuple[float, float]:
-        rate = _pooled_rate(item[1])
+        rate = pooled_raw_present(item[1])
         raw = rate.rate if rate.rate is not None else 0.0
         redacted = _share_of(item[1], ReasoningState.REDACTED)
         return (-raw, -redacted)
@@ -388,7 +414,7 @@ def task_class_spread(cells: Sequence[EmissionCell]) -> dict[str, float]:
     for model, tasks in by_model_task.items():
         rates = []
         for group in tasks.values():
-            rate = _pooled_rate(group)
+            rate = pooled_raw_present(group)
             if rate.rate is not None:
                 rates.append(rate.rate)
         spread[model] = max(rates) - min(rates) if rates else 0.0
@@ -414,14 +440,13 @@ def _caption_one(
     for key, group in plotted.items():
         model = key[0]
         task = key[1] if len(key) == 2 else "all task classes"
-        rate = _pooled_rate(group)
         shares = {
             state: _share_of(group, state) for state in ReasoningState
         }
         parts.append(
             f"{model} on {task}: n={_n_of(group)} assistant turns, "
             f"raw_present {shares[ReasoningState.RAW_PRESENT]:.3f} "
-            f"(95% CI {rate.ci_low:.3f}-{rate.ci_high:.3f}), "
+            f"({_interval_phrase(pooled_raw_present(group))}), "
             f"summary_only {shares[ReasoningState.SUMMARY_ONLY]:.3f}, "
             f"redacted {shares[ReasoningState.REDACTED]:.3f}, "
             f"absent {shares[ReasoningState.ABSENT]:.3f}"
@@ -431,7 +456,10 @@ def _caption_one(
         "The denominator is assistant turns that OCCURRED; turns that never happened "
         "because a trajectory ended earlier are not counted as absent. "
         + "; ".join(parts)
-        + ". Error bars are Wilson 95% intervals on the raw_present share."
+        + ". Error bars are Wilson 95% intervals on the raw_present share, clustered "
+        "by trajectory: turns of one trajectory are not independent, so n is "
+        "deflated by the design effect (icc = 1) before the interval is computed. "
+        "A bar drawn from a single trajectory has no interval."
     )
     if excluded:
         caption += (
@@ -442,36 +470,88 @@ def _caption_one(
     return caption
 
 
-def _caption_two(profile: Mapping[int, RateWithCI], stage2_recall: float) -> str:
-    """Standalone caption for Figure 2, stating n and the induced references."""
-    total = sum(rate.n for rate in profile.values())
-    clusters = {rate.n_clusters for rate in profile.values() if rate.n_clusters}
-    lowest_step = min(profile, key=lambda key: profile[key].rate or 0.0)
-    lowest = profile[lowest_step].rate or 0.0
+def _interval_phrase(rate: RateWithCI) -> str:
+    """The caption's interval clause: clustered bounds, or why there are none."""
+    if rate.ci_low is None or rate.ci_high is None:
+        return f"no interval: {rate.n_clusters} trajectory, status {rate.status}"
+    return (
+        f"95% CI {rate.ci_low:.3f}-{rate.ci_high:.3f}, clustered by trajectory, "
+        f"{rate.n_clusters} trajectories"
+    )
+
+
+def _caption_two(arm: ArmProfile, stage2_recall: float) -> str:
+    """Standalone caption for Figure 2, stating n, the unit and the induced prior."""
+    effort = "" if arm.reasoning_effort is None else f", effort {arm.reasoning_effort}"
+    total = sum(rate.n for rate in arm.points.values())
+    trajectories = "trajectory" if arm.n_trajectories == 1 else "trajectories"
     caption = (
-        "Figure 2. Measured positional coverage c(j) and the recall ceiling it "
-        f"imposes on a monitor gated on deliberation, with a perfect second stage "
-        f"(r₂ = {stage2_recall:g}). n = {total} assistant turns across "
-        f"{len(profile)} positions. Coverage is lowest at position {lowest_step} "
-        f"({lowest:.3f}), so a monitor gated on deliberation cannot exceed "
-        f"{lowest * stage2_recall:.3f} recall against an action taken there. "
-        "The green dotted series is AdaptR1's per-step no-think ratio "
-        "(arXiv:2605.31062, Table 4, MuSiQue, lambda=0.9), plotted as a reference "
-        "point only: it is INDUCED by an RL reward that pays for first-step "
-        "no-think and is manipulable across its "
-        "whole range by the lambda term, not observed under no intervention. "
-        "It is plotted in its own panel, on its own step axis: their step 2 and our "
-        "position 2 are not the same quantity. "
-        "AdaptThink's task spread (arXiv:2505.13417: gsm8k "
+        f"Figure 2. {arm.model} on {arm.task_class}{effort}: measured positional "
+        "coverage c(j), the share of assistant turns with readable raw reasoning, and "
+        "the recall ceiling it imposes on a monitor gated on deliberation "
+        f"(r₂ = {stage2_recall:g}). n = {total} assistant turns over "
+        f"{arm.n_trajectories} {trajectories}, {_unit_phrase(arm)} "
+        f"{_lowest_phrase(arm, stage2_recall)} {_low_n_phrase(arm)}"
+        "The green dotted series is a TRANSFORMATION of a published value: 1 minus "
+        "AdaptR1's per-step no-think ratio (arXiv:2605.31062, Table 4, MuSiQue, "
+        "lambda=0.9), so that its polarity matches c(j); induced by RL objective, "
+        "not observed. It is INDUCED because the reward pays for first-step no-think "
+        "and the lambda term moves the whole profile across its range. It is plotted "
+        "in its "
+        "own panel, on its own step axis: their step 2 and our position 2 are not "
+        "the same quantity. AdaptThink's task spread (arXiv:2505.13417: gsm8k "
         f"{ADAPTTHINK_TASK_SPREAD['gsm8k'].value:.3f}, math500 "
         f"{ADAPTTHINK_TASK_SPREAD['math500'].value:.3f}, aime "
         f"{ADAPTTHINK_TASK_SPREAD['aime'].value:.3f}) is not plotted here because it "
         "varies by task, not by step position, and is likewise induced."
     )
-    if clusters == {1}:
+    if arm.n_trajectories == 1:
         caption += (
-            " WARNING: all turns come from a single trajectory (n_clusters = 1). The "
-            "shaded band assumes within-trajectory independence, which is false; it is "
-            "descriptive, not inferential."
+            " WARNING: all turns come from a single trajectory (n_clusters = 1), so "
+            "no interval is drawn: within-trajectory independence is false and the "
+            "bins are descriptive, not inferential."
         )
     return caption
+
+
+def _unit_phrase(arm: ArmProfile) -> str:
+    """How positions are indexed and what the error bars are."""
+    if arm.unit == "bin":
+        return (
+            f"plotted in {len(arm.points)} equal-width bins of {arm.bin_width} steps "
+            "each (bins, not steps: one trajectory gives one turn per step)."
+        )
+    return (
+        f"plotted per step index across {len(arm.points)} steps. Error bars are "
+        "Wilson 95% intervals per step, where each step holds at most one turn per "
+        "trajectory."
+    )
+
+
+def _lowest_phrase(arm: ArmProfile, stage2_recall: float) -> str:
+    """The worst position, chosen among powered positions only, and saying so."""
+    powered = arm.powered()
+    if not powered:
+        return (
+            f"No position has n ≥ {MIN_CELL_N}, so no lowest position is reported."
+        )
+    step = min(powered, key=lambda key: (powered[key].rate or 0.0, key))
+    lowest = powered[step].rate or 0.0
+    return (
+        f"Among powered positions (n ≥ {MIN_CELL_N}), coverage is lowest at position "
+        f"{step} ({lowest:.3f}, n = {powered[step].n}), so a monitor gated on "
+        f"deliberation cannot exceed {lowest * stage2_recall:.3f} recall against an "
+        "action taken there."
+    )
+
+
+def _low_n_phrase(arm: ArmProfile) -> str:
+    """Name every low-n position, which the plot draws hollow and grey."""
+    low = [(key, rate.n) for key, rate in arm.points.items() if rate.low_n]
+    if not low:
+        return ""
+    named = ", ".join(f"{key} (n = {n})" for key, n in low)
+    return (
+        f"Low-n positions (n < {MIN_CELL_N}), drawn as hollow grey markers and "
+        f"excluded from the lowest-position claim: {named}. "
+    )

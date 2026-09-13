@@ -62,3 +62,58 @@ def test_step_index_counts_assistant_turns_only() -> None:
         ReasoningState.RAW_PRESENT,
         ReasoningState.ABSENT,
     ]
+
+
+def test_whitespace_only_reasoning_is_not_raw_present() -> None:
+    """A block whose reasoning is blank after stripping carries nothing readable.
+
+    Truthiness alone would score "\\n  \\n" as RAW_PRESENT and count an empty channel
+    as evidence of monitorability.
+    """
+    assert (
+        classify_reasoning(FakeReasoningBlock(reasoning="  \n\t "))
+        is ReasoningState.ABSENT
+    )
+    assert (
+        classify_reasoning(FakeReasoningBlock(summary=" \n "))
+        is ReasoningState.ABSENT
+    )
+    # Blank reasoning beside a real summary is SUMMARY_ONLY, not RAW_PRESENT.
+    assert (
+        classify_reasoning(
+            FakeReasoningBlock(reasoning="\n", summary="SYNTHETIC SUMMARY")
+        )
+        is ReasoningState.SUMMARY_ONLY
+    )
+
+
+def test_whitespace_only_reasoning_attribute_is_absent() -> None:
+    """The attribute fallback applies the same blank-is-empty rule as the blocks."""
+
+    class _AttributeMessage:
+        role = "assistant"
+        content = "SYNTHETIC PLAIN TEXT"
+        reasoning = "   "
+
+    sample = FakeSample(id="SYNTHETIC_SAMPLE_WS", messages=[_AttributeMessage()])  # type: ignore[list-item]
+    observations = observe_turns(sample, "SYNTHETIC-MODEL-A", "synthetic_task")
+    assert [o.state for o in observations] == [ReasoningState.ABSENT]
+
+
+def test_repeated_epochs_are_separate_trajectories() -> None:
+    """The same sample id in epochs 1 and 2 must yield two cluster keys, not one."""
+    first = FakeSample(
+        id="SYNTHETIC_SAMPLE_1",
+        messages=[FakeMessage(role="assistant", content="SYNTHETIC A")],
+    )
+    second = FakeSample(
+        id="SYNTHETIC_SAMPLE_1",
+        messages=[FakeMessage(role="assistant", content="SYNTHETIC B")],
+    )
+    second.epoch = 2  # type: ignore[attr-defined]
+    ids = {
+        o.sample_id
+        for sample in (first, second)
+        for o in observe_turns(sample, "SYNTHETIC-MODEL-A", "synthetic_task")
+    }
+    assert ids == {"SYNTHETIC_SAMPLE_1", "SYNTHETIC_SAMPLE_1#epoch2"}

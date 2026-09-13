@@ -41,9 +41,12 @@ MODEL = "mythos-5"
 # `SchemaDiscoveryError` below checks the record keys rather than trusting this.
 _THINKING = re.compile(r"<thinking>(.*?)</thinking>", re.DOTALL)
 
-# Anthropic redacted whole messages and individual words; both markers must survive.
-_REDACTED_WHOLE = "[redacted]"
-_REDACTED_PARTIAL_MARKER = "[redacted-"
+# Anthropic's redaction markers are a bare `[redacted]` or a labelled
+# `[redacted-<label>]`. A message whose entire stripped content is one marker is a
+# withheld message; a marker inside otherwise readable content is in-place redaction.
+# The whole-message test is a regex, not an equality with "[redacted]": labelled
+# whole-message markers exist, and an exact match sent them to ABSENT.
+_REDACTION_MARKER = re.compile(r"\[redacted(?:-[A-Za-z0-9_-]+)?\]")
 
 REQUIRED_MESSAGE_KEYS = ("record", "index", "role", "type", "timestamp")
 
@@ -162,7 +165,30 @@ class MythosTranscriptLoader:
                 "Anthropic redacted messages 1-81, messages after 2145, some "
                 "third-party-server messages, and individual words in place",
                 "reasoning is in-band <thinking> markup, not a structured field",
+                self._partial_redaction_caveat(observations),
             ),
+        )
+
+    def _partial_redaction_caveat(self, observations: list[TurnObservation]) -> str:
+        """Return the computed size of the partial-redaction classification decision.
+
+        States how many RAW_PRESENT turns carry in-place markers and what raw_present
+        would be if those turns were REDACTED, so the open decision is visible in the
+        record with its consequence rather than buried in a docstring.
+        """
+        assistant = [r for r in self.messages() if r.get("role") == "Assistant"]
+        raw = [r for r in assistant if classify_record(r) is ReasoningState.RAW_PRESENT]
+        marked = [r for r in raw if has_partial_redaction(r)]
+        in_thinking = sum(1 for r in marked if _marker_inside_thinking(r))
+        n_turns = len(observations)
+        as_kept = len(raw) / n_turns if n_turns else float("nan")
+        if_redacted = (len(raw) - len(marked)) / n_turns if n_turns else float("nan")
+        return (
+            f"{len(marked)} of {len(raw)} RAW_PRESENT turns carry in-place "
+            f"[redacted...] markers ({in_thinking} inside a <thinking> block); they "
+            f"are kept RAW_PRESENT (raw_present {as_kept:.4f}). Under turn-level "
+            f"strongest-limitation they would be REDACTED and raw_present would be "
+            f"{if_redacted:.4f}. Author decision pending"
         )
 
     def _date_range(self) -> tuple[str, str] | None:
@@ -177,18 +203,23 @@ def classify_record(record: dict[str, Any]) -> ReasoningState:
     """Classify one transcript record into the four-state scheme.
 
     A tool-result record has no `content` key, so there is nothing to read: ABSENT.
-    A wholly redacted message is REDACTED. A message with a `<thinking>` block is
-    RAW_PRESENT. Anything else is visible output with no reasoning: ABSENT.
+    A message whose whole stripped content is one redaction marker (bare or labelled)
+    is REDACTED. A message with a `<thinking>` block is RAW_PRESENT. Anything else is
+    visible output with no reasoning: ABSENT.
 
-    Note the asymmetry with `coverage.classify_reasoning`: there, REDACTED outranks
-    RAW_PRESENT within a turn. Here a message can be redacted *or* carry thinking but
-    not both, because Anthropic redacted whole messages rather than parts of them.
+    Note the asymmetry with `coverage.classify_turn`, where REDACTED outranks
+    RAW_PRESENT within a turn. Anthropic did NOT only redact whole messages: many
+    messages that carry readable `<thinking>` also carry in-place markers, most of
+    them inside the thinking block itself (`describe()` states the computed count).
     """
     content = record.get("content")
     if content is None:
         return ReasoningState.ABSENT
-    if content.strip() == _REDACTED_WHOLE:
+    if _REDACTION_MARKER.fullmatch(content.strip()):
         return ReasoningState.REDACTED
+    # NEEDS REVIEW: partial in-place redaction inside readable reasoning is kept
+    # RAW_PRESENT; under turn-level strongest-limitation it would be REDACTED —
+    # author decision
     if _THINKING.search(content):
         return ReasoningState.RAW_PRESENT
     return ReasoningState.ABSENT
@@ -207,6 +238,16 @@ def thinking_block_lengths(record: dict[str, Any]) -> list[int]:
 
 
 def has_partial_redaction(record: dict[str, Any]) -> bool:
-    """Whether this record carries an in-place `[redacted-xyz]` marker."""
+    """Whether this record carries an in-place marker without being wholly redacted."""
     content = record.get("content")
-    return isinstance(content, str) and _REDACTED_PARTIAL_MARKER in content
+    if not isinstance(content, str) or _REDACTION_MARKER.fullmatch(content.strip()):
+        return False
+    return _REDACTION_MARKER.search(content) is not None
+
+
+def _marker_inside_thinking(record: dict[str, Any]) -> bool:
+    """Whether any redaction marker falls inside one of the record's thinking blocks."""
+    content = record.get("content")
+    if not isinstance(content, str):
+        return False
+    return any(_REDACTION_MARKER.search(block) for block in _THINKING.findall(content))

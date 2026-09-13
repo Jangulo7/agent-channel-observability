@@ -228,8 +228,11 @@ class RevertDetector:
     A revert is an act, not an utterance: the evidence is that a revision
     restored a body another agent had replaced. The loader computes that by
     checksum matching and records it on `corpus_meta["is_revert"]`; this detector
-    only reads it. Keeping it a detector rather than a loader field means it goes
-    through `require_validation` like any other instrument.
+    only reads it. Keeping it a detector rather than a loader field means
+    `require_validation` can key on it like any other instrument, and any caller
+    that reports a REVERT rate must call that gate first; nothing calls it
+    implicitly. Passing the gate proves a record exists for this detector and
+    codebook, not that its recall was measured: see below.
 
     **Its recall is not measurable on any control this project holds.** No corpus
     here carries human revert labels, so `validate` will report `REVERT` support

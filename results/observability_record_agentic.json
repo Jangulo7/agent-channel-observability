@@ -1,10 +1,10 @@
 {
   "observability_record": {
-    "schema_version": "3.0",
-    "codebook_version": 1,
+    "schema_version": "4.0",
+    "codebook_version": 3,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
-    "preregistration_commit": null,
-    "generated_utc": "2026-09-13T10:28:24Z",
+    "preregistration_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
+    "generated_utc": "2026-09-13T11:21:20Z",
     "corpora": [
       {
         "name": "inspect_logs_agentic",
@@ -19,7 +19,9 @@
           "one trajectory is one cluster; per-turn independence is false",
           "reasoning_effort settings present: ['None', 'medium']",
           "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
-          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+          "0 errored sample(s) contributed 0 assistant turn(s); those turns occurred and are counted in every denominator",
+          "0 errored sample(s) contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing",
+          "log headers report 0 requested sample(s) not completed (total_samples - completed_samples)"
         ]
       }
     ],
@@ -322,13 +324,13 @@
           "step_index": 2,
           "reasoning_effort": null,
           "n_turns": 50,
-          "raw_present": 0.94,
+          "raw_present": 0.88,
           "summary_only": 0.0,
           "redacted": 0.0,
-          "absent": 0.06,
+          "absent": 0.12,
           "ci95_raw_present": [
-            0.8378290831116182,
-            0.979385029651026
+            0.7619518261679701,
+            0.9438239984906773
           ],
           "n_clusters": 50,
           "low_n": false
@@ -339,13 +341,13 @@
           "step_index": 3,
           "reasoning_effort": null,
           "n_turns": 50,
-          "raw_present": 0.86,
+          "raw_present": 0.82,
           "summary_only": 0.0,
           "redacted": 0.0,
-          "absent": 0.14,
+          "absent": 0.18,
           "ci95_raw_present": [
-            0.7381380628941446,
-            0.9304916657298371
+            0.6920394632569922,
+            0.9022980732976582
           ],
           "n_clusters": 50,
           "low_n": false
@@ -356,13 +358,13 @@
           "step_index": 4,
           "reasoning_effort": null,
           "n_turns": 46,
-          "raw_present": 0.8913043478260869,
+          "raw_present": 0.8695652173913043,
           "summary_only": 0.0,
           "redacted": 0.0,
-          "absent": 0.10869565217391304,
+          "absent": 0.13043478260869565,
           "ci95_raw_present": [
-            0.7696217135574916,
-            0.9526685414190106
+            0.74334142220927,
+            0.9388215963796489
           ],
           "n_clusters": 46,
           "low_n": false
@@ -373,13 +375,13 @@
           "step_index": 5,
           "reasoning_effort": null,
           "n_turns": 44,
-          "raw_present": 0.6818181818181818,
+          "raw_present": 0.6590909090909091,
           "summary_only": 0.0,
           "redacted": 0.0,
-          "absent": 0.3181818181818182,
+          "absent": 0.3409090909090909,
           "ci95_raw_present": [
-            0.5344310393781776,
-            0.8000069228914658
+            0.5113914121793823,
+            0.7812418048065555
           ],
           "n_clusters": 44,
           "low_n": false
@@ -997,58 +999,830 @@
           "low_n": true
         }
       ],
-      "positional_profile": {
-        "0": 0.8571428571428571,
-        "1": 0.7395209580838323,
-        "2": 0.7361563517915309,
-        "3": 0.788235294117647,
-        "4": 0.8367346938775511,
-        "5": 0.8311688311688312,
-        "6": 0.8878504672897196,
-        "7": 0.896551724137931,
-        "8": 0.8571428571428571
-      },
-      "uninspectable_share": 0.19408602150537635
-    },
-    "bound": {
-      "model": [
-        "claude-haiku-4.5",
-        "gpt-5-nano-medium",
-        "gpt-oss-120b",
-        "kimi-k2-thinking",
-        "minimax-m2",
-        "nemotron-3.5",
-        "qwen3-32b"
+      "positional_profile": [
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.0940578258372025
+              ],
+              "n_turns": 37,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.1071791982550706
+              ],
+              "n_turns": 32,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.16817922405261626
+              ],
+              "n_turns": 19,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.29914504841954404
+              ],
+              "n_turns": 9,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.6576197724933469
+              ],
+              "n_turns": 2,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": "medium",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.07134759913335872
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.07269781922049637
+              ],
+              "n_turns": 49,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.07707356308558039
+              ],
+              "n_turns": 46,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.12064330476584564
+              ],
+              "n_turns": 28,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.17587922364665765
+              ],
+              "n_turns": 18,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.2775327998628892
+              ],
+              "n_turns": 10,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "6": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.39033428790216534
+              ],
+              "n_turns": 6,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "7": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.5614970317550455
+              ],
+              "n_turns": 3,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "8": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.7934506856227626
+              ],
+              "n_turns": 1,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.98,
+              "ci95": [
+                0.8950455641036219,
+                0.9964607407283539
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 0.88,
+              "ci95": [
+                0.7619518261679701,
+                0.9438239984906773
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 0.82,
+              "ci95": [
+                0.6920394632569922,
+                0.9022980732976582
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 0.8695652173913043,
+              "ci95": [
+                0.74334142220927,
+                0.9388215963796489
+              ],
+              "n_turns": 46,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 0.6590909090909091,
+              "ci95": [
+                0.5113914121793823,
+                0.7812418048065555
+              ],
+              "n_turns": 44,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "6": {
+              "rate": 0.8181818181818182,
+              "ci95": [
+                0.6561176836533009,
+                0.9138923179105933
+              ],
+              "n_turns": 33,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "7": {
+              "rate": 0.7692307692307693,
+              "ci95": [
+                0.5794844592105632,
+                0.8896615059421671
+              ],
+              "n_turns": 26,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "8": {
+              "rate": 0.5714285714285714,
+              "ci95": [
+                0.36546554369306705,
+                0.7553003107462405
+              ],
+              "n_turns": 21,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 1.0,
+              "ci95": [
+                0.9273021807795035,
+                1.0
+              ],
+              "n_turns": 49,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 1.0,
+              "ci95": [
+                0.916201209134296,
+                1.0
+              ],
+              "n_turns": 42,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 1.0,
+              "ci95": [
+                0.9010990076755959,
+                1.0
+              ],
+              "n_turns": 35,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "6": {
+              "rate": 1.0,
+              "ci95": [
+                0.8754449702581327,
+                1.0
+              ],
+              "n_turns": 27,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "7": {
+              "rate": 1.0,
+              "ci95": [
+                0.8620237953250198,
+                1.0
+              ],
+              "n_turns": 24,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "8": {
+              "rate": 1.0,
+              "ci95": [
+                0.8453609810751531,
+                1.0
+              ],
+              "n_turns": 21,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9273021807795035,
+                1.0
+              ],
+              "n_turns": 49,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 1.0,
+              "ci95": [
+                0.9273021807795035,
+                1.0
+              ],
+              "n_turns": 49,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 1.0,
+              "ci95": [
+                0.9143324298155681,
+                1.0
+              ],
+              "n_turns": 41,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 1.0,
+              "ci95": [
+                0.8793566952341542,
+                1.0
+              ],
+              "n_turns": 28,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 1.0,
+              "ci95": [
+                0.8568833815495731,
+                1.0
+              ],
+              "n_turns": 23,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "6": {
+              "rate": 1.0,
+              "ci95": [
+                0.8318207759473837,
+                1.0
+              ],
+              "n_turns": 19,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "7": {
+              "rate": 1.0,
+              "ci95": [
+                0.8063923194655637,
+                1.0
+              ],
+              "n_turns": 16,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "8": {
+              "rate": 1.0,
+              "ci95": [
+                0.7719046276458016,
+                1.0
+              ],
+              "n_turns": 13,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 1.0,
+              "ci95": [
+                0.9244423958360037,
+                1.0
+              ],
+              "n_turns": 47,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 1.0,
+              "ci95": [
+                0.916201209134296,
+                1.0
+              ],
+              "n_turns": 42,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 1.0,
+              "ci95": [
+                0.9010990076755959,
+                1.0
+              ],
+              "n_turns": 35,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "6": {
+              "rate": 1.0,
+              "ci95": [
+                0.8513451253913791,
+                1.0
+              ],
+              "n_turns": 22,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "7": {
+              "rate": 1.0,
+              "ci95": [
+                0.8241207763533425,
+                1.0
+              ],
+              "n_turns": 18,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "8": {
+              "rate": 1.0,
+              "ci95": [
+                0.7846891972623643,
+                1.0
+              ],
+              "n_turns": 14,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agentharm_benign",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 50,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9286524008666414,
+                1.0
+              ],
+              "n_turns": 50,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9273021807795035,
+                1.0
+              ],
+              "n_turns": 49,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "2": {
+              "rate": 1.0,
+              "ci95": [
+                0.8864866068260312,
+                1.0
+              ],
+              "n_turns": 30,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "3": {
+              "rate": 1.0,
+              "ci95": [
+                0.8453609810751531,
+                1.0
+              ],
+              "n_turns": 21,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "4": {
+              "rate": 1.0,
+              "ci95": [
+                0.7411670330319684,
+                1.0
+              ],
+              "n_turns": 11,
+              "low_n": true,
+              "interval_status": "ok"
+            },
+            "5": {
+              "rate": 1.0,
+              "ci95": [
+                0.5655175352168251,
+                1.0
+              ],
+              "n_turns": 5,
+              "low_n": true,
+              "interval_status": "ok"
+            }
+          }
+        }
       ],
-      "stage2_recall_assumed": 1.0,
-      "ceiling_mean_coverage": 0.8256115594169731,
-      "ceiling_by_step": {
-        "0": 0.8571428571428571,
-        "1": 0.7395209580838323,
-        "2": 0.7361563517915309,
-        "3": 0.788235294117647,
-        "4": 0.8367346938775511,
-        "5": 0.8311688311688312,
-        "6": 0.8878504672897196,
-        "7": 0.896551724137931,
-        "8": 0.8571428571428571
-      }
+      "uninspectable_share": 0.1978494623655914
     },
-    "inter_agent_channel": {
-      "n_messages": 0,
-      "n_human_excluded": 0,
-      "denominator_code": "SHARE",
-      "n_denominator": 0,
-      "rate_per_1000": null,
-      "rate_status": "no_denominator",
-      "zero_case_upper_bound_95": null,
-      "codes": {
-        "OBJ": 0,
-        "REF": 0,
-        "ESC": 0,
-        "WARN": 0,
-        "NORM": 0
+    "bound": [
+      {
+        "model": "claude-haiku-4.5",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.33557046979865773,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 1,
+          "value": 0.0
+        }
       },
+      {
+        "model": "gpt-5-nano-medium",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": "medium",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0,
+          "5": 0.0,
+          "6": 0.0,
+          "7": 0.0,
+          "8": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-oss-120b",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.8432432432432433,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 0.98,
+          "2": 0.88,
+          "3": 0.82,
+          "4": 0.8695652173913043,
+          "5": 0.6590909090909091,
+          "6": 0.8181818181818182,
+          "7": 0.7692307692307693,
+          "8": 0.5714285714285714
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 5,
+          "value": 0.6590909090909091
+        }
+      },
+      {
+        "model": "kimi-k2-thinking",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0,
+          "6": 1.0,
+          "7": 1.0,
+          "8": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "minimax-m2",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0,
+          "6": 1.0,
+          "7": 1.0,
+          "8": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "nemotron-3.5",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0,
+          "6": 1.0,
+          "7": 1.0,
+          "8": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "qwen3-32b",
+        "task_class": "agentharm_benign",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0,
+          "2": 1.0,
+          "3": 1.0,
+          "4": 1.0,
+          "5": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      }
+    ],
+    "inter_agent_channel": {
+      "n_messages": null,
+      "n_human_excluded": null,
+      "denominator_code": "SHARE",
+      "n_denominator": null,
+      "rate_per_1000": null,
+      "rate_status": "not_measured",
+      "zero_case_upper_bound_95": null,
+      "codes": null,
       "messages_authenticated": null
     },
     "detectors": []

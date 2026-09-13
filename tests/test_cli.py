@@ -251,6 +251,9 @@ def test_gate_exits_non_zero_when_nothing_could_be_measured(tmp_path: Path) -> N
         "--mythos", str(tmp_path / "no_such_transcript.jsonl"),
         "--inspect-logs", str(tmp_path / "no_such_logs_dir"),
         "--reasoning-logs", str(tmp_path / "no_such_reasoning_dir"),
+        "--agentic-logs", str(tmp_path / "no_such_agentic_dir"),
+        "--ctf-logs", str(tmp_path / "no_such_ctf_dir"),
+        "--osbench-logs", str(tmp_path / "no_such_osbench_dir"),
     ])
     assert code == 1
 
@@ -345,3 +348,100 @@ def test_every_corpus_flag_is_redirected_in_this_suite() -> None:
     assert corpus_flags <= redirected, (
         f"corpus flags not redirected by args(): {corpus_flags - redirected}"
     )
+
+
+# --- record provenance ------------------------------------------------------------
+
+
+def test_measure_records_codebook_version_and_registration_commit(
+    transcript: Path, tmp_path: Path
+) -> None:
+    """Both provenance fields are read from the files defining them, not defaulted."""
+    import re
+
+    from channels.codebook import codebook_version
+
+    results = tmp_path / "results"
+    assert main(["measure", *args(transcript, "--results", str(results))]) == 0
+    record = json.loads((results / "observability_record_mythos.json").read_text())
+    block = record["observability_record"]
+    assert block["codebook_version"] == codebook_version()
+    assert block["codebook_version"] is not None
+    assert re.fullmatch(r"[0-9a-f]{40}", block["preregistration_commit"])
+
+
+def test_unfound_registration_commit_is_null_and_announced(
+    transcript: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    import channels.cli as cli
+
+    prereg = tmp_path / "SYNTHETIC_PREREGISTRATION.md"
+    prereg.write_text("| Field | Value |\n|---|---|\n| Other | `x` |\n")
+    monkeypatch.setattr(cli, "PREREGISTRATION", prereg)
+    results = tmp_path / "results"
+    assert main(["measure", *args(transcript, "--results", str(results))]) == 0
+    record = json.loads((results / "observability_record_mythos.json").read_text())
+    assert record["observability_record"]["preregistration_commit"] is None
+    assert "NOT FOUND: 'Registration commit SHA'" in capsys.readouterr().out
+
+
+def test_unreadable_codebook_refuses_rather_than_writing_a_placeholder_hash(
+    transcript: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A record whose codebook_hash is a TODO note must never be written."""
+    import channels.cli as cli
+
+    def _missing() -> str:
+        raise FileNotFoundError("SYNTHETIC: codebook absent")
+
+    monkeypatch.setattr(cli, "codebook_hash", _missing)
+    results = tmp_path / "results"
+    assert main(["measure", *args(transcript, "--results", str(results))]) == 2
+    assert not (results / "observability_record_mythos.json").exists()
+
+
+# --- gates run per corpus ---------------------------------------------------------
+
+
+def test_gate_runs_per_corpus_so_a_shared_model_label_is_not_merged(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """One model label in two corpora is two strata, and either corpus can fail.
+
+    Pooled, SYNTHETIC-SHARED would read 0.5 coverage and meet the 0.5 floor; per
+    corpus, the second corpus is at 0.0 and fails.
+    """
+    import channels.cli as cli
+    from channels.schema import CorpusDescription, ReasoningState
+
+    from .fixtures.synthetic import turns
+
+    def _corpus(name: str, state: ReasoningState) -> tuple[CorpusDescription, list]:
+        description = CorpusDescription(
+            name=name, n_utterances=40, n_actors=1, actor_concentration=None,
+            date_range=None, source_hash="sha256:SYNTHETIC", licence="synthetic",
+            caveats=("synthetic",),
+        )
+        observations = [
+            obs
+            for index in range(40)
+            for obs in turns([state], model="SYNTHETIC-SHARED",
+                             sample_id=f"SYN_{name}_{index}")
+        ]
+        return description, observations
+
+    groups = [
+        _corpus("synthetic_corpus_readable", ReasoningState.RAW_PRESENT),
+        _corpus("synthetic_corpus_withheld", ReasoningState.ABSENT),
+    ]
+    monkeypatch.setattr(cli, "_corpora", lambda _args: (groups, []))
+    assert main(["gate"]) == 1
+    out = capsys.readouterr().out
+    readable, withheld = out.split("== synthetic_corpus_withheld")
+    assert "== synthetic_corpus_readable" in readable
+    assert "[      PASS] deliberation_coverage_floor" in readable
+    assert "[      FAIL] deliberation_coverage_floor" in withheld
+    assert "1 of 2 corpus gate set(s) failed: synthetic_corpus_withheld" in withheld

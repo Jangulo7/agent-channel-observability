@@ -10,16 +10,19 @@ reader to eyeball it.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 from channels.emission import (
     MIN_CELL_N,
+    EmissionCell,
     build_cells,
     positional_profile,
     trajectory_rate,
 )
+from channels.errors import ChannelsError
 from channels.loaders.inspect_logs import InspectLogLoader
-from channels.schema import TurnObservation
+from channels.schema import RateWithCI, TurnObservation
 
 #: Task families, in the order they were run. The label is what the write-up uses.
 FAMILIES = {
@@ -28,9 +31,9 @@ FAMILIES = {
     "agent_bench_os": Path("data/inspect-runs-osbench"),
 }
 
-#: A profile counts as DECLINING only if some adequately-powered late cell sits
-#: below the first step's interval. Eyeballing a downward wiggle is how a
-#: single-arm artefact becomes a claim.
+#: A profile counts as DECLINING (RISING) only if some adequately-powered later
+#: cell sits below (above) the first powered step's interval. Eyeballing a
+#: wiggle is how a single-arm artefact becomes a claim.
 FLAT_TOLERANCE = 0.05
 
 
@@ -45,23 +48,56 @@ def _by_arm(root: Path) -> dict[str, list[TurnObservation]]:
     return grouped
 
 
-def _verdict(profile: dict[int, object]) -> str:
+class MixedTaskClassError(ChannelsError):
+    """Raised when one arm's cells in one family span more than one task class."""
+
+
+# NEEDS REVIEW: MixedTaskClassError is script-local because channels/errors.py
+# was outside this change's file set; it belongs there if other callers need it.
+def _task_class(cells: Sequence[EmissionCell], arm: str) -> str:
+    """The arm's single task class in this family, or raise naming all of them.
+
+    Taking the first cell's class would silently profile one task and drop the
+    rest, so a family that mixes task classes for one arm is refused.
+    """
+    classes = sorted({cell.task_class for cell in cells if cell.model == arm})
+    if len(classes) != 1:
+        raise MixedTaskClassError(
+            f"arm {arm!r}: expected exactly one task class per family, found "
+            f"{classes}. Profile each task class separately."
+        )
+    return classes[0]
+
+
+def _verdict(profile: Mapping[int, RateWithCI]) -> str:
     """Classify a profile's shape from adequately-powered cells only."""
-    powered = {s: r for s, r in profile.items() if r.n >= MIN_CELL_N}  # type: ignore[attr-defined]
-    if not powered:
-        return "under-powered"
-    first = powered[min(powered)]
-    rates = [r.rate for r in powered.values() if r.rate is not None]  # type: ignore[attr-defined]
-    if not rates:
+    powered = {s: r for s, r in profile.items() if r.n >= MIN_CELL_N}
+    # One powered step has no shape: calling it FLAT would report a trajectory
+    # that was never observed.
+    if len(powered) < 2:
+        return f"insufficient powered steps ({len(powered)} of {len(profile)})"
+    first_step = min(powered)
+    first = powered[first_step]
+    rates = {s: r.rate for s, r in powered.items() if r.rate is not None}
+    if not rates or first.rate is None:
         return "no data"
-    if max(rates) - min(rates) <= FLAT_TOLERANCE:
-        return f"FLAT at {rates[0]:.2f}"
-    lowest = min(rates)
-    # A decline only counts if the weakest powered cell falls below the first
-    # step's lower confidence bound; otherwise it is within noise.
-    if first.ci_low is not None and lowest < first.ci_low:  # type: ignore[attr-defined]
-        return f"DECLINES {first.rate:.2f} -> {lowest:.2f}"  # type: ignore[attr-defined]
-    return f"varies {max(rates):.2f}-{lowest:.2f}, within noise"
+    values = list(rates.values())
+    if max(values) - min(values) <= FLAT_TOLERANCE:
+        return f"FLAT at {values[0]:.2f}"
+    later = [rate for step, rate in rates.items() if step != first_step]
+    lowest, highest = min(later), max(later)
+    # A move only counts if a later powered cell leaves the first step's
+    # interval; the criterion is the same in both directions.
+    declines = first.ci_low is not None and lowest < first.ci_low
+    rises = first.ci_high is not None and highest > first.ci_high
+    if declines and rises:
+        # NEEDS REVIEW: label for a profile that leaves the interval both ways.
+        return f"NON-MONOTONE {first.rate:.2f} -> {lowest:.2f} and {highest:.2f}"
+    if declines:
+        return f"DECLINES {first.rate:.2f} -> {lowest:.2f}"
+    if rises:
+        return f"RISES {first.rate:.2f} -> {highest:.2f}"
+    return f"varies {max(values):.2f}-{min(values):.2f}, within noise"
 
 
 def verdict_table_markdown() -> str:
@@ -81,7 +117,7 @@ def verdict_table_markdown() -> str:
                 continue
             cells = build_cells(obs)
             shapes.append(
-                _verdict(positional_profile(cells, arm, cells[0].task_class))
+                _verdict(positional_profile(cells, arm, _task_class(cells, arm)))
             )
         if not shapes:
             continue
@@ -117,8 +153,9 @@ def main() -> int:
                 print(f"{arm:22s} {'-':>7s} {'-':>6s}  not run")
                 continue
             cells = build_cells(obs)
-            rate, _ = trajectory_rate(cells, arm, cells[0].task_class)
-            profile = positional_profile(cells, arm, cells[0].task_class)
+            task_class = _task_class(cells, arm)
+            rate, _ = trajectory_rate(cells, arm, task_class)
+            profile = positional_profile(cells, arm, task_class)
             print(f"{arm:22s} {rate.rate:7.3f} {rate.n:6d}  {_verdict(profile)}")
         print()
 
@@ -130,7 +167,7 @@ def main() -> int:
             if not obs:
                 continue
             cells = build_cells(obs)
-            profile = positional_profile(cells, arm, cells[0].task_class)
+            profile = positional_profile(cells, arm, _task_class(cells, arm))
             shapes.append(f"{family}={_verdict(profile)}")
         if len(shapes) >= 2:
             kinds = {s.split("=")[1].split()[0] for s in shapes}

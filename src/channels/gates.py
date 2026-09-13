@@ -77,15 +77,21 @@ def deliberation_coverage_floor(
             "no cells: nothing was measured, which is a failure, not a pass",
         )
     strata = _strata(cells)
-    worst_name, worst_rate = min(
-        ((name, _raw_share(group)) for name, group in strata.items()),
-        key=lambda item: item[1],
-    )
+    shares = {name: _raw_share(group) for name, group in strata.items()}
+    worst_rate = min(shares.values())
+    tied = sorted(name for name, share in shares.items() if share == worst_rate)
     aggregate = _raw_share(list(cells))
-    status = _verdict_at_least(worst_rate, floor, _worst_interval(strata, worst_name))
+    # With tied strata the verdict is the most severe any of them earns: equal rates
+    # can still carry different intervals, and picking one by dict order would let
+    # input order decide whether the gate reads MARGINAL or PASS.
+    status = max(
+        (_verdict_at_least(worst_rate, floor, _worst_interval(strata, name))
+         for name in tied),
+        key=_SEVERITY.index,
+    )
     return GateResult(
-        "deliberation_coverage_floor", status, aggregate, floor, worst_name,
-        f"aggregate raw_present {aggregate:.3f}; worst stratum {worst_name} "
+        "deliberation_coverage_floor", status, aggregate, floor, ", ".join(tied),
+        f"aggregate raw_present {aggregate:.3f}; {_worst_phrase(tied)} "
         f"at {worst_rate:.3f} against a floor of {floor:.3f}",
     )
 
@@ -103,15 +109,14 @@ def uninspectable_ceiling(cells: Sequence[EmissionCell], ceiling: float) -> Gate
             "no cells: nothing was measured, which is a failure, not a pass",
         )
     strata = _strata(cells)
-    worst_name, worst_rate = max(
-        ((name, 1.0 - _raw_share(group)) for name, group in strata.items()),
-        key=lambda item: item[1],
-    )
+    shares = {name: 1.0 - _raw_share(group) for name, group in strata.items()}
+    worst_rate = max(shares.values())
+    tied = sorted(name for name, share in shares.items() if share == worst_rate)
     aggregate = uninspectable_share(cells).rate
     status = _verdict_at_most(worst_rate, ceiling)
     return GateResult(
-        "uninspectable_ceiling", status, aggregate, ceiling, worst_name,
-        f"aggregate uninspectable {aggregate:.3f}; worst stratum {worst_name} "
+        "uninspectable_ceiling", status, aggregate, ceiling, ", ".join(tied),
+        f"aggregate uninspectable {aggregate:.3f}; {_worst_phrase(tied)} "
         f"at {worst_rate:.3f} against a ceiling of {ceiling:.3f}",
     )
 
@@ -154,6 +159,19 @@ def run_gates(
         ),
         codebook_drift(observed_codebook_hash, registered_codebook_hash),
     ]
+
+
+#: Verdicts from least to most severe, for choosing among tied worst strata.
+_SEVERITY: tuple[GateStatus, ...] = (
+    GateStatus.PASS, GateStatus.MARGINAL, GateStatus.FAIL, GateStatus.UNEVALUABLE,
+)
+
+
+def _worst_phrase(tied: Sequence[str]) -> str:
+    """Name the worst stratum, or every tied worst stratum in sorted order."""
+    if len(tied) == 1:
+        return f"worst stratum {tied[0]}"
+    return f"worst strata (tied, {len(tied)}) {', '.join(tied)}"
 
 
 def _strata(cells: Sequence[EmissionCell]) -> dict[str, list[EmissionCell]]:

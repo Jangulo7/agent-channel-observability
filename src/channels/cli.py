@@ -3,11 +3,14 @@
 import argparse
 import re
 import sys
-from collections.abc import Sequence
+from collections import Counter
+from collections.abc import Mapping, Sequence
 from pathlib import Path
+from typing import Any
 
-from channels.emission import binned_profile, build_cells
-from channels.errors import ChannelsError
+from channels.codebook import CODEBOOK_PATH, codebook_hash, codebook_version
+from channels.emission import ArmProfile, arm_profiles, build_cells
+from channels.errors import ChannelsError, CodebookUnavailableError
 from channels.figures import figure_one, figure_two, task_class_spread
 from channels.gates import load_config, run_gates
 from channels.loaders.inspect_logs import InspectLogLoader
@@ -26,6 +29,7 @@ DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
 DEFAULT_CTF_LOGS = REPO_ROOT / "data" / "inspect-runs-ctf"
 DEFAULT_OSBENCH_LOGS = REPO_ROOT / "data" / "inspect-runs-osbench"
+PREREGISTRATION = REPO_ROOT / "docs" / "PREREGISTRATION.md"
 
 #: Largest within-model spread across task classes that still permits pooling
 #: them into one bar. Above this, pooling would hide variation the figure exists
@@ -221,7 +225,8 @@ def _run_describe(args: argparse.Namespace) -> int:
 
 def _run_measure(args: argparse.Namespace) -> int:
     """Build the record and both figures from whatever corpora are present."""
-    observations, _descriptions, missing = _collect(args)
+    groups, missing = _corpora(args)
+    observations = [obs for _, corpus in groups for obs in corpus]
     if not observations:
         print(
             "error: no corpus was available, so there is nothing to measure. "
@@ -230,22 +235,29 @@ def _run_measure(args: argparse.Namespace) -> int:
         )
         return 2
 
-    results = args.results
+    _write_figure_one(args.results, observations)
+    provenance = _record_provenance()
+    for description, corpus_observations in groups:
+        _measure_one_corpus(args, description, corpus_observations, provenance)
 
-    # Figure 1 spans every corpus: each bar is one model x task class, so no bar
-    # mixes corpora and the comparison it invites is the intended one.
-    # Pooling task classes is justified by measurement, not assumption:
-    # task_class_spread is <=0.011 for every model in both corpora, so a bar per
-    # model hides no variation. Recomputed here so the justification cannot
-    # silently expire when a new corpus arrives.
+    for name in missing:
+        print(f"NOT AVAILABLE: {name}")
+    return 0
+
+
+def _write_figure_one(results: Path, observations: Sequence[TurnObservation]) -> None:
+    """Write Figure 1 across every corpus; each bar is one model x task class.
+
+    No bar mixes corpora, so the comparison it invites is the intended one. Pooling
+    task classes is decided by measurement, not assumption: `task_class_spread` is
+    recomputed here so the justification cannot silently expire with a new corpus.
+    """
     cells = build_cells(observations)
     spread = max(task_class_spread(cells).values(), default=0.0)
     by_task = spread > MAX_POOLABLE_SPREAD
     _write_figure_caption(
         *figure_one(
-            cells,
-            results / "figures" / "figure1_emission_states.png",
-            by_task=by_task,
+            cells, results / "figures" / "figure1_emission_states.png", by_task=by_task
         )
     )
     if not by_task:
@@ -253,14 +265,6 @@ def _run_measure(args: argparse.Namespace) -> int:
             f"figure 1: task classes pooled (max within-model spread "
             f"{spread:.4f} <= {MAX_POOLABLE_SPREAD})"
         )
-
-    groups, _ = _corpora(args)
-    for description, corpus_observations in groups:
-        _measure_one_corpus(args, description, corpus_observations)
-
-    for name in missing:
-        print(f"NOT AVAILABLE: {name}")
-    return 0
 
 
 def _write_figure_caption(figure_path: Path, caption: str) -> None:
@@ -283,89 +287,156 @@ def _measure_one_corpus(
     args: argparse.Namespace,
     description: CorpusDescription,
     observations: Sequence[TurnObservation],
+    provenance: Mapping[str, Any],
 ) -> None:
-    """Write one corpus's positional figure and its own record."""
-    cells = build_cells(observations)
-    binned = binned_profile(cells, n_bins=args.bins)
-    results = args.results
-    suffix = "" if description.name == "inspect_logs" else f"_{description.name}"
+    """Write one corpus's per-arm positional figures and its own record.
 
-    # One positional figure PER ARM, not per corpus. c(j) is a profile, and
-    # averaging a raw-emitting arm with a fully-redacted one produces a curve
-    # that describes neither: the agentic corpus pooled to "lowest at position 2
-    # (0.490)", a number belonging to no arm that was run. Corpora with a single
-    # arm are unaffected and keep their existing filename.
-    arms = sorted({obs.model for obs in observations})
-    for arm in arms:
-        arm_obs = [obs for obs in observations if obs.model == arm]
-        arm_binned = binned_profile(build_cells(arm_obs), n_bins=args.bins)
-        arm_suffix = suffix if len(arms) == 1 else f"{suffix}_{_slug(arm)}"
-        n_traj = len({obs.sample_id for obs in arm_obs})
+    Figures and record are drawn from the same `ArmProfile` objects, so a caption
+    and the record cannot report numbers from different computations.
+    """
+    cells = build_cells(observations)
+    profiles = arm_profiles(cells, n_bins=args.bins)
+    suffix = "" if description.name == "inspect_logs" else f"_{description.name}"
+    for arm in profiles:
+        arm_suffix = (
+            suffix if len(profiles) == 1 else f"{suffix}_{_arm_slug(arm, profiles)}"
+        )
         _write_figure_caption(
             *figure_two(
-                arm_binned,
-                results / "figures" / f"figure2_recall_ceiling{arm_suffix}.png",
+                arm,
+                args.results / "figures" / f"figure2_recall_ceiling{arm_suffix}.png",
                 stage2_recall=args.stage2_recall,
-                step_label=(
-                    f"trajectory position "
-                    f"({len(arm_binned)} equal-width bins of step index)"
-                ),
-                panel_title=(
-                    f"Measured: {arm} — {len(arm_obs)} turns over "
-                    f"{n_traj} trajector" + ("y" if n_traj == 1 else "ies")
-                ),
+                panel_title=_panel_title(arm),
             )
         )
 
     record = build_record(
         corpora=[description],
         cells=cells,
-        positional=binned,
-        codebook_hash=_codebook_hash(),
+        profiles=profiles,
         stage2_recall=args.stage2_recall,
+        **provenance,
     )
     filename = RECORD_FILENAMES.get(
         description.name, f"observability_record_{description.name}.json"
     )
-    path = write_record(record, results / filename)
+    path = write_record(record, args.results / filename)
     print(f"wrote {path}  [{description.name}: {description.n_utterances} turns]")
 
 
-def _run_gate(args: argparse.Namespace) -> int:
-    """Run the gates. Un-evaluable counts as failure, so an empty corpus exits 1."""
-    observations, _, missing = _collect(args)
-    cells = build_cells(observations)
-    config = load_config(args.config)
-    results = run_gates(cells, config, _codebook_hash(), _registered_codebook_hash())
+def _arm_slug(arm: ArmProfile, profiles: Sequence[ArmProfile]) -> str:
+    """Filename part for one arm: the model, plus task and effort only where needed.
 
-    failed = False
-    for result in results:
-        marker = "FAIL" if result.failed else result.status.value.upper()
-        print(f"[{marker:>10}] {result.name}: {result.detail}")
-        failed = failed or result.failed
+    One figure per arm, never per model: a model run on three task classes is three
+    arms, and one curve averaged over them would describe none of them.
+    """
+    models = Counter(item.model for item in profiles)
+    tasks = Counter((item.model, item.task_class) for item in profiles)
+    parts = [arm.model]
+    if models[arm.model] > 1:
+        parts.append(arm.task_class)
+    if tasks[(arm.model, arm.task_class)] > 1:
+        parts.append(f"effort-{arm.reasoning_effort}")
+    return _slug("_".join(parts))
+
+
+def _panel_title(arm: ArmProfile) -> str:
+    """Figure 2's left-panel title: the arm, its turn count and trajectory count."""
+    n_turns = sum(rate.n for rate in arm.points.values())
+    noun = "trajectory" if arm.n_trajectories == 1 else "trajectories"
+    return (
+        f"Measured: {arm.model} on {arm.task_class} — {n_turns} turns over "
+        f"{arm.n_trajectories} {noun}"
+    )
+
+
+def _run_gate(args: argparse.Namespace) -> int:
+    """Run the gates once per corpus; exit 1 if any corpus fails.
+
+    Per corpus, never pooled: a model label shared by two corpora (the same model in
+    the reasoning sweep and in an agentic family) would otherwise merge into one
+    stratum and let one corpus's coverage mask the other's. Un-evaluable counts as
+    failure, so a run with no corpus at all exits 1.
+    """
+    groups, missing = _corpora(args)
+    config = load_config(args.config)
+    observed, registered = _codebook_hash(), _registered_codebook_hash()
+    evaluated: list[tuple[str, list[TurnObservation]]] = [
+        (description.name, observations) for description, observations in groups
+    ] or [("(no corpus available)", [])]
+    failed: list[str] = []
+    for name, observations in evaluated:
+        print(f"\n== {name}")
+        results = run_gates(build_cells(observations), config, observed, registered)
+        for result in results:
+            marker = "FAIL" if result.failed else result.status.value.upper()
+            print(f"[{marker:>10}] {result.name}: {result.detail}")
+        if any(result.failed for result in results):
+            failed.append(name)
     for name in missing:
         print(f"NOT AVAILABLE: {name}")
+    print(f"\n{len(failed)} of {len(evaluated)} corpus gate set(s) failed: "
+          f"{', '.join(failed) or 'none'}")
     return 1 if failed else 0
 
 
 def _codebook_hash() -> str:
-    """The codebook hash, or an explicit marker when the codebook is not built yet."""
+    """Return the codebook hash, raising when it cannot be computed.
+
+    There is no fallback string. A record whose `codebook_hash` is a TODO note
+    passes the schema's minLength and ships a hash that is not a hash, which makes
+    `codebook_drift` meaningless for every reader of that record.
+    """
     try:
-        from channels.codebook import codebook_hash
-    except ImportError:
-        return "TODO(johanna): codebook module not built"
-    try:
-        return str(codebook_hash())
-    except FileNotFoundError:
-        return "TODO(johanna): codebook YAML not written"
+        value = str(codebook_hash())
+    except FileNotFoundError as error:
+        raise CodebookUnavailableError(
+            f"cannot hash the codebook: {error}. Expected {CODEBOOK_PATH}"
+        ) from error
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", value):
+        raise CodebookUnavailableError(
+            f"codebook hash {value!r} is not of the form sha256:<64 hex digits>"
+        )
+    return value
+
+
+def _record_provenance() -> dict[str, Any]:
+    """Return the codebook hash and version and the registration commit, read from disk.
+
+    Values that cannot be found are None and announced with a NOT FOUND line; they
+    are never guessed, because a plausible provenance field is worse than a null.
+    """
+    version = codebook_version()
+    if version is None:
+        print(f"NOT FOUND: integer `version` field in {CODEBOOK_PATH}; "
+              "recording codebook_version as null")
+    commit = _preregistration_commit()
+    if commit is None:
+        print(f"NOT FOUND: 'Registration commit SHA' row in {PREREGISTRATION}; "
+              "recording preregistration_commit as null")
+    return {
+        "codebook_hash": _codebook_hash(),
+        "codebook_version": version,
+        "preregistration_commit": commit,
+    }
+
+
+def _preregistration_commit() -> str | None:
+    """The registration commit SHA from the pre-registration table, or None."""
+    if not PREREGISTRATION.is_file():
+        return None
+    for line in PREREGISTRATION.read_text(encoding="utf-8").splitlines():
+        cells = [cell.strip().strip("`") for cell in line.split("|")]
+        if len(cells) > 2 and cells[1] == "Registration commit SHA":
+            return cells[2] if re.fullmatch(r"[0-9a-f]{40}", cells[2]) else None
+    return None
 
 
 def _registered_codebook_hash() -> str:
     """The codebook hash recorded in the pre-registration, or an empty string."""
-    prereg = REPO_ROOT / "docs" / "PREREGISTRATION.md"
-    if not prereg.is_file():
+    if not PREREGISTRATION.is_file():
         return ""
-    for line in prereg.read_text().splitlines():
+    for line in PREREGISTRATION.read_text().splitlines():
         if "Codebook SHA-256" in line and "|" in line:
             return line.split("|")[2].strip().strip("`")
     return ""

@@ -1,8 +1,10 @@
 """Inference when observations are not independent.
 
-Why this module exists, concretely: 91% of collusion.wiki revisions come from the
-single actor `dse` (13,403 of 14,591, from the export's own manifest), so
-per-observation independence is false and an unclustered interval would be
+Why this module exists, concretely: 91.9% of collusion.wiki revisions sit in the
+single WIKI `dse` (13,403 of 14,591, from the export's own manifest; `dse` is a wiki,
+not an actor — the most active individual actor holds 2.3% across 3,102 actors, see
+`PRIMARY_CLUSTER_FIELD` below). Revisions are concentrated in a few wikis and many
+pages, so per-observation independence is false and an unclustered interval would be
 anticonservative — it would claim precision the data cannot support. The same problem
 appears in the Mythos transcript from the other direction: 2,061 turns, but one
 trajectory, so there is exactly one cluster and no clustered interval exists at all.
@@ -82,9 +84,10 @@ def clustered_wilson(
             n_clusters=n_clusters,
             status="single_cluster_no_interval",
         )
-    effective_n = max(1.0, n / design_effect(sizes, icc))
-    scaled_successes = (successes / n) * effective_n
-    interval = wilson_interval(scaled_successes, round(effective_n))
+    # One m for both the scaled successes and the interval's n; mixing unrounded and
+    # rounded m let the interval exclude its own rate (3/3 on a,a,b: [0.279, 0.995]).
+    effective_n = max(1, round(n / design_effect(sizes, icc)))
+    interval = wilson_interval((successes / n) * effective_n, effective_n)
     return RateWithCI(
         rate=successes / n,
         ci_low=interval.low,

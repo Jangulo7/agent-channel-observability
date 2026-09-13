@@ -6,10 +6,12 @@ without saying which turns were counted, and the prior art does not say. See
 """
 
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
 
 from channels._vendored_stats import wilson_interval
+from channels.cluster import clustered_wilson
+from channels.errors import MissingActorError
 from channels.schema import RateWithCI, ReasoningState, TurnObservation
 
 # Below 30 turns a Wilson interval on a mid-range proportion is roughly +/-0.18 wide,
@@ -36,6 +38,10 @@ class EmissionCell:
     n_turns: int                         # assistant turns that actually occurred
     counts: dict[ReasoningState, int]    # sums to n_turns
     n_clusters: int | None = None        # distinct trajectories contributing
+    # Turns per trajectory id. Carried so that pooling cells can count DISTINCT
+    # trajectories and weight clustered intervals, which a bare n_clusters cannot:
+    # two cells with 10 trajectories each may share all ten or none of them.
+    cluster_sizes: Mapping[str, int] = field(default_factory=dict)
 
 
 def emission_rate(cell: EmissionCell) -> float:
@@ -77,11 +83,11 @@ def build_cells(observations: Iterable[TurnObservation]) -> list[EmissionCell]:
     cells: list[EmissionCell] = []
     for (model, task_class, step_index, effort), group in sorted(grouped.items()):
         counts = dict.fromkeys(ReasoningState, 0)
-        clusters: set[str] = set()
+        sizes: dict[str, int] = defaultdict(int)
         for observation in group:
             counts[observation.state] += 1
             if observation.sample_id is not None:
-                clusters.add(observation.sample_id)
+                sizes[observation.sample_id] += 1
         cells.append(
             EmissionCell(
                 model=model,
@@ -90,7 +96,8 @@ def build_cells(observations: Iterable[TurnObservation]) -> list[EmissionCell]:
                 reasoning_effort=effort,
                 n_turns=len(group),
                 counts=counts,
-                n_clusters=len(clusters) or None,
+                n_clusters=len(sizes) or None,
+                cluster_sizes=dict(sizes),
             )
         )
     return cells
@@ -122,15 +129,14 @@ def positional_profile(
     Callers that want the mean get it from `trajectory_rate`, which returns the
     profile alongside so the two cannot be separated by accident.
     """
-    profile: dict[int, RateWithCI] = {}
+    by_step: dict[int, list[EmissionCell]] = defaultdict(list)
     for cell in cells:
-        if cell.model != model or cell.task_class != task_class:
-            continue
-        if cell.step_index in profile:
-            profile[cell.step_index] = _merge(profile[cell.step_index], cell)
-        else:
-            profile[cell.step_index] = cell_rate(cell)
-    return dict(sorted(profile.items()))
+        if cell.model == model and cell.task_class == task_class:
+            by_step[cell.step_index].append(cell)
+    return {
+        step: cell_rate(group[0]) if len(group) == 1 else _merge(group)
+        for step, group in sorted(by_step.items())
+    }
 
 
 def trajectory_rate(
@@ -153,7 +159,6 @@ def trajectory_rate(
             profile,
         )
     interval = wilson_interval(successes, n_turns)
-    clusters = {c.n_clusters for c in selected if c.n_clusters is not None}
     return (
         RateWithCI(
             rate=successes / n_turns,
@@ -162,7 +167,7 @@ def trajectory_rate(
             n=n_turns,
             method=interval.method,
             weighting="action-weighted",
-            n_clusters=max(clusters) if clusters else None,
+            n_clusters=distinct_trajectories(selected),
             low_n=n_turns < MIN_CELL_N,
         ),
         profile,
@@ -200,17 +205,16 @@ def state_shares(cell: EmissionCell) -> Mapping[ReasoningState, float]:
     return {state: cell.counts[state] / cell.n_turns for state in ReasoningState}
 
 
-def _merge(existing: RateWithCI, cell: EmissionCell) -> RateWithCI:
-    """Pool a cell into an existing step-index rate, across reasoning_effort strata.
+def _merge(group: Sequence[EmissionCell]) -> RateWithCI:
+    """Pool one step index's cells across reasoning_effort strata into one rate.
 
     Only used when the caller asked for a profile without fixing an effort level.
     Pooling across strata is recorded in `weighting` so the result cannot be mistaken
-    for a within-stratum rate.
+    for a within-stratum rate. Counts are summed directly rather than recovered from
+    rounded rates, and n_clusters counts distinct trajectories, not the last stratum's.
     """
-    n_turns = existing.n + cell.n_turns
-    successes = round((existing.rate or 0.0) * existing.n) + cell.counts[
-        ReasoningState.RAW_PRESENT
-    ]
+    n_turns = sum(cell.n_turns for cell in group)
+    successes = sum(cell.counts[ReasoningState.RAW_PRESENT] for cell in group)
     interval = wilson_interval(successes, n_turns)
     return RateWithCI(
         rate=successes / n_turns,
@@ -219,9 +223,39 @@ def _merge(existing: RateWithCI, cell: EmissionCell) -> RateWithCI:
         n=n_turns,
         method=interval.method,
         weighting="pooled-across-effort",
-        n_clusters=cell.n_clusters,
+        n_clusters=distinct_trajectories(group),
         low_n=n_turns < MIN_CELL_N,
     )
+
+
+def distinct_trajectories(cells: Iterable[EmissionCell]) -> int | None:
+    """Return the number of distinct trajectories across cells, or None if unknowable.
+
+    None when any cell lacks trajectory ids: a maximum or a sum of per-cell counts
+    would be a guess (the same trajectory appears at every step it reached), and a
+    guessed cluster count is worse than a stated unknown.
+    """
+    merged = merged_cluster_sizes(cells)
+    return len(merged) if merged is not None else None
+
+
+def merged_cluster_sizes(
+    cells: Iterable[EmissionCell], qualify: bool = False
+) -> dict[str, int] | None:
+    """Return turns per trajectory id pooled over cells, or None if any cell lacks ids.
+
+    `qualify=True` prefixes each id with its task class and effort, for pools that
+    span task classes: Inspect sample ids restart per task, so id "1" of two tasks is
+    two trajectories, and merging them would invent a dependence that is not there.
+    """
+    merged: dict[str, int] = {}
+    for cell in cells:
+        if not cell.cluster_sizes:
+            return None
+        prefix = f"{cell.task_class}|{cell.reasoning_effort}|" if qualify else ""
+        for name, size in cell.cluster_sizes.items():
+            merged[prefix + name] = merged.get(prefix + name, 0) + size
+    return merged
 
 
 def binned_profile(
@@ -242,21 +276,11 @@ def binned_profile(
     carries the number of distinct trajectories, and `cluster.py` refuses to compute a
     clustered interval from one cluster rather than pretending it can.
     """
-    selected = list(cells)
-    if not selected:
-        return {}
-    max_step = max(cell.step_index for cell in selected)
-    width = max(1, (max_step + 1 + n_bins - 1) // n_bins)
-
-    grouped: dict[int, list[EmissionCell]] = defaultdict(list)
-    for cell in selected:
-        grouped[min(cell.step_index // width, n_bins - 1)].append(cell)
-
+    width, grouped = _bin_groups(list(cells), n_bins)
     profile: dict[int, RateWithCI] = {}
-    for bin_index, members in sorted(grouped.items()):
+    for bin_index, members in grouped.items():
         n_turns = sum(cell.n_turns for cell in members)
         successes = sum(cell.counts[ReasoningState.RAW_PRESENT] for cell in members)
-        clusters = {c.n_clusters for c in members if c.n_clusters is not None}
         interval = wilson_interval(successes, n_turns)
         profile[bin_index] = RateWithCI(
             rate=successes / n_turns,
@@ -265,7 +289,130 @@ def binned_profile(
             n=n_turns,
             method=interval.method,
             weighting=f"binned-{width}-steps-per-bin",
-            n_clusters=max(clusters) if clusters else None,
+            n_clusters=distinct_trajectories(members),
             low_n=n_turns < MIN_CELL_N,
         )
     return profile
+
+
+def _bin_groups(
+    cells: Sequence[EmissionCell], n_bins: int
+) -> tuple[int, dict[int, list[EmissionCell]]]:
+    """Return the bin width and cells grouped by equal-width bin of step index."""
+    if not cells:
+        return 1, {}
+    max_step = max(cell.step_index for cell in cells)
+    width = max(1, (max_step + 1 + n_bins - 1) // n_bins)
+    grouped: dict[int, list[EmissionCell]] = defaultdict(list)
+    for cell in cells:
+        grouped[min(cell.step_index // width, n_bins - 1)].append(cell)
+    return width, dict(sorted(grouped.items()))
+
+
+@dataclass(frozen=True)
+class ArmProfile:
+    """The positional profile of one arm: one model x task class x reasoning effort.
+
+    The record and Figure 2 are both drawn from this one object, so the published
+    numbers and the plotted ones cannot drift apart.
+    """
+
+    model: str
+    task_class: str
+    reasoning_effort: str | None
+    unit: str                        # "step" (step_index keys) or "bin" (bin keys)
+    bin_width: int | None            # steps per bin when unit == "bin", else None
+    n_trajectories: int
+    points: dict[int, RateWithCI]    # key is a step index or a bin index, per `unit`
+    raw_present: RateWithCI          # action-weighted over all the arm's turns
+
+    def powered(self) -> dict[int, RateWithCI]:
+        """Return the points whose denominator is at least MIN_CELL_N."""
+        return {key: rate for key, rate in self.points.items() if not rate.low_n}
+
+
+def arm_profiles(
+    cells: Iterable[EmissionCell], n_bins: int = 10
+) -> list[ArmProfile]:
+    """Return one profile per arm, per step where possible and per bin where not.
+
+    Arms are never pooled: a profile averaged across a raw-emitting arm and a
+    withholding one describes neither. With two or more trajectories each step index
+    holds at most one turn per trajectory, so a per-step Wilson interval is honest and
+    the true step keys are kept. With a single trajectory every step has one turn, so
+    steps are binned — and the bins get no interval, because one trajectory is one
+    cluster and no clustered interval exists.
+    """
+    grouped: dict[tuple[str, str, str | None], list[EmissionCell]] = defaultdict(list)
+    for cell in cells:
+        grouped[(cell.model, cell.task_class, cell.reasoning_effort)].append(cell)
+    ordered = sorted(grouped.items(), key=lambda item: (item[0][:2], str(item[0][2])))
+    return [_arm_profile(key, members, n_bins) for key, members in ordered]
+
+
+def _arm_profile(
+    key: tuple[str, str, str | None], members: list[EmissionCell], n_bins: int
+) -> ArmProfile:
+    """Return the profile of one arm's cells; see `arm_profiles` for the rule."""
+    sizes = _require_cluster_sizes(members, key)
+    if len(sizes) >= 2:
+        unit, width = "step", None
+        points = {cell.step_index: _step_rate(cell) for cell in members}
+    else:
+        unit, (width, bins) = "bin", _bin_groups(members, n_bins)
+        points = {index: _pooled_rate(group) for index, group in bins.items()}
+    return ArmProfile(
+        model=key[0], task_class=key[1], reasoning_effort=key[2],
+        unit=unit, bin_width=width, n_trajectories=len(sizes),
+        points=dict(sorted(points.items())), raw_present=_pooled_rate(members),
+    )
+
+
+def pooled_raw_present(cells: Sequence[EmissionCell]) -> RateWithCI:
+    """Return the raw_present share over cells, with a trajectory-clustered interval.
+
+    Pooled over steps, turns of one trajectory are not independent, so a naive Wilson
+    interval would claim precision the data lack. A single-trajectory pool gets no
+    interval at all (status `single_cluster_no_interval`).
+    """
+    if not cells:
+        return RateWithCI(None, None, None, 0, "none", status="no_denominator")
+    return _pooled_rate(cells, qualify=True)
+
+
+def _pooled_rate(cells: Sequence[EmissionCell], qualify: bool = False) -> RateWithCI:
+    """Return the clustered raw_present rate over cells, flagged low-n where thin."""
+    sizes = merged_cluster_sizes(cells, qualify=qualify)
+    if sizes is None:
+        raise MissingActorError(
+            f"{len(cells)} cell(s) of {cells[0].model}/{cells[0].task_class} carry no "
+            "trajectory ids, so a clustered interval cannot be computed; expected "
+            "every observation to carry a sample_id"
+        )
+    successes = sum(cell.counts[ReasoningState.RAW_PRESENT] for cell in cells)
+    labels = [name for name, size in sorted(sizes.items()) for _ in range(size)]
+    n_turns = sum(cell.n_turns for cell in cells)
+    rate = clustered_wilson(successes, n_turns, labels)
+    return replace(rate, weighting="action-weighted", low_n=n_turns < MIN_CELL_N)
+
+
+def _step_rate(cell: EmissionCell) -> RateWithCI:
+    """Return one step's rate: plain Wilson when each trajectory gave one turn."""
+    if all(size == 1 for size in cell.cluster_sizes.values()):
+        return cell_rate(cell)
+    # Duplicate trajectory ids at one step mean ids are not unique per trajectory;
+    # cluster on them rather than pretend the turns are independent.
+    return _pooled_rate([cell])
+
+
+def _require_cluster_sizes(
+    members: Sequence[EmissionCell], key: tuple[str, str, str | None]
+) -> dict[str, int]:
+    """Return the arm's turns per trajectory, raising when ids are missing."""
+    sizes = merged_cluster_sizes(members)
+    if not sizes:
+        raise MissingActorError(
+            f"arm {key} has cells without trajectory ids; the unit of a profile "
+            "(step or bin) depends on the trajectory count, which is unknowable here"
+        )
+    return sizes

@@ -90,6 +90,18 @@ def codebook_hash(path: Path = CODEBOOK_PATH) -> str:
     return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
 
 
+def codebook_version(path: Path = CODEBOOK_PATH) -> int | None:
+    """Return the codebook's own integer `version` field, or None when it has none.
+
+    None rather than a default: the file is named v1.yaml but has carried later
+    versions, so neither the filename nor a constant can stand in for the field.
+    """
+    version = _raw_codebook(path).get("version")
+    if isinstance(version, bool) or not isinstance(version, int):
+        return None
+    return version
+
+
 def denominator_codes() -> tuple[str, ...]:
     """Codes that establish the denominator. SHARE alone: coordination had to occur."""
     return ("SHARE",)

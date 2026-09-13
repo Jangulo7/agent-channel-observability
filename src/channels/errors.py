@@ -36,3 +36,7 @@ class CorpusUnavailableError(ChannelsError):
 
 class InvalidRateError(ChannelsError):
     """Raised when a probability argument falls outside [0, 1]."""
+
+
+class CodebookUnavailableError(ChannelsError):
+    """Raised when the codebook hash cannot be computed; a record needs a real hash."""

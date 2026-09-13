@@ -1,10 +1,10 @@
 {
   "observability_record": {
-    "schema_version": "3.0",
-    "codebook_version": 1,
+    "schema_version": "4.0",
+    "codebook_version": 3,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
-    "preregistration_commit": null,
-    "generated_utc": "2026-09-13T10:28:23Z",
+    "preregistration_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
+    "generated_utc": "2026-09-13T11:21:19Z",
     "corpora": [
       {
         "name": "inspect_logs_reasoning",
@@ -19,7 +19,9 @@
           "one trajectory is one cluster; per-turn independence is false",
           "reasoning_effort settings present: ['None', 'high', 'low', 'medium']",
           "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
-          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+          "0 errored sample(s) contributed 0 assistant turn(s); those turns occurred and are counted in every denominator",
+          "0 errored sample(s) contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing",
+          "log headers report 0 requested sample(s) not completed (total_samples - completed_samples)"
         ]
       }
     ],
@@ -640,46 +642,1119 @@
           "low_n": false
         }
       ],
-      "positional_profile": {
-        "0": 0.5528134254689042,
-        "1": 0.5542222222222222
-      },
+      "positional_profile": [
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9878757696830702,
+                1.0
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9915356811370294,
+                1.0
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2-reasoning-on",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.9712460063897763,
+              "ci95": [
+                0.9462649258220533,
+                0.9848000967226932
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2-reasoning-on",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.98,
+              "ci95": [
+                0.9540443568684314,
+                0.9914276756159417
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.988,
+              "ci95": [
+                0.9653192195729803,
+                0.9959106801194657
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "deepseek-v3.2-reasoning-on",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.9822222222222222,
+              "ci95": [
+                0.965316274667474,
+                0.990964804473572
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "glm-4.7-flash",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9878757696830702,
+                1.0
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "glm-4.7-flash",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "glm-4.7-flash",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.9933333333333333,
+              "ci95": [
+                0.9805850110884364,
+                0.9977301943000991
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "strong_reject",
+          "reasoning_effort": "high",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "sycophancy",
+          "reasoning_effort": "high",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "xstest",
+          "reasoning_effort": "high",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-low",
+          "task_class": "strong_reject",
+          "reasoning_effort": "low",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-low",
+          "task_class": "sycophancy",
+          "reasoning_effort": "low",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-low",
+          "task_class": "xstest",
+          "reasoning_effort": "low",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "strong_reject",
+          "reasoning_effort": "medium",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "sycophancy",
+          "reasoning_effort": "medium",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "xstest",
+          "reasoning_effort": "medium",
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9878757696830702,
+                1.0
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9915356811370294,
+                1.0
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9878757696830702,
+                1.0
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 1.0,
+              "ci95": [
+                0.9848667005045553,
+                1.0
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 1.0,
+              "ci95": [
+                0.9915356811370294,
+                1.0
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        }
+      ],
       "uninspectable_share": 0.4469077153162664
     },
-    "bound": {
-      "model": [
-        "claude-haiku-4.5",
-        "deepseek-v3.2",
-        "deepseek-v3.2-reasoning-on",
-        "glm-4.7-flash",
-        "gpt-5-nano-high",
-        "gpt-5-nano-low",
-        "gpt-5-nano-medium",
-        "gpt-oss-120b",
-        "qwen3-32b"
-      ],
-      "stage2_recall_assumed": 1.0,
-      "ceiling_mean_coverage": 0.5535178238455631,
-      "ceiling_by_step": {
-        "0": 0.5528134254689042,
-        "1": 0.5542222222222222
-      }
-    },
-    "inter_agent_channel": {
-      "n_messages": 0,
-      "n_human_excluded": 0,
-      "denominator_code": "SHARE",
-      "n_denominator": 0,
-      "rate_per_1000": null,
-      "rate_status": "no_denominator",
-      "zero_case_upper_bound_95": null,
-      "codes": {
-        "OBJ": 0,
-        "REF": 0,
-        "ESC": 0,
-        "WARN": 0,
-        "NORM": 0
+    "bound": [
+      {
+        "model": "claude-haiku-4.5",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
       },
+      {
+        "model": "claude-haiku-4.5",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "claude-haiku-4.5",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "deepseek-v3.2",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "deepseek-v3.2",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "deepseek-v3.2",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "deepseek-v3.2-reasoning-on",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.9712460063897763,
+        "ceiling_by_step": {
+          "0": 0.9712460063897763
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.9712460063897763
+        }
+      },
+      {
+        "model": "deepseek-v3.2-reasoning-on",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.984,
+        "ceiling_by_step": {
+          "0": 0.98,
+          "1": 0.988
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.98
+        }
+      },
+      {
+        "model": "deepseek-v3.2-reasoning-on",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.9822222222222222,
+        "ceiling_by_step": {
+          "0": 0.9822222222222222
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.9822222222222222
+        }
+      },
+      {
+        "model": "glm-4.7-flash",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "glm-4.7-flash",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "glm-4.7-flash",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.9933333333333333,
+        "ceiling_by_step": {
+          "0": 0.9933333333333333
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.9933333333333333
+        }
+      },
+      {
+        "model": "gpt-5-nano-high",
+        "task_class": "strong_reject",
+        "reasoning_effort": "high",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-high",
+        "task_class": "sycophancy",
+        "reasoning_effort": "high",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-high",
+        "task_class": "xstest",
+        "reasoning_effort": "high",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-low",
+        "task_class": "strong_reject",
+        "reasoning_effort": "low",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-low",
+        "task_class": "sycophancy",
+        "reasoning_effort": "low",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-low",
+        "task_class": "xstest",
+        "reasoning_effort": "low",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-medium",
+        "task_class": "strong_reject",
+        "reasoning_effort": "medium",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-medium",
+        "task_class": "sycophancy",
+        "reasoning_effort": "medium",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-5-nano-medium",
+        "task_class": "xstest",
+        "reasoning_effort": "medium",
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "gpt-oss-120b",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "gpt-oss-120b",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "gpt-oss-120b",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "qwen3-32b",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "qwen3-32b",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0,
+          "1": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      },
+      {
+        "model": "qwen3-32b",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 1.0,
+        "ceiling_by_step": {
+          "0": 1.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 1.0
+        }
+      }
+    ],
+    "inter_agent_channel": {
+      "n_messages": null,
+      "n_human_excluded": null,
+      "denominator_code": "SHARE",
+      "n_denominator": null,
+      "rate_per_1000": null,
+      "rate_status": "not_measured",
+      "zero_case_upper_bound_95": null,
+      "codes": null,
       "messages_authenticated": null
     },
     "detectors": []

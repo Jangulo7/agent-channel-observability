@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 import random
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -92,6 +92,31 @@ def _score_one_code(
     )
 
 
+def _restrict_to_label_space(
+    score: CodeScore, label_space: Collection[str]
+) -> CodeScore:
+    """Null every metric of a code the detector cannot emit; never a measured zero."""
+    if score.code in label_space:
+        return score
+    if score.support == 0:
+        # Already all-null. Both statuses are true here; the control-side one is
+        # kept because it holds for every detector, not just this one.
+        # NEEDS REVIEW: precedence of no_support_in_control over
+        # outside_detector_label_space when both apply.
+        return score
+    # The detector cannot emit this code at all, so 0/support is a property of
+    # the instrument, not a measurement of the corpus. Writing 0.0 and a Wilson
+    # interval would publish that structural zero as if it had been measured.
+    return replace(
+        score,
+        recall=None,
+        recall_ci95=None,
+        precision=None,
+        f1=None,
+        status="outside_detector_label_space",
+    )
+
+
 def validate(
     detector: object,
     control: Iterable[Utterance],
@@ -107,13 +132,19 @@ def validate(
     utterances = list(control)
     gold = [u.corpus_meta.get("gold_code") for u in utterances]
     predicted = [detector.code(u).code for u in utterances]  # type: ignore[attr-defined]
+    label_space = set(getattr(detector, "label_space", ()) or codes)
     return ValidationRecord(
         detector_name=getattr(detector, "name", type(detector).__name__),
         detector_version=getattr(detector, "version", "unknown"),
         codebook_hash=codebook_hash,
         control_corpus=control_name,
         n_utterances=len(utterances),
-        scores={code: _score_one_code(code, gold, predicted) for code in codes},
+        scores={
+            code: _restrict_to_label_space(
+                _score_one_code(code, gold, predicted), label_space
+            )
+            for code in codes
+        },
     )
 
 
@@ -145,12 +176,9 @@ def validate_from_result(
     label_space = set(getattr(result, "label_space", ()) or codes)
     scores: dict[str, CodeScore] = {}
     for code in codes:
-        score = _score_one_code(code, gold, predicted)
-        if code not in label_space:
-            # The detector cannot emit this code at all. Its zero is a property of
-            # the instrument, not a measurement of the corpus.
-            score = replace(score, status="outside_detector_label_space")
-        scores[code] = score
+        scores[code] = _restrict_to_label_space(
+            _score_one_code(code, gold, predicted), label_space
+        )
     return ValidationRecord(
         detector_name=result.detector_name,  # type: ignore[attr-defined]
         detector_version=result.detector_version,  # type: ignore[attr-defined]

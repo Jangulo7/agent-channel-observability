@@ -81,3 +81,27 @@ def test_zero_case_upper_bound() -> None:
     """Zero events give a bound, never a bare 0.0."""
     bound = zero_case_bound(200)
     assert 0.0 < bound < 0.05
+
+
+@pytest.mark.parametrize(
+    ("successes", "clusters"),
+    [
+        (3, ["SYN_a", "SYN_a", "SYN_b"]),  # the review's repro: rate 1.0
+        (0, ["SYN_a", "SYN_a", "SYN_b"]),  # rate 0.0
+        (2, ["SYN_a", "SYN_a", "SYN_b"]),
+        (7, ["SYN_a"] * 5 + ["SYN_b"] * 3 + ["SYN_c"] * 2),
+        (10, ["SYN_a"] * 5 + ["SYN_b"] * 3 + ["SYN_c"] * 2),
+        (0, ["SYN_a"] * 5 + ["SYN_b"] * 3 + ["SYN_c"] * 2),
+        (30, ["SYN_big"] * 91 + [f"SYN_other_{i}" for i in range(9)]),
+        (100, ["SYN_big"] * 91 + [f"SYN_other_{i}" for i in range(9)]),
+        (1, [f"SYN_{i % 7}" for i in range(13)]),
+    ],
+)
+def test_clustered_interval_contains_its_own_rate(
+    successes: int, clusters: list[str]
+) -> None:
+    """An interval that excludes the estimate it describes is a false claim."""
+    result = clustered_wilson(successes, len(clusters), clusters)
+    assert result.rate is not None
+    assert result.ci_low is not None and result.ci_high is not None
+    assert result.ci_low <= result.rate <= result.ci_high

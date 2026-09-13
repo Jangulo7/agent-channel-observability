@@ -1,10 +1,10 @@
 {
   "observability_record": {
-    "schema_version": "3.0",
-    "codebook_version": 1,
+    "schema_version": "4.0",
+    "codebook_version": 3,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
-    "preregistration_commit": null,
-    "generated_utc": "2026-09-13T10:28:22Z",
+    "preregistration_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
+    "generated_utc": "2026-09-13T11:21:16Z",
     "corpora": [
       {
         "name": "inspect_logs",
@@ -19,7 +19,9 @@
           "one trajectory is one cluster; per-turn independence is false",
           "reasoning_effort settings present: ['None']",
           "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
-          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+          "0 errored sample(s) contributed 0 assistant turn(s); those turns occurred and are counted in every denominator",
+          "0 errored sample(s) contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing",
+          "log headers report 0 requested sample(s) not completed (total_samples - completed_samples)"
         ]
       }
     ],
@@ -232,40 +234,387 @@
           "low_n": false
         }
       ],
-      "positional_profile": {
-        "0": 0.0,
-        "1": 0.0
-      },
+      "positional_profile": [
+        {
+          "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+          "task_class": "strong_reject",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 313,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.012124230316929803
+              ],
+              "n_turns": 313,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+          "task_class": "sycophancy",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 250,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            },
+            "1": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.015133299495444574
+              ],
+              "n_turns": 250,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        },
+        {
+          "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+          "task_class": "xstest",
+          "reasoning_effort": null,
+          "unit": "step",
+          "bin_width": null,
+          "n_trajectories": 450,
+          "profile": {
+            "0": {
+              "rate": 0.0,
+              "ci95": [
+                0.0,
+                0.008464318862970664
+              ],
+              "n_turns": 450,
+              "low_n": false,
+              "interval_status": "ok"
+            }
+          }
+        }
+      ],
       "uninspectable_share": 1.0
     },
-    "bound": {
-      "model": [
-        "vllm/Qwen/Qwen2.5-7B-Instruct",
-        "vllm/meta-llama/Llama-3.1-8B-Instruct",
-        "vllm/mistralai/Ministral-8B-Instruct-2410"
-      ],
-      "stage2_recall_assumed": 1.0,
-      "ceiling_mean_coverage": 0.0,
-      "ceiling_by_step": {
-        "0": 0.0,
-        "1": 0.0
-      }
-    },
-    "inter_agent_channel": {
-      "n_messages": 0,
-      "n_human_excluded": 0,
-      "denominator_code": "SHARE",
-      "n_denominator": 0,
-      "rate_per_1000": null,
-      "rate_status": "no_denominator",
-      "zero_case_upper_bound_95": null,
-      "codes": {
-        "OBJ": 0,
-        "REF": 0,
-        "ESC": 0,
-        "WARN": 0,
-        "NORM": 0
+    "bound": [
+      {
+        "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
       },
+      {
+        "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/Qwen/Qwen2.5-7B-Instruct",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/meta-llama/Llama-3.1-8B-Instruct",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+        "task_class": "strong_reject",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+        "task_class": "sycophancy",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0,
+          "1": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      },
+      {
+        "model": "vllm/mistralai/Ministral-8B-Instruct-2410",
+        "task_class": "xstest",
+        "reasoning_effort": null,
+        "unit": "step",
+        "bin_width": null,
+        "stage2_recall_assumed": 1.0,
+        "mean_weighting": "action-weighted",
+        "ceiling_mean_coverage": 0.0,
+        "ceiling_by_step": {
+          "0": 0.0
+        },
+        "ceiling_at_worst_powered_step": {
+          "step": 0,
+          "value": 0.0
+        }
+      }
+    ],
+    "inter_agent_channel": {
+      "n_messages": null,
+      "n_human_excluded": null,
+      "denominator_code": "SHARE",
+      "n_denominator": null,
+      "rate_per_1000": null,
+      "rate_status": "not_measured",
+      "zero_case_upper_bound_95": null,
+      "codes": null,
       "messages_authenticated": null
     },
     "detectors": []
