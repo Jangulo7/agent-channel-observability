@@ -10,11 +10,16 @@ This answers it with an independent instrument. Every model call is logged as a
 (`ModelEvent.output.usage.reasoning_tokens`), which is produced by their billing
 path and not by anything in this repository, and which exists on every call.
 (Raw call payloads are only logged for the first few calls per sample, so they
-cannot be used.) Two directions are checked:
+cannot be used.) Each turn is paired with the call that produced it by message id,
+through `channels.provider_usage`, the same implementation the loader uses. Two
+directions are checked:
 
 - the provider billed reasoning tokens and we recorded no reasoning block at all;
 - we recorded readable reasoning (RAW_PRESENT) and the provider reports exactly
-  zero reasoning tokens (an explicit 0; a missing count is not evidence).
+  zero reasoning tokens (an explicit 0; a missing count is not evidence). This is
+  labelled "provider token accounting inconsistent with returned reasoning": the
+  returned reasoning is direct evidence, so the count is the suspect side (a
+  provider-pinned gpt-oss-120b upstream has been seen doing exactly this).
 
     uv run python scripts/verify_coverage.py
 
@@ -32,10 +37,18 @@ from pathlib import Path
 from inspect_ai._util.content import ContentReasoning
 
 from channels.coverage import classify_reasoning, classify_turn
+from channels.provider_usage import (
+    SamplePairing,
+    assistant_turns,
+    call_errored,
+    model_calls,
+    pair_turns,
+    reasoning_tokens,
+)
 from channels.schema import ReasoningState
 
-#: The three agentic families: the only corpora whose model calls pair one-to-one
-#: with assistant turns, which is what this check needs.
+#: The three agentic families: multi-turn corpora whose providers report
+#: reasoning_tokens, which is what this check needs.
 LOG_ROOTS = (
     Path("data/inspect-runs-agentic"),
     Path("data/inspect-runs-ctf"),
@@ -45,10 +58,10 @@ LOG_ROOTS = (
 SCOPE_STATEMENT = (
     "Verifies: " + ", ".join(str(root) for root in LOG_ROOTS)
     + " (the three agentic families).\n"
-    "Out of scope: data/inspect-runs (baseline), whose logs carry the scorer's own "
-    "ModelEvents interleaved with the model's calls, so calls cannot be paired with "
-    "assistant turns; and data/inspect-runs-reasoning (reasoning sweep), a "
-    "single-turn sweep this script does not pair."
+    "Out of scope: data/inspect-runs (baseline), whose vLLM calls report no "
+    "reasoning_tokens, so there is nothing to cross-check (its interleaved scorer "
+    "calls are skipped by id pairing); and data/inspect-runs-reasoning (reasoning "
+    "sweep), a single-turn sweep this script does not verify."
 )
 
 
@@ -58,6 +71,7 @@ class SampleCheck:
 
     disagreements: list[str] = field(default_factory=list)
     unpaired_trailing: list[str] = field(default_factory=list)   # informational
+    errored_mid_calls: list[str] = field(default_factory=list)   # informational
     blank_with_tokens: int = 0                                     # informational
     calls: int = 0
     turns: int = 0
@@ -66,6 +80,7 @@ class SampleCheck:
         """Add another check's findings and counts to this one."""
         self.disagreements += other.disagreements
         self.unpaired_trailing += other.unpaired_trailing
+        self.errored_mid_calls += other.errored_mid_calls
         self.blank_with_tokens += other.blank_with_tokens
         self.calls += other.calls
         self.turns += other.turns
@@ -95,56 +110,57 @@ def _state(message: object) -> ReasoningState:
     return classify_turn([classify_reasoning(b) for b in _reasoning_blocks(message)])
 
 
-def _provider_tokens(call: object) -> int | None:
-    """The provider's reasoning_tokens for one call; None when not reported."""
-    usage = getattr(getattr(call, "output", None), "usage", None)
-    return getattr(usage, "reasoning_tokens", None)
-
-
-def _output_message_id(call: object) -> str | None:
-    """The id of the message a call produced, used to confirm positional pairing."""
-    choices = getattr(getattr(call, "output", None), "choices", None) or []
-    if not choices:
-        return None
-    return getattr(getattr(choices[0], "message", None), "id", None)
-
-
 def check_sample(
     label: str, calls: Sequence[object], turns: Sequence[object]
 ) -> SampleCheck:
-    """Pair the nth model call with the nth assistant turn and check each pair.
+    """Pair each assistant turn with its model call by message id and check each pair.
 
-    Calls beyond the last assistant turn are trailing calls whose output never
-    became a message (the sample ended by error or limit). One that reports
-    reasoning tokens is a disagreement; one that reports none is informational.
-    Any other count mismatch, or a pair whose message ids differ, is a disagreement.
+    A turn no call can be paired to is a disagreement. A call whose output became no
+    turn is informational when it trails the last paired call (the sample ended by
+    error or limit) or recorded an error mid-sample (a failed attempt, retried), unless
+    it reports reasoning tokens; any other unmatched call means a message is missing.
     """
     result = SampleCheck(calls=len(calls), turns=len(turns))
+    pairing = pair_turns(turns, calls)
     if len(calls) < len(turns):
         result.disagreements.append(
             f"{label}: {len(calls)} model calls but {len(turns)} assistant turns"
         )
-    for index, call in enumerate(calls[len(turns):], start=len(turns)):
-        tokens = _provider_tokens(call)
-        line = f"{label} call {index}: no assistant message, reasoning_tokens={tokens}"
-        target = result.disagreements if tokens else result.unpaired_trailing
-        target.append(line)
-    for index, (call, message) in enumerate(zip(calls, turns, strict=False)):
-        _check_pair(f"{label} step {index}", call, message, result)
+    for index in pairing.unpaired_turns:
+        result.disagreements.append(
+            f"{label} step {index}: no model call carries this turn's message id"
+        )
+    _check_unmatched_calls(label, calls, pairing, result)
+    for index, message in enumerate(turns):
+        if pairing.call_for_turn[index] is not None:
+            _check_pair(f"{label} step {index}", pairing.tokens[index], message, result)
     return result
 
 
-def _check_pair(
-    label: str, call: object, message: object, result: SampleCheck
+def _check_unmatched_calls(
+    label: str, calls: Sequence[object], pairing: SamplePairing, result: SampleCheck
 ) -> None:
-    """Apply the pairing, billed-but-unrecorded and readable-but-unbilled checks."""
-    call_id, message_id = _output_message_id(call), getattr(message, "id", None)
-    if call_id and message_id and call_id != message_id:
-        result.disagreements.append(
-            f"{label}: call and turn message ids differ; positional pairing broken"
-        )
-        return
-    tokens = _provider_tokens(call)
+    """Sort calls that produced no turn into disagreements and informational lines."""
+    trailing = set(pairing.trailing_calls())
+    for index in pairing.unmatched_calls:
+        tokens = reasoning_tokens(calls[index])
+        line = f"{label} call {index}: no assistant message, reasoning_tokens={tokens}"
+        if tokens:
+            result.disagreements.append(line)
+        elif index in trailing:
+            result.unpaired_trailing.append(line)
+        elif call_errored(calls[index]):
+            result.errored_mid_calls.append(line)
+        else:
+            result.disagreements.append(
+                f"{line}; mid-sample and not errored, so id pairing broken"
+            )
+
+
+def _check_pair(
+    label: str, tokens: int | None, message: object, result: SampleCheck
+) -> None:
+    """Apply the billed-but-unrecorded and readable-but-unbilled checks to one pair."""
     if tokens and tokens > 0 and not _accounted_for(message):
         result.disagreements.append(
             f"{label}: provider reports {tokens} reasoning tokens and we recorded "
@@ -154,8 +170,9 @@ def _check_pair(
         result.blank_with_tokens += 1
     if tokens == 0 and _state(message) is ReasoningState.RAW_PRESENT:
         result.disagreements.append(
-            f"{label}: we recorded RAW_PRESENT and the provider reports exactly 0 "
-            "reasoning tokens"
+            f"{label}: provider token accounting inconsistent with returned "
+            "reasoning - we recorded RAW_PRESENT and the provider reports exactly 0 "
+            "reasoning tokens (the token count is the suspect side)"
         )
 
 
@@ -165,9 +182,9 @@ def check_log(path: Path) -> SampleCheck:
 
     merged = SampleCheck()
     for sample in read_eval_log(str(path)).samples or []:
-        calls = [e for e in (sample.events or []) if type(e).__name__ == "ModelEvent"]
-        turns = [m for m in sample.messages if getattr(m, "role", None) == "assistant"]
-        merged.absorb(check_sample(f"{path.name}:{sample.id}", calls, turns))
+        merged.absorb(check_sample(
+            f"{path.name}:{sample.id}", model_calls(sample), assistant_turns(sample)
+        ))
     return merged
 
 
@@ -206,11 +223,15 @@ def _report(per_arm: dict[str, SampleCheck], n_logs: Counter[str]) -> int:
               f"{found.blank_with_tokens:13d}")
     disagreements = [line for f in per_arm.values() for line in f.disagreements]
     trailing = [line for f in per_arm.values() for line in f.unpaired_trailing]
+    errored = [line for f in per_arm.values() for line in f.errored_mid_calls]
     blank = sum(f.blank_with_tokens for f in per_arm.values())
     _print_lines("DISAGREEMENTS", disagreements)
     _print_lines("Informational - unpaired trailing calls reporting 0/None "
                  "reasoning tokens (sample ended before a message was written)",
                  trailing)
+    _print_lines("Informational - errored mid-sample calls reporting 0/None "
+                 "reasoning tokens (failed attempts; a later call wrote the turn)",
+                 errored)
     print(f"\nInformational - turns with a reasoning block present but blank, where "
           f"the provider billed reasoning tokens (classified ABSENT): {blank}")
     if disagreements:

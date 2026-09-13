@@ -1,14 +1,16 @@
 """The one normalised record every loader produces and every analysis consumes.
 
-This module is a leaf. It imports nothing from `loaders/`, `tree.py` or `detect.py`,
-and it must stay that way: the schema's stability is what lets a new corpus be added
-without touching analysis code. Corpus-specific fields live in `corpus_meta` and
-never graduate to the top level.
+This module is a leaf. It imports nothing from `loaders/`, `tree.py` or `detect.py`
+(only `errors.py`, itself a leaf), and it must stay that way: the schema's stability
+is what lets a new corpus be added without touching analysis code. Corpus-specific
+fields live in `corpus_meta` and never graduate to the top level.
 """
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+
+from channels.errors import InvalidTokenCountError
 
 
 class Channel(str, Enum):
@@ -90,6 +92,30 @@ class Utterance:
     corpus_meta: dict[str, Any] = field(default_factory=dict)
 
 
+class DeliberationEvidence(str, Enum):
+    """Whether the evidence says reasoning was PRODUCED on a turn.
+
+    Readable is not produced. `ReasoningState` records what an external evaluator
+    can READ; this records whether reasoning was GENERATED. The two come apart: a
+    turn is ABSENT both when nothing was produced (reasoning_tokens == 0) and when
+    reasoning was produced and not returned (reasoning_tokens > 0), while a REDACTED
+    turn was produced and withheld. Collapsing them lets "absent" read as "hidden".
+
+    Evidence hierarchy (author decision, 2026-09-13): returned reasoning content -
+    readable or summary - is direct evidence and makes a turn PRODUCED whatever the
+    provider's count says, because one upstream has been seen returning readable
+    reasoning with reasoning_tokens == 0. A REDACTED turn is PRODUCED only when the
+    provider reported a count (an encrypted chain); with no count it is UNKNOWN,
+    because a publisher's redaction marker is not evidence that reasoning existed.
+    A turn with no reasoning content falls back to the count: > 0 PRODUCED, == 0
+    NOT_PRODUCED, None UNKNOWN.
+    """
+
+    PRODUCED = "produced"          # reasoning content returned, or tokens > 0
+    NOT_PRODUCED = "not_produced"  # no reasoning content and an explicit 0 tokens
+    UNKNOWN = "unknown"            # no reasoning content and no count (or no pairing)
+
+
 @dataclass(frozen=True)
 class TurnObservation:
     """One assistant turn, with the reasoning state we could observe for it."""
@@ -100,6 +126,66 @@ class TurnObservation:
     state: ReasoningState
     reasoning_effort: str | None = None
     sample_id: str | None = None   # the cluster key; one trajectory is one cluster
+    # The provider's reasoning_tokens for the call that produced this turn. None means
+    # not reported or not attributable to one call, never zero: a missing count is
+    # not evidence that nothing was produced.
+    provider_reasoning_tokens: int | None = None
+
+    @property
+    def deliberation_evidence(self) -> DeliberationEvidence:
+        """This turn's deliberation evidence; see `deliberation_evidence`."""
+        return deliberation_evidence(self)
+
+    @property
+    def token_accounting_inconsistent(self) -> bool:
+        """Content returned with 0 reported tokens; see the module-level function."""
+        return token_accounting_inconsistent(self)
+
+
+def deliberation_evidence(observation: TurnObservation) -> DeliberationEvidence:
+    """Classify a turn by the evidence hierarchy: returned content, then tokens."""
+    tokens = _checked_tokens(observation)
+    if observation.state in (ReasoningState.RAW_PRESENT, ReasoningState.SUMMARY_ONLY):
+        return DeliberationEvidence.PRODUCED
+    if observation.state is ReasoningState.REDACTED:
+        # A redaction marker shows content was withheld, not that it was reasoning.
+        # With a provider count it is a provider's encrypted chain (PRODUCED); with
+        # no count it may be a publisher's whole-message redaction (the Mythos
+        # export), which is no evidence that reasoning existed.
+        # NEEDS REVIEW: decided 2026-09-13; REDACTED without a count is UNKNOWN.
+        return (
+            DeliberationEvidence.UNKNOWN if tokens is None
+            else DeliberationEvidence.PRODUCED
+        )
+    if tokens is None:
+        return DeliberationEvidence.UNKNOWN
+    if tokens == 0:
+        return DeliberationEvidence.NOT_PRODUCED
+    return DeliberationEvidence.PRODUCED
+
+
+def token_accounting_inconsistent(observation: TurnObservation) -> bool:
+    """Whether reasoning content was returned while the provider reported 0 tokens.
+
+    Such a turn is still PRODUCED (the content is the direct evidence); this flag
+    exists so the override is counted and surfaced, never applied silently.
+    """
+    tokens = _checked_tokens(observation)
+    return tokens == 0 and observation.state is not ReasoningState.ABSENT
+
+
+def _checked_tokens(observation: TurnObservation) -> int | None:
+    """The turn's provider reasoning_tokens, raising on a negative count."""
+    tokens = observation.provider_reasoning_tokens
+    if tokens is not None and tokens < 0:
+        # A negative count is a corrupt report, not a smaller zero; classifying it
+        # either way would invent evidence.
+        raise InvalidTokenCountError(
+            f"provider_reasoning_tokens={tokens} on {observation.model}/"
+            f"{observation.task_class} step {observation.step_index}; expected an "
+            "integer >= 0 or None"
+        )
+    return tokens
 
 
 @dataclass(frozen=True)

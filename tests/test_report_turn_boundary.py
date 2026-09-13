@@ -1,4 +1,4 @@
-"""Turn-boundary pairing: roles, positional usage pairing, unpaired calls counted.
+"""Turn-boundary pairing: roles, usage paired by message id, unpaired calls counted.
 
 Every object here is a synthetic stand-in; no log is read.
 """
@@ -30,6 +30,7 @@ class _Message:
 
     role: str
     content: Any = "synthetic"
+    id: str | None = None
 
 
 @dataclass
@@ -38,8 +39,21 @@ class _Usage:
 
 
 @dataclass
+class _Choice:
+    message: _Message
+
+
+@dataclass
 class _Output:
     usage: _Usage | None
+    message_id: str | None = None
+
+    @property
+    def choices(self) -> list[_Choice]:
+        """One choice carrying the produced message's id, as Inspect records it."""
+        if self.message_id is None:
+            return []
+        return [_Choice(_Message("assistant", id=self.message_id))]
 
 
 @dataclass
@@ -74,16 +88,25 @@ def test_preceding_role_is_the_message_immediately_before() -> None:
     ]
 
 
-def test_usage_pairs_by_position_and_counts_trailing_calls() -> None:
-    events = [_ModelEvent(_Output(_Usage(n))) for n in (50, 0, 7)]
-    tokens, trailing, missing = report_turn_boundary.pair_usage(2, events)
+def _assistants(*ids: str) -> list[_Message]:
+    return [_Message("assistant", id=message_id) for message_id in ids]
+
+
+def test_usage_pairs_by_message_id_and_counts_trailing_calls() -> None:
+    events = [
+        _ModelEvent(_Output(_Usage(n), message_id))
+        for n, message_id in ((50, "SYN-0"), (0, "SYN-1"), (7, "SYN-never-written"))
+    ]
+    turns = _assistants("SYN-0", "SYN-1")
+    tokens, trailing, missing = report_turn_boundary.pair_usage(turns, events)
     assert tokens == [50, 0]
     assert (trailing, missing) == (1, 0)
 
 
 def test_turn_without_a_call_or_usage_is_unrecorded_not_zero() -> None:
-    events = [_ModelEvent(_Output(None))]
-    tokens, trailing, missing = report_turn_boundary.pair_usage(2, events)
+    events = [_ModelEvent(_Output(None, "SYN-0"))]
+    turns = _assistants("SYN-0", "SYN-1")
+    tokens, trailing, missing = report_turn_boundary.pair_usage(turns, events)
     assert tokens == [None, None]
     assert (trailing, missing) == (0, 1)
 
@@ -91,15 +114,17 @@ def test_turn_without_a_call_or_usage_is_unrecorded_not_zero() -> None:
 def test_sample_counts_split_by_role_and_step() -> None:
     """Reasoning after the user, none after a tool: the pattern the script reports."""
     messages = [
-        _Message("user"), _Message("assistant", _thinking()),
-        _Message("tool"), _Message("assistant", [ContentText(text="x")]),
-        _Message("user"), _Message("assistant", _thinking()),
+        _Message("user"), _Message("assistant", _thinking(), "SYN-0"),
+        _Message("tool"), _Message("assistant", [ContentText(text="x")], "SYN-1"),
+        _Message("user"), _Message("assistant", _thinking(), "SYN-2"),
     ]
     events = [
-        _ModelEvent(_Output(_Usage(12)), input=[_Message("user")]),
-        _ModelEvent(_Output(_Usage(0)), input=[_Message("tool")]),
-        _ModelEvent(_Output(_Usage(9)), input=[_Message("user")]),
-        _ModelEvent(_Output(_Usage(3)), input=[_Message("assistant")]),
+        _ModelEvent(_Output(_Usage(12), "SYN-0"), input=[_Message("user")]),
+        _ModelEvent(_Output(_Usage(0), "SYN-1"), input=[_Message("tool")]),
+        _ModelEvent(_Output(_Usage(9), "SYN-2"), input=[_Message("user")]),
+        _ModelEvent(
+            _Output(_Usage(3), "SYN-never-written"), input=[_Message("assistant")]
+        ),
     ]
     report = report_turn_boundary.ArmReport()
     report_turn_boundary.count_sample(

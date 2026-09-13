@@ -8,8 +8,9 @@ before them (step 0, the first move, is reported separately whatever precedes
 it). For each group it counts how many turns carry readable reasoning
 (RAW_PRESENT, classified by `channels.coverage`), redacted reasoning, a summary
 only, or an empty/absent block, and how many had provider-billed
-`reasoning_tokens > 0` (ModelEvent.output.usage, paired by position with the
-assistant messages). Where a turn has no reasoning block AND the provider
+`reasoning_tokens > 0` (ModelEvent.output.usage, paired with the assistant
+messages by message id through `channels.provider_usage`, the implementation the
+loader uses). Where a turn has no reasoning block AND the provider
 reported zero reasoning tokens, the logs show no deliberation on that turn under
 the run's request config, visible or billed-but-hidden. (For claude-haiku-4.5
 this holds on every turn after a tool result, while turns after a user message
@@ -41,6 +42,12 @@ from typing import Any
 
 from channels.coverage import observe_turns, reasoning_blocks
 from channels.loaders.inspect_logs import InspectLogLoader
+from channels.provider_usage import (
+    SamplePairing,
+    assistant_turns,
+    model_calls,
+    pair_turns,
+)
 from channels.schema import ReasoningState
 
 #: Task families, in the order they were run; one subdirectory per arm.
@@ -77,6 +84,7 @@ class ArmReport:
     buckets: dict[str, BucketCounts] = field(default_factory=dict)
     n_samples: int = 0
     unpaired_trailing_calls: int = 0
+    unpaired_mid_sample_calls: int = 0
     unpaired_turns: int = 0
     pairing_role_mismatches: int = 0
     calls_with_raw_logged: int = 0
@@ -99,22 +107,20 @@ def preceding_roles(messages: Sequence[Any]) -> list[tuple[int, str]]:
 
 
 def pair_usage(
-    n_turns: int, model_events: Sequence[Any]
+    turns: Sequence[Any], model_events: Sequence[Any]
 ) -> tuple[list[int | None], int, int]:
-    """Pair assistant turns with model calls by position.
+    """Pair assistant turns with model calls by message id.
 
-    Returns per-turn reasoning_tokens (None where no call or no usage was
-    recorded), the count of trailing calls with no assistant turn, and the count
-    of turns with no call. Unpaired items are counted, never silently dropped.
+    Returns per-turn reasoning_tokens (None where no call could be paired or no
+    usage was recorded), the count of trailing calls with no assistant turn, and the
+    count of turns with no call. Unpaired items are counted, never silently dropped.
     """
-    tokens: list[int | None] = []
-    for event in model_events[:n_turns]:
-        usage = getattr(getattr(event, "output", None), "usage", None)
-        value = getattr(usage, "reasoning_tokens", None) if usage else None
-        tokens.append(int(value) if value is not None else None)
-    unpaired_turns = max(0, n_turns - len(model_events))
-    tokens.extend([None] * unpaired_turns)
-    return tokens, max(0, len(model_events) - n_turns), unpaired_turns
+    pairing = pair_turns(turns, model_events)
+    return (
+        list(pairing.tokens),
+        len(pairing.trailing_calls()),
+        len(pairing.unpaired_turns),
+    )
 
 
 def _absent_kind(message: Any) -> str:
@@ -144,33 +150,42 @@ def _count_turn(
 def count_sample(report: ArmReport, sample: Any, arm: str, task_class: str) -> None:
     """Count one sample's assistant turns into the arm report."""
     messages = list(getattr(sample, "messages", None) or [])
-    assistants = [m for m in messages if getattr(m, "role", None) == "assistant"]
-    states = [o.state for o in observe_turns(sample, arm, task_class)]
-    events = [e for e in getattr(sample, "events", []) if e.event == "model"]
-    tokens, trailing, missing = pair_usage(len(assistants), events)
+    assistants = assistant_turns(sample)
+    events = model_calls(sample)
+    pairing = pair_turns(assistants, events)
+    observations = observe_turns(sample, arm, task_class, pairing=pairing)
+    trailing = len(pairing.trailing_calls())
     report.n_samples += 1
     report.unpaired_trailing_calls += trailing
-    report.unpaired_turns += missing
+    report.unpaired_mid_sample_calls += len(pairing.unmatched_calls) - trailing
+    report.unpaired_turns += len(pairing.unpaired_turns)
     contexts = preceding_roles(messages)
-    for (_, bucket), message, state, used in zip(
-        contexts, assistants, states, tokens, strict=True
+    for (_, bucket), message, observation in zip(
+        contexts, assistants, observations, strict=True
     ):
         counts = report.buckets.setdefault(bucket, BucketCounts())
-        _count_turn(counts, state, message, used)
-    _check_pairing(report, messages, events)
+        _count_turn(
+            counts, observation.state, message, observation.provider_reasoning_tokens
+        )
+    _check_pairing(report, messages, events, pairing)
     _count_calls(report, events)
 
 
 def _check_pairing(
-    report: ArmReport, messages: Sequence[Any], events: Sequence[Any]
+    report: ArmReport,
+    messages: Sequence[Any],
+    events: Sequence[Any],
+    pairing: SamplePairing,
 ) -> None:
-    """Count pairs whose call input does not end in the turn's preceding role."""
+    """Count id-paired calls whose input does not end in the turn's preceding role."""
     indices = [
         i for i, m in enumerate(messages) if getattr(m, "role", None) == "assistant"
     ]
-    for index, event in zip(indices, events, strict=False):
+    for index, call in zip(indices, pairing.call_for_turn, strict=True):
+        if call is None:
+            continue
         expected = getattr(messages[index - 1], "role", None) if index else None
-        inputs = getattr(event, "input", None) or []
+        inputs = getattr(events[call], "input", None) or []
         observed = getattr(inputs[-1], "role", None) if inputs else None
         report.pairing_role_mismatches += expected != observed
 
@@ -294,10 +309,16 @@ def _config_row(family: str, arm: str, data: dict[str, Any]) -> str:
         str(first.get("interleaved_or_beta_header_key_present")),
         providers or "none",
         f"{data['calls_with_raw_logged']} / {data['calls_without_raw_logged']}",
-        f"{data['unpaired_trailing_calls']} / {data['unpaired_turns']}",
+        f"{data['unpaired_trailing_calls']} / {data['unpaired_turns']}"
+        + _mid_sample_note(data["unpaired_mid_sample_calls"]),
         str(data["pairing_role_mismatches"]),
     ]
     return "| " + " | ".join(cells) + " |"
+
+
+def _mid_sample_note(count: int) -> str:
+    """Name mid-sample unpaired calls (failed attempts, scorer calls) when present."""
+    return f" (+{count} mid-sample)" if count else ""
 
 
 def print_config_tables(results: dict[str, dict[str, dict[str, Any]]]) -> None:

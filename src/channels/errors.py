@@ -40,3 +40,11 @@ class InvalidRateError(ChannelsError):
 
 class CodebookUnavailableError(ChannelsError):
     """Raised when the codebook hash cannot be computed; a record needs a real hash."""
+
+
+class InvalidTokenCountError(ChannelsError):
+    """Raised when a provider token count is negative or not an integer."""
+
+
+class InconsistentCountsError(ChannelsError):
+    """Raised when per-state and per-evidence counts of one cell do not reconcile."""

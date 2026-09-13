@@ -166,7 +166,22 @@ class MythosTranscriptLoader:
                 "third-party-server messages, and individual words in place",
                 "reasoning is in-band <thinking> markup, not a structured field",
                 self._partial_redaction_caveat(observations),
+                self._deliberation_caveat(observations),
             ),
+        )
+
+    def _deliberation_caveat(self, observations: list[TurnObservation]) -> str:
+        """State what deliberation evidence can mean with no provider token counts."""
+        states = [o.state for o in observations]
+        redacted = states.count(ReasoningState.REDACTED)
+        absent = states.count(ReasoningState.ABSENT)
+        # The redaction here is the publisher's, of a whole message, so it is not
+        # evidence that reasoning existed: with no count those turns are UNKNOWN.
+        return (
+            "no provider token accounting exists in the transcript: all "
+            f"{absent} ABSENT turn(s) and {redacted} wholly publisher-REDACTED turn(s) "
+            "have UNKNOWN deliberation evidence and none can be NOT_PRODUCED; only "
+            "turns with readable <thinking> content are PRODUCED"
         )
 
     def _partial_redaction_caveat(self, observations: list[TurnObservation]) -> str:
@@ -217,9 +232,9 @@ def classify_record(record: dict[str, Any]) -> ReasoningState:
         return ReasoningState.ABSENT
     if _REDACTION_MARKER.fullmatch(content.strip()):
         return ReasoningState.REDACTED
-    # NEEDS REVIEW: partial in-place redaction inside readable reasoning is kept
-    # RAW_PRESENT; under turn-level strongest-limitation it would be REDACTED —
-    # author decision
+    # Partial in-place redaction inside readable reasoning is kept RAW_PRESENT
+    # (author decision Q9, 2026-09-13). Under turn-level strongest limitation it
+    # would be REDACTED; describe() still reports that alternative rate.
     if _THINKING.search(content):
         return ReasoningState.RAW_PRESENT
     return ReasoningState.ABSENT

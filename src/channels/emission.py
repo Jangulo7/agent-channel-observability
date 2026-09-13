@@ -11,8 +11,13 @@ from dataclasses import dataclass, field, replace
 
 from channels._vendored_stats import wilson_interval
 from channels.cluster import clustered_wilson
-from channels.errors import MissingActorError
-from channels.schema import RateWithCI, ReasoningState, TurnObservation
+from channels.errors import InconsistentCountsError, MissingActorError
+from channels.schema import (
+    DeliberationEvidence,
+    RateWithCI,
+    ReasoningState,
+    TurnObservation,
+)
 
 # Below 30 turns a Wilson interval on a mid-range proportion is roughly +/-0.18 wide,
 # which is the point past which a cell stops informing anything it is asked.
@@ -25,6 +30,17 @@ UNINSPECTABLE: frozenset[ReasoningState] = frozenset(
 )
 
 DENOMINATOR_STATEMENT = "assistant turns that occurred at this step index"
+
+# States in which reasoning content was returned. Under the evidence hierarchy they
+# are PRODUCED whatever the token count says (see schema.DeliberationEvidence).
+CONTENT_STATES: frozenset[ReasoningState] = frozenset(
+    {ReasoningState.RAW_PRESENT, ReasoningState.SUMMARY_ONLY, ReasoningState.REDACTED}
+)
+# Content that is itself reasoning text. Only these are PRODUCED without a token
+# count; a REDACTED turn with no count is UNKNOWN (see schema.deliberation_evidence).
+READABLE_CONTENT_STATES: frozenset[ReasoningState] = frozenset(
+    {ReasoningState.RAW_PRESENT, ReasoningState.SUMMARY_ONLY}
+)
 
 
 @dataclass(frozen=True)
@@ -42,6 +58,42 @@ class EmissionCell:
     # trajectories and weight clustered intervals, which a bare n_clusters cannot:
     # two cells with 10 trajectories each may share all ten or none of them.
     cluster_sizes: Mapping[str, int] = field(default_factory=dict)
+    # Turns per (deliberation evidence x reasoning state): whether reasoning was
+    # PRODUCED, crossed with what an evaluator can READ. None when the cell was built
+    # without token evidence; `state_by_evidence` then derives it from states alone.
+    evidence: Mapping[DeliberationEvidence, Mapping[ReasoningState, int]] | None = None
+    # Turns that returned reasoning content while the provider reported 0 tokens.
+    # None when the cell carries no token evidence, so none could be checked.
+    token_accounting_inconsistent: int | None = None
+
+    def __post_init__(self) -> None:
+        """Refuse a cross-tab that contradicts the counts or the evidence hierarchy."""
+        if self.evidence is None:
+            return
+        # Readable or summary content is direct evidence of production; a REDACTED
+        # turn may be UNKNOWN (no count), but never NOT_PRODUCED.
+        forbidden = {
+            DeliberationEvidence.NOT_PRODUCED: CONTENT_STATES,
+            DeliberationEvidence.UNKNOWN: READABLE_CONTENT_STATES,
+        }
+        for evidence, states in forbidden.items():
+            row = self.evidence.get(evidence, {})
+            if any(row.get(state, 0) for state in states):
+                raise InconsistentCountsError(
+                    f"cell {self.model}/{self.task_class} step {self.step_index}: "
+                    f"{evidence.value} turns with returned reasoning content; content "
+                    "is direct evidence, so those turns must be produced"
+                )
+        for state in ReasoningState:
+            total = sum(
+                self.evidence.get(e, {}).get(state, 0) for e in DeliberationEvidence
+            )
+            if total != self.counts[state]:
+                raise InconsistentCountsError(
+                    f"cell {self.model}/{self.task_class} step {self.step_index}: "
+                    f"{total} {state.value} turn(s) across deliberation evidence but "
+                    f"{self.counts[state]} in counts; expected them to be equal"
+                )
 
 
 def emission_rate(cell: EmissionCell) -> float:
@@ -83,9 +135,13 @@ def build_cells(observations: Iterable[TurnObservation]) -> list[EmissionCell]:
     cells: list[EmissionCell] = []
     for (model, task_class, step_index, effort), group in sorted(grouped.items()):
         counts = dict.fromkeys(ReasoningState, 0)
+        evidence = _empty_crosstab()
+        inconsistent = 0
         sizes: dict[str, int] = defaultdict(int)
         for observation in group:
             counts[observation.state] += 1
+            evidence[observation.deliberation_evidence][observation.state] += 1
+            inconsistent += observation.token_accounting_inconsistent
             if observation.sample_id is not None:
                 sizes[observation.sample_id] += 1
         cells.append(
@@ -98,9 +154,124 @@ def build_cells(observations: Iterable[TurnObservation]) -> list[EmissionCell]:
                 counts=counts,
                 n_clusters=len(sizes) or None,
                 cluster_sizes=dict(sizes),
+                evidence=evidence,
+                token_accounting_inconsistent=inconsistent,
             )
         )
     return cells
+
+
+def _empty_crosstab() -> dict[DeliberationEvidence, dict[ReasoningState, int]]:
+    """A 3x4 evidence-by-state table of zeroes, every combination present."""
+    return {e: dict.fromkeys(ReasoningState, 0) for e in DeliberationEvidence}
+
+
+def state_by_evidence(
+    cell: EmissionCell,
+) -> dict[DeliberationEvidence, dict[ReasoningState, int]]:
+    """The cell's 3x4 cross-tab of deliberation evidence by reasoning state.
+
+    A cell built without token evidence applies the hierarchy to states alone:
+    returned content is PRODUCED, and an ABSENT turn with no count is UNKNOWN.
+    """
+    # NEEDS REVIEW: the alternative is to raise on a cell with no evidence. Deriving
+    # it was chosen because it states the absence rather than refusing the cell.
+    table = _empty_crosstab()
+    if cell.evidence is None:
+        for state, count in cell.counts.items():
+            derived = (
+                DeliberationEvidence.PRODUCED if state in READABLE_CONTENT_STATES
+                else DeliberationEvidence.UNKNOWN
+            )
+            table[derived][state] = count
+        return table
+    for evidence, counts in cell.evidence.items():
+        for state, count in counts.items():
+            table[evidence][state] += count
+    return table
+
+
+def evidence_counts(cells: Iterable[EmissionCell]) -> dict[DeliberationEvidence, int]:
+    """Turns per deliberation evidence value over cells, every value present."""
+    totals = dict.fromkeys(DeliberationEvidence, 0)
+    for cell in cells:
+        for evidence, row in state_by_evidence(cell).items():
+            totals[evidence] += sum(row.values())
+    return totals
+
+
+@dataclass(frozen=True)
+class EvidenceShares:
+    """Produced / not-produced / unknown shares of a set of turns. Readable != produced.
+
+    produced_share, not_produced_share and unknown_share share one denominator, all
+    turns (n_turns), so the three sum to one. produced_share and not_produced_share
+    are None when every count is unknown: a 0.0 there would read as "not produced".
+    readable_given_produced is RAW_PRESENT among PRODUCED turns, None with none.
+    token_accounting_inconsistent counts content returned with 0 reported tokens;
+    None when any cell carried no token evidence.
+    """
+
+    n_turns: int
+    produced_share: float | None
+    not_produced_share: float | None
+    unknown_share: float | None
+    readable_given_produced: float | None
+    token_accounting_inconsistent: int | None = None
+
+
+def evidence_shares(cells: Iterable[EmissionCell]) -> EvidenceShares:
+    """Deliberation-evidence shares over cells, e.g. one arm's cells."""
+    # NEEDS REVIEW: shares use all turns as denominator (so the three sum to one),
+    # not only turns with a reported count; the unknown share says how much of the
+    # denominator carries no evidence.
+    selected = list(cells)
+    totals = evidence_counts(selected)
+    n_turns = sum(totals.values())
+    produced = totals[DeliberationEvidence.PRODUCED]
+    readable = sum(
+        state_by_evidence(c)[DeliberationEvidence.PRODUCED][ReasoningState.RAW_PRESENT]
+        for c in selected
+    )
+    unknown = totals[DeliberationEvidence.UNKNOWN]
+    known = n_turns - unknown
+    return EvidenceShares(
+        n_turns=n_turns,
+        produced_share=produced / n_turns if known else None,
+        not_produced_share=(
+            totals[DeliberationEvidence.NOT_PRODUCED] / n_turns if known else None
+        ),
+        unknown_share=unknown / n_turns if n_turns else None,
+        readable_given_produced=readable / produced if produced else None,
+        token_accounting_inconsistent=_sum_or_none(
+            c.token_accounting_inconsistent for c in selected
+        ),
+    )
+
+
+def _sum_or_none(values: Iterable[int | None]) -> int | None:
+    """Sum the values, or None if any is None: a partial sum would claim a check."""
+    total = 0
+    for value in values:
+        if value is None:
+            return None
+        total += value
+    return total
+
+
+def arm_key(cell: EmissionCell) -> tuple[str, str, str | None]:
+    """The arm a cell belongs to: model x task class x reasoning effort."""
+    return (cell.model, cell.task_class, cell.reasoning_effort)
+
+
+def arm_evidence_shares(
+    cells: Iterable[EmissionCell],
+) -> dict[tuple[str, str, str | None], EvidenceShares]:
+    """Deliberation-evidence shares per arm; arms are never pooled."""
+    grouped: dict[tuple[str, str, str | None], list[EmissionCell]] = defaultdict(list)
+    for cell in cells:
+        grouped[arm_key(cell)].append(cell)
+    return {key: evidence_shares(members) for key, members in grouped.items()}
 
 
 def cell_rate(cell: EmissionCell) -> RateWithCI:

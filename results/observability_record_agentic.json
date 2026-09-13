@@ -1,10 +1,10 @@
 {
   "observability_record": {
-    "schema_version": "4.0",
+    "schema_version": "4.1",
     "codebook_version": 3,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
     "preregistration_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
-    "generated_utc": "2026-09-13T11:21:20Z",
+    "generated_utc": "2026-09-13T12:29:41Z",
     "corpora": [
       {
         "name": "inspect_logs_agentic",
@@ -21,7 +21,11 @@
           "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
           "0 errored sample(s) contributed 0 assistant turn(s); those turns occurred and are counted in every denominator",
           "0 errored sample(s) contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing",
-          "log headers report 0 requested sample(s) not completed (total_samples - completed_samples)"
+          "log headers report 0 requested sample(s) not completed (total_samples - completed_samples)",
+          "readable is not produced: deliberation evidence (returned reasoning content, else provider reasoning_tokens) gives PRODUCED 1674, NOT_PRODUCED 186, UNKNOWN 0 turn(s)",
+          "token_accounting_inconsistent: 1 turn(s) returned reasoning content while the provider reported reasoning_tokens == 0; counted PRODUCED because the content is direct evidence, so the token count is the suspect side",
+          "0 turn(s) could not be paired to one model call by message id (0 of them because the id was shared) and are UNKNOWN, never positionally guessed; 0 paired turn(s) are UNKNOWN because the call reported no reasoning_tokens",
+          "0 model call(s) produced no assistant turn (scorer calls, calls after the sample ended, failed attempts: 0 recorded an error) and were skipped"
         ]
       }
     ],
@@ -44,7 +48,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "claude-haiku-4.5",
@@ -61,7 +91,33 @@
             0.0940578258372025
           ],
           "n_clusters": 37,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 37,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 37
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "claude-haiku-4.5",
@@ -78,7 +134,33 @@
             0.1071791982550706
           ],
           "n_clusters": 32,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 32,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 32
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "claude-haiku-4.5",
@@ -95,7 +177,33 @@
             0.16817922405261626
           ],
           "n_clusters": 19,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 19,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 19
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "claude-haiku-4.5",
@@ -112,7 +220,33 @@
             0.29914504841954404
           ],
           "n_clusters": 9,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 9,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 9
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "claude-haiku-4.5",
@@ -129,7 +263,33 @@
             0.6576197724933469
           ],
           "n_clusters": 2,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 2,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 2
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -146,7 +306,33 @@
             0.07134759913335872
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 50,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -163,7 +349,33 @@
             0.07269781922049637
           ],
           "n_clusters": 49,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 47,
+            "not_produced": 2,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 47,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 2
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 1
         },
         {
           "model": "gpt-5-nano-medium",
@@ -180,7 +392,33 @@
             0.07707356308558039
           ],
           "n_clusters": 46,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 32,
+            "not_produced": 14,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 32,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 14
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -197,7 +435,33 @@
             0.12064330476584564
           ],
           "n_clusters": 28,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 19,
+            "not_produced": 9,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 19,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 9
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -214,7 +478,33 @@
             0.17587922364665765
           ],
           "n_clusters": 18,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 14,
+            "not_produced": 4,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 14,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 4
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -231,7 +521,33 @@
             0.2775327998628892
           ],
           "n_clusters": 10,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 8,
+            "not_produced": 2,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 8,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 2
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -248,7 +564,33 @@
             0.39033428790216534
           ],
           "n_clusters": 6,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 3,
+            "not_produced": 3,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 3,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 3
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -265,7 +607,33 @@
             0.5614970317550455
           ],
           "n_clusters": 3,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 2,
+            "not_produced": 1,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 2,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 1
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-5-nano-medium",
@@ -282,7 +650,33 @@
             0.7934506856227626
           ],
           "n_clusters": 1,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 0,
+            "not_produced": 1,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 1
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -299,7 +693,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -316,7 +736,33 @@
             0.9964607407283539
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 49,
+            "not_produced": 1,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 49,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 1
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -333,7 +779,33 @@
             0.9438239984906773
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 47,
+            "not_produced": 3,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 44,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 3
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 3
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -350,7 +822,33 @@
             0.9022980732976582
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 43,
+            "not_produced": 7,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 41,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 2
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 7
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -367,7 +865,33 @@
             0.9388215963796489
           ],
           "n_clusters": 46,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 41,
+            "not_produced": 5,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 40,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 1
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 5
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -384,7 +908,33 @@
             0.7812418048065555
           ],
           "n_clusters": 44,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 30,
+            "not_produced": 14,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 29,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 1
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 14
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -401,7 +951,33 @@
             0.9138923179105933
           ],
           "n_clusters": 33,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 27,
+            "not_produced": 6,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 27,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 6
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -418,7 +994,33 @@
             0.8896615059421671
           ],
           "n_clusters": 26,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 20,
+            "not_produced": 6,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 20,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 6
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "gpt-oss-120b",
@@ -435,7 +1037,33 @@
             0.7553003107462405
           ],
           "n_clusters": 21,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 12,
+            "not_produced": 9,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 12,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 9
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -452,7 +1080,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -469,7 +1123,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -486,7 +1166,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -503,7 +1209,33 @@
             1.0
           ],
           "n_clusters": 49,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 49,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 49,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -520,7 +1252,33 @@
             1.0
           ],
           "n_clusters": 42,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 42,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 42,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -537,7 +1295,33 @@
             1.0
           ],
           "n_clusters": 35,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 35,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 35,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -554,7 +1338,33 @@
             1.0
           ],
           "n_clusters": 27,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 27,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 27,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -571,7 +1381,33 @@
             1.0
           ],
           "n_clusters": 24,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 24,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 24,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "kimi-k2-thinking",
@@ -588,7 +1424,33 @@
             1.0
           ],
           "n_clusters": 21,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 21,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 21,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -605,7 +1467,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -622,7 +1510,33 @@
             1.0
           ],
           "n_clusters": 49,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 49,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 49,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -639,7 +1553,33 @@
             1.0
           ],
           "n_clusters": 49,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 49,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 49,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -656,7 +1596,33 @@
             1.0
           ],
           "n_clusters": 41,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 41,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 41,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -673,7 +1639,33 @@
             1.0
           ],
           "n_clusters": 28,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 28,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 28,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -690,7 +1682,33 @@
             1.0
           ],
           "n_clusters": 23,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 23,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 23,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -707,7 +1725,33 @@
             1.0
           ],
           "n_clusters": 19,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 19,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 19,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -724,7 +1768,33 @@
             1.0
           ],
           "n_clusters": 16,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 16,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 16,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "minimax-m2",
@@ -741,7 +1811,33 @@
             1.0
           ],
           "n_clusters": 13,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 13,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 13,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -758,7 +1854,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -775,7 +1897,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -792,7 +1940,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -809,7 +1983,33 @@
             1.0
           ],
           "n_clusters": 47,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 47,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 47,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -826,7 +2026,33 @@
             1.0
           ],
           "n_clusters": 42,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 42,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 42,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -843,7 +2069,33 @@
             1.0
           ],
           "n_clusters": 35,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 35,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 35,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -860,7 +2112,33 @@
             1.0
           ],
           "n_clusters": 22,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 22,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 22,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -877,7 +2155,33 @@
             1.0
           ],
           "n_clusters": 18,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 18,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 18,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "nemotron-3.5",
@@ -894,7 +2198,33 @@
             1.0
           ],
           "n_clusters": 14,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 14,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 14,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -911,7 +2241,33 @@
             1.0
           ],
           "n_clusters": 50,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 50,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 50,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -928,7 +2284,33 @@
             1.0
           ],
           "n_clusters": 49,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 49,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 49,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -945,7 +2327,33 @@
             1.0
           ],
           "n_clusters": 30,
-          "low_n": false
+          "low_n": false,
+          "deliberation_evidence": {
+            "produced": 30,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 30,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -962,7 +2370,33 @@
             1.0
           ],
           "n_clusters": 21,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 21,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 21,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -979,7 +2413,33 @@
             1.0
           ],
           "n_clusters": 11,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 11,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 11,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         },
         {
           "model": "qwen3-32b",
@@ -996,7 +2456,33 @@
             1.0
           ],
           "n_clusters": 5,
-          "low_n": true
+          "low_n": true,
+          "deliberation_evidence": {
+            "produced": 5,
+            "not_produced": 0,
+            "unknown": 0
+          },
+          "state_by_evidence": {
+            "produced": {
+              "raw_present": 5,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "not_produced": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            },
+            "unknown": {
+              "raw_present": 0,
+              "summary_only": 0,
+              "redacted": 0,
+              "absent": 0
+            }
+          },
+          "token_accounting_inconsistent": 0
         }
       ],
       "positional_profile": [
@@ -1664,7 +3150,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 1,
           "value": 0.0
-        }
+        },
+        "produced_share": 0.33557046979865773,
+        "readable_given_produced": 1.0,
+        "not_produced_share": 0.6644295302013423,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       },
       {
         "model": "gpt-5-nano-medium",
@@ -1689,7 +3180,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 0,
           "value": 0.0
-        }
+        },
+        "produced_share": 0.8293838862559242,
+        "readable_given_produced": 0.0,
+        "not_produced_share": 0.17061611374407584,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 1
       },
       {
         "model": "gpt-oss-120b",
@@ -1714,7 +3210,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 5,
           "value": 0.6590909090909091
-        }
+        },
+        "produced_share": 0.8621621621621621,
+        "readable_given_produced": 0.9780564263322884,
+        "not_produced_share": 0.13783783783783785,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       },
       {
         "model": "kimi-k2-thinking",
@@ -1739,7 +3240,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 0,
           "value": 1.0
-        }
+        },
+        "produced_share": 1.0,
+        "readable_given_produced": 1.0,
+        "not_produced_share": 0.0,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       },
       {
         "model": "minimax-m2",
@@ -1764,7 +3270,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 0,
           "value": 1.0
-        }
+        },
+        "produced_share": 1.0,
+        "readable_given_produced": 1.0,
+        "not_produced_share": 0.0,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       },
       {
         "model": "nemotron-3.5",
@@ -1789,7 +3300,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 0,
           "value": 1.0
-        }
+        },
+        "produced_share": 1.0,
+        "readable_given_produced": 1.0,
+        "not_produced_share": 0.0,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       },
       {
         "model": "qwen3-32b",
@@ -1811,7 +3327,12 @@
         "ceiling_at_worst_powered_step": {
           "step": 0,
           "value": 1.0
-        }
+        },
+        "produced_share": 1.0,
+        "readable_given_produced": 1.0,
+        "not_produced_share": 0.0,
+        "unknown_share": 0.0,
+        "token_accounting_inconsistent": 0
       }
     ],
     "inter_agent_channel": {

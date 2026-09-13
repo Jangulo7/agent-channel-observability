@@ -15,6 +15,21 @@
       "type": ["integer", "null"], "minimum": 1,
       "description": "Steps per bin when unit is bin; null when unit is step."
     },
+    "state_counts": {
+      "type": "object",
+      "description": "Turns in each of the four READABLE states (what an external evaluator can read).",
+      "required": ["raw_present", "summary_only", "redacted", "absent"],
+      "additionalProperties": false,
+      "properties": {
+        "raw_present": {"type": "integer", "minimum": 0},
+        "summary_only": {"type": "integer", "minimum": 0},
+        "redacted": {"type": "integer", "minimum": 0},
+        "absent": {"type": "integer", "minimum": 0}
+      }
+    },
+    "evidence_share": {
+      "type": ["number", "null"], "minimum": 0, "maximum": 1
+    },
     "unit_coherence": {
       "if": {"properties": {"unit": {"const": "step"}}},
       "then": {"properties": {"bin_width": {"type": "null"}}},
@@ -31,7 +46,7 @@
       ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": {"const": "4.0"},
+        "schema_version": {"const": "4.1"},
         "codebook_version": {
           "type": ["integer", "null"], "minimum": 1,
           "description": "The `version` field of data/codebook/v1.yaml, read at measure time. null when it could not be read, never a guessed default."
@@ -76,7 +91,7 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["model", "task_class", "step_index", "n_turns", "raw_present", "summary_only", "redacted", "absent", "low_n"],
+                "required": ["model", "task_class", "step_index", "n_turns", "raw_present", "summary_only", "redacted", "absent", "low_n", "deliberation_evidence", "state_by_evidence", "token_accounting_inconsistent"],
                 "additionalProperties": false,
                 "properties": {
                   "model": {"type": "string"},
@@ -93,7 +108,33 @@
                     "items": {"type": ["number", "null"]}
                   },
                   "n_clusters": {"type": ["integer", "null"], "minimum": 1},
-                  "low_n": {"type": "boolean"}
+                  "low_n": {"type": "boolean"},
+                  "deliberation_evidence": {
+                    "type": "object",
+                    "description": "Turns by whether reasoning was PRODUCED. Readable is not produced: raw_present..absent say what can be read; this says what was generated. Evidence hierarchy: returned reasoning content (raw_present, summary_only, redacted) is direct evidence and is produced whatever the token count says; only a turn with no reasoning content (absent) falls back to the provider's reasoning_tokens (ModelEvent.output.usage, paired to the turn by message id): > 0 produced (produced, not returned), explicit 0 not_produced, no count or no unambiguous pairing unknown. The three sum to n_turns.",
+                    "required": ["produced", "not_produced", "unknown"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "produced": {"type": "integer", "minimum": 0},
+                      "not_produced": {"type": "integer", "minimum": 0},
+                      "unknown": {"type": "integer", "minimum": 0}
+                    }
+                  },
+                  "state_by_evidence": {
+                    "type": "object",
+                    "description": "3x4 cross-tab of turn counts: deliberation evidence (produced / not_produced / unknown) by readable state. produced x absent is reasoning generated and not returned; not_produced x absent is no reasoning generated. not_produced and unknown rows are zero outside absent, by the evidence hierarchy. Each row sums to its deliberation_evidence count; each column to n_turns times its state share.",
+                    "required": ["produced", "not_produced", "unknown"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "produced": {"$ref": "#/$defs/state_counts"},
+                      "not_produced": {"$ref": "#/$defs/state_counts"},
+                      "unknown": {"$ref": "#/$defs/state_counts"}
+                    }
+                  },
+                  "token_accounting_inconsistent": {
+                    "type": ["integer", "null"], "minimum": 0,
+                    "description": "Turns that returned reasoning content (raw_present, summary_only or redacted) while the provider reported reasoning_tokens == 0. They are counted produced (the content is direct evidence); this count surfaces the contradiction, and the token count is the suspect side. null when the cell carried no token evidence."
+                  }
                 }
               }
             },
@@ -148,7 +189,9 @@
             "required": [
               "model", "task_class", "reasoning_effort", "unit", "bin_width",
               "stage2_recall_assumed", "mean_weighting", "ceiling_mean_coverage",
-              "ceiling_by_step", "ceiling_at_worst_powered_step"
+              "ceiling_by_step", "ceiling_at_worst_powered_step",
+              "produced_share", "readable_given_produced", "not_produced_share",
+              "unknown_share", "token_accounting_inconsistent"
             ],
             "allOf": [{"$ref": "#/$defs/unit_coherence"}],
             "additionalProperties": false,
@@ -178,6 +221,26 @@
                   "step": {"type": "integer", "minimum": 0},
                   "value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
                 }
+              },
+              "produced_share": {
+                "$ref": "#/$defs/evidence_share",
+                "description": "Share of ALL the arm's turns with reasoning PRODUCED: reasoning content returned, or no content and provider reasoning_tokens > 0. Readable is not produced: this is not coverage. null when every turn is unknown, because 0 would read as not produced."
+              },
+              "readable_given_produced": {
+                "$ref": "#/$defs/evidence_share",
+                "description": "Among turns with reasoning PRODUCED, the share whose reasoning is readable (raw_present). null when no turn was produced."
+              },
+              "not_produced_share": {
+                "$ref": "#/$defs/evidence_share",
+                "description": "Share of ALL the arm's turns with no reasoning content and an explicit provider reasoning_tokens == 0 (no reasoning produced, so nothing was hidden). null when every turn is unknown."
+              },
+              "unknown_share": {
+                "$ref": "#/$defs/evidence_share",
+                "description": "Share of ALL the arm's turns with no reasoning content and either no reported count or no unambiguous producing call. produced_share + not_produced_share + unknown_share = 1 whenever the first two are not null."
+              },
+              "token_accounting_inconsistent": {
+                "type": ["integer", "null"], "minimum": 0,
+                "description": "The arm's turns that returned reasoning content while the provider reported reasoning_tokens == 0; counted produced, surfaced here because provider token accounting is not reliable on every upstream. null when any of the arm's cells carried no token evidence."
               }
             }
           }

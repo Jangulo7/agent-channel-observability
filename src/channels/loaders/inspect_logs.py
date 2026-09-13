@@ -19,9 +19,16 @@ from typing import Any
 from channels.coverage import observe_turns
 from channels.errors import CorpusUnavailableError, SchemaDiscoveryError
 from channels.loaders.base import actor_concentration, file_hash
+from channels.provider_usage import (
+    SamplePairing,
+    call_errored,
+    model_calls,
+    pair_sample,
+)
 from channels.schema import (
     Channel,
     CorpusDescription,
+    DeliberationEvidence,
     Provenance,
     TurnObservation,
     Utterance,
@@ -38,6 +45,27 @@ class ErroredSampleTally:
     with_turns: int      # errored samples that still contributed assistant turns
     turns: int           # the assistant turns those samples contributed
     without_turns: int   # errored samples that contributed no assistant turn
+
+
+@dataclass
+class PairingTally:
+    """How a corpus's assistant turns paired with the model calls that produced them."""
+
+    unpaired_turns: int = 0         # no unambiguous producing call: count unknown
+    ambiguous_turns: int = 0        # of those, turns whose message id was shared
+    paired_without_count: int = 0   # paired, but the call reported no reasoning_tokens
+    unmatched_calls: int = 0        # calls that produced no assistant turn
+    errored_unmatched_calls: int = 0  # of those, calls that recorded an error
+
+    def absorb(self, pairing: SamplePairing, calls: Sequence[Any]) -> None:
+        """Add one sample's pairing to the tally."""
+        self.unpaired_turns += len(pairing.unpaired_turns)
+        self.ambiguous_turns += len(pairing.ambiguous_turns)
+        self.paired_without_count += pairing.paired_without_count
+        self.unmatched_calls += len(pairing.unmatched_calls)
+        self.errored_unmatched_calls += sum(
+            call_errored(calls[index]) for index in pairing.unmatched_calls
+        )
 
 
 class InspectLogLoader:
@@ -171,26 +199,33 @@ class InspectLogLoader:
         """
         return self._observations_and_errors()[1]
 
+    def pairing_tally(self) -> PairingTally:
+        """Return how every turn paired with its producing model call, by message id."""
+        return self._observations_and_errors()[2]
+
     def _observations_and_errors(
         self,
-    ) -> tuple[list[TurnObservation], ErroredSampleTally]:
-        """Return every observation and the errored-sample tally from one read pass."""
+    ) -> tuple[list[TurnObservation], ErroredSampleTally, PairingTally]:
+        """Return observations and the errored and pairing tallies from one pass."""
         observations: list[TurnObservation] = []
         with_turns = turns = without_turns = 0
+        pairing = PairingTally()
         for path in self.require_available():
-            for sample, sample_observations in self._sample_observations(path):
-                observations.extend(sample_observations)
+            for sample, sample_pairing, found in self._sample_observations(path):
+                observations.extend(found)
+                pairing.absorb(sample_pairing, model_calls(sample))
                 if not getattr(sample, "error", None):
                     continue
-                with_turns += bool(sample_observations)
-                without_turns += not sample_observations
-                turns += len(sample_observations)
-        return observations, ErroredSampleTally(with_turns, turns, without_turns)
+                with_turns += bool(found)
+                without_turns += not found
+                turns += len(found)
+        errored = ErroredSampleTally(with_turns, turns, without_turns)
+        return observations, errored, pairing
 
     def describe(self) -> CorpusDescription:
         """Summarise the log directory, including which task classes it covers."""
         paths = self.require_available()
-        observations, errored = self._observations_and_errors()
+        observations, errored, pairing = self._observations_and_errors()
         samples = [o.sample_id for o in observations]
         task_classes = sorted({o.task_class for o in observations})
         return CorpusDescription(
@@ -218,6 +253,7 @@ class InspectLogLoader:
                 "counted as emitting nothing",
                 f"log headers report {self.errored_samples()} requested sample(s) "
                 "not completed (total_samples - completed_samples)",
+                *usage_caveats(observations, pairing),
             ),
         )
 
@@ -229,13 +265,13 @@ class InspectLogLoader:
 
     def _observations_for_log(self, path: Path) -> Iterator[TurnObservation]:
         """Stream one log file and classify every assistant turn it contains."""
-        for _, sample_observations in self._sample_observations(path):
+        for _, _, sample_observations in self._sample_observations(path):
             yield from sample_observations
 
     def _sample_observations(
         self, path: Path
-    ) -> Iterator[tuple[Any, list[TurnObservation]]]:
-        """Stream one log file, yielding each sample with its classified turns."""
+    ) -> Iterator[tuple[Any, SamplePairing, list[TurnObservation]]]:
+        """Stream one log file, yielding each sample with its pairing and its turns."""
         from inspect_ai.log import read_eval_log, read_eval_log_samples
 
         header = read_eval_log(str(path), header_only=True)
@@ -243,7 +279,10 @@ class InspectLogLoader:
         task_class = _task_class_of(header, path)
         effort = _reasoning_effort_of(header)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
-            yield sample, observe_turns(sample, model, task_class, effort)
+            pairing = pair_sample(sample)
+            yield sample, pairing, observe_turns(
+                sample, model, task_class, effort, pairing=pairing
+            )
 
     def _utterances_for_log(self, path: Path) -> Iterator[Utterance]:
         """Stream one log file and emit tool calls and inter-agent messages."""
@@ -254,6 +293,35 @@ class InspectLogLoader:
         task_class = _task_class_of(header, path)
         for sample in read_eval_log_samples(str(path), resolve_attachments=True):
             yield from sample_utterances(sample, model, task_class, self.name)
+
+
+def usage_caveats(
+    observations: Sequence[TurnObservation], pairing: PairingTally
+) -> tuple[str, ...]:
+    """The describe() caveats on deliberation evidence and on call pairing."""
+    counts = dict.fromkeys(DeliberationEvidence, 0)
+    for observation in observations:
+        counts[observation.deliberation_evidence] += 1
+    inconsistent = sum(o.token_accounting_inconsistent for o in observations)
+    return (
+        "readable is not produced: deliberation evidence (returned reasoning content, "
+        "else provider reasoning_tokens) gives "
+        f"PRODUCED {counts[DeliberationEvidence.PRODUCED]}, NOT_PRODUCED "
+        f"{counts[DeliberationEvidence.NOT_PRODUCED]}, UNKNOWN "
+        f"{counts[DeliberationEvidence.UNKNOWN]} turn(s)",
+        f"token_accounting_inconsistent: {inconsistent} turn(s) returned reasoning "
+        "content while the provider reported reasoning_tokens == 0; counted PRODUCED "
+        "because the content is direct evidence, so the token count is the suspect "
+        "side",
+        f"{pairing.unpaired_turns} turn(s) could not be paired to one model call by "
+        f"message id ({pairing.ambiguous_turns} of them because the id was shared) "
+        "and are UNKNOWN, never positionally guessed; "
+        f"{pairing.paired_without_count} paired turn(s) are UNKNOWN because the call "
+        "reported no reasoning_tokens",
+        f"{pairing.unmatched_calls} model call(s) produced no assistant turn (scorer "
+        f"calls, calls after the sample ended, failed attempts: "
+        f"{pairing.errored_unmatched_calls} recorded an error) and were skipped",
+    )
 
 
 def sample_utterances(

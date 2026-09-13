@@ -38,6 +38,55 @@ class FakeMessage:
     role: str
     content: Any = ""
     tool_calls: list[FakeToolCall] = field(default_factory=list)
+    id: str | None = None
+
+
+@dataclass
+class FakeUsage:
+    """Stands in for Inspect's ModelUsage; only the field pairing reads."""
+
+    reasoning_tokens: int | None = None
+
+
+@dataclass
+class FakeChoice:
+    """Stands in for Inspect's ChatCompletionChoice."""
+
+    message: FakeMessage
+
+
+@dataclass
+class FakeOutput:
+    """Stands in for Inspect's ModelOutput: choices and usage."""
+
+    choices: list[FakeChoice] = field(default_factory=list)
+    usage: FakeUsage | None = None
+
+
+@dataclass
+class FakeModelEvent:
+    """Stands in for Inspect's ModelEvent."""
+
+    output: FakeOutput
+    model: str = "SYNTHETIC-MODEL-A"
+    error: str | None = None
+    event: str = "model"
+
+
+def fake_call(
+    message_id: str | None,
+    reasoning_tokens: int | None,
+    usage: bool = True,
+    model: str = "SYNTHETIC-MODEL-A",
+    error: str | None = None,
+) -> FakeModelEvent:
+    """A synthetic model call that produced the message `message_id`."""
+    choices = (
+        [] if message_id is None
+        else [FakeChoice(FakeMessage(role="assistant", id=message_id))]
+    )
+    output = FakeOutput(choices, FakeUsage(reasoning_tokens) if usage else None)
+    return FakeModelEvent(output=output, model=model, error=error)
 
 
 @dataclass

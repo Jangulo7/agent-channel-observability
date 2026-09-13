@@ -16,7 +16,7 @@ from channels.loaders.mythos_transcript import (
     has_partial_redaction,
     thinking_block_lengths,
 )
-from channels.schema import Channel, Provenance, ReasoningState
+from channels.schema import Channel, DeliberationEvidence, Provenance, ReasoningState
 
 SYNTHETIC_ROWS = [
     {"record": "metadata", "title": "SYNTHETIC FIXTURE", "notice": "SYNTHETIC NOTICE"},
@@ -89,6 +89,25 @@ def test_step_index_covers_assistant_turns_only(transcript: Path) -> None:
         ReasoningState.ABSENT,   # tool result: no content field to read
         ReasoningState.REDACTED,
     ]
+
+
+def test_mythos_token_counts_are_always_unknown(transcript: Path) -> None:
+    """The transcript has no provider token accounting, so no count is ever reported.
+
+    Without counts, an ABSENT turn's production is UNKNOWN and nothing can be
+    NOT_PRODUCED; readable reasoning is PRODUCED by the evidence hierarchy alone, and
+    a publisher's whole-message redaction is UNKNOWN (no evidence reasoning existed).
+    """
+    loader = MythosTranscriptLoader(transcript)
+    observations = list(loader.observations())
+    assert {o.provider_reasoning_tokens for o in observations} == {None}
+    assert [o.deliberation_evidence for o in observations] == [
+        DeliberationEvidence.PRODUCED,   # readable <thinking>
+        DeliberationEvidence.UNKNOWN,    # tool result: no content, no count
+        DeliberationEvidence.UNKNOWN,    # publisher redaction, no count
+    ]
+    assert not any(o.token_accounting_inconsistent for o in observations)
+    assert any("UNKNOWN" in caveat for caveat in loader.describe().caveats)
 
 
 def test_tool_message_has_no_reasoning_channel() -> None:

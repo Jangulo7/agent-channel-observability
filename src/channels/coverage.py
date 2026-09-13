@@ -14,6 +14,7 @@ as raw would let a partially withheld turn count as evidence of monitorability.
 from collections.abc import Iterable, Sequence
 from typing import Any
 
+from channels.provider_usage import SamplePairing, assistant_turns, pair_sample
 from channels.schema import ReasoningState, TurnObservation
 
 # Strongest limitation first. `classify_turn` takes the first state present in this
@@ -101,6 +102,7 @@ def observe_turns(
     model: str,
     task_class: str,
     reasoning_effort: str | None = None,
+    pairing: SamplePairing | None = None,
 ) -> list[TurnObservation]:
     """Classify every assistant turn in one Inspect sample.
 
@@ -108,25 +110,29 @@ def observe_turns(
     message sequence, counting assistant turns only. Non-assistant messages do not
     advance it, so step 3 means "the agent's fourth move", which is the quantity the
     positional profile is about.
+
+    Each turn also carries the provider's reasoning_tokens from the call that
+    produced it, paired by message id (`provider_usage`); None where no count was
+    reported or no call could be attributed. Pass `pairing` to reuse one computed
+    by the caller.
     """
-    observations: list[TurnObservation] = []
     sample_id = trajectory_id(sample)
-    step_index = 0
-    for message in getattr(sample, "messages", []) or []:
-        if getattr(message, "role", None) != "assistant":
-            continue
-        observations.append(
-            TurnObservation(
-                model=model,
-                task_class=task_class,
-                step_index=step_index,
-                state=_state_for_message(message),
-                reasoning_effort=reasoning_effort,
-                sample_id=sample_id,
-            )
+    turns = assistant_turns(sample)
+    tokens = (pairing or pair_sample(sample)).tokens
+    return [
+        TurnObservation(
+            model=model,
+            task_class=task_class,
+            step_index=step_index,
+            state=_state_for_message(message),
+            reasoning_effort=reasoning_effort,
+            sample_id=sample_id,
+            provider_reasoning_tokens=count,
         )
-        step_index += 1
-    return observations
+        for step_index, (message, count) in enumerate(
+            zip(turns, tokens, strict=True)
+        )
+    ]
 
 
 def state_counts(

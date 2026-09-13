@@ -27,6 +27,8 @@ from channels.emission import (
     MIN_CELL_N,
     ArmProfile,
     EmissionCell,
+    EvidenceShares,
+    evidence_shares,
     pooled_raw_present,
 )
 from channels.priors import (
@@ -449,7 +451,8 @@ def _caption_one(
             f"({_interval_phrase(pooled_raw_present(group))}), "
             f"summary_only {shares[ReasoningState.SUMMARY_ONLY]:.3f}, "
             f"redacted {shares[ReasoningState.REDACTED]:.3f}, "
-            f"absent {shares[ReasoningState.ABSENT]:.3f}"
+            f"absent {shares[ReasoningState.ABSENT]:.3f}; "
+            f"{_evidence_phrase(evidence_shares(group))}"
         )
     caption = (
         "Figure 1. Share of assistant turns in each reasoning-channel state. "
@@ -459,7 +462,13 @@ def _caption_one(
         + ". Error bars are Wilson 95% intervals on the raw_present share, clustered "
         "by trajectory: turns of one trajectory are not independent, so n is "
         "deflated by the design effect (icc = 1) before the interval is computed. "
-        "A bar drawn from a single trajectory has no interval."
+        "A bar drawn from a single trajectory has no interval. Readable is not "
+        "produced: the four states say what an evaluator can READ, while produced / "
+        "not produced / unknown say whether reasoning was GENERATED - returned "
+        "reasoning content counts as produced; a turn with none falls back to the "
+        "provider's reasoning_tokens for the call that produced it (paired by message "
+        "id): > 0 produced but not returned, 0 not produced (an absent turn that is "
+        "not hidden reasoning), no count or no pairing unknown."
     )
     if excluded:
         caption += (
@@ -468,6 +477,21 @@ def _caption_one(
             + " (these appear in the appendix table)."
         )
     return caption
+
+
+def _evidence_phrase(shares: EvidenceShares) -> str:
+    """The caption's produced / not-produced / unknown clause for one bar."""
+    def fmt(value: float | None) -> str:
+        return "n/a (all unknown)" if value is None else f"{value:.3f}"
+
+    inconsistent = shares.token_accounting_inconsistent
+    return (
+        f"deliberation evidence: produced {fmt(shares.produced_share)}, "
+        f"not produced {fmt(shares.not_produced_share)}, "
+        f"unknown {fmt(shares.unknown_share)}"
+        + (f", {inconsistent} turn(s) with reasoning returned but 0 tokens reported"
+           if inconsistent else "")
+    )
 
 
 def _interval_phrase(rate: RateWithCI) -> str:

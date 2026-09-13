@@ -19,13 +19,21 @@ from channels.emission import (
     MIN_CELL_N,
     ArmProfile,
     EmissionCell,
+    EvidenceShares,
+    arm_evidence_shares,
     cell_rate,
+    evidence_counts,
+    state_by_evidence,
     state_shares,
     uninspectable_share,
 )
 from channels.schema import CorpusDescription, ReasoningState
 
-SCHEMA_VERSION = "4.0"
+# 4.1: cells carry deliberation evidence (returned reasoning content, else provider
+# reasoning_tokens) crossed with the four readable states, and each bound block
+# carries produced / not-produced / unknown shares and the count of turns whose token
+# accounting contradicts returned content. Readable is not produced.
+SCHEMA_VERSION = "4.1"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "results" / "record_schema.json"
 
 
@@ -49,6 +57,7 @@ def build_record(
     to null for the same reason.
     """
     uninspectable = uninspectable_share(cells)
+    evidence = arm_evidence_shares(cells)
     return {
         "observability_record": {
             "schema_version": SCHEMA_VERSION,
@@ -64,7 +73,10 @@ def build_record(
                 "positional_profile": [_profile_block(arm) for arm in profiles],
                 "uninspectable_share": uninspectable.rate,
             },
-            "bound": [_bound_block(arm, stage2_recall) for arm in profiles],
+            "bound": [
+                _bound_block(arm, stage2_recall, evidence.get(_arm_key(arm)))
+                for arm in profiles
+            ],
             "inter_agent_channel": dict(inter_agent or _empty_inter_agent()),
             "detectors": [dict(item) for item in (detectors or [])],
         }
@@ -101,6 +113,14 @@ def _cell_block(cell: EmissionCell) -> dict[str, Any]:
         "ci95_raw_present": [rate.ci_low, rate.ci_high],
         "n_clusters": cell.n_clusters,
         "low_n": rate.low_n,
+        "deliberation_evidence": {
+            evidence.value: count for evidence, count in evidence_counts([cell]).items()
+        },
+        "state_by_evidence": {
+            evidence.value: {state.value: count for state, count in row.items()}
+            for evidence, row in state_by_evidence(cell).items()
+        },
+        "token_accounting_inconsistent": cell.token_accounting_inconsistent,
     }
 
 
@@ -133,13 +153,22 @@ def _profile_block(arm: ArmProfile) -> dict[str, Any]:
     }
 
 
-def _bound_block(arm: ArmProfile, stage2_recall: float) -> dict[str, Any]:
+def _arm_key(arm: ArmProfile) -> tuple[str, str, str | None]:
+    """The arm key shared with `emission.arm_key`, read from a profile."""
+    return (arm.model, arm.task_class, arm.reasoning_effort)
+
+
+def _bound_block(
+    arm: ArmProfile, stage2_recall: float, evidence: EvidenceShares | None
+) -> dict[str, Any]:
     """One arm's recall ceiling: action-weighted mean, by step, and at its worst step.
 
     The mean is the pooled raw_present share over every turn the arm took, not an
     unweighted mean over positions: averaging positions lets a thin late step count as
     much as a step every trajectory reached. The worst step is chosen among powered
-    positions only, because the minimum over low-n points is mostly noise.
+    positions only, because the minimum over low-n points is mostly noise. The
+    deliberation-evidence shares say how much of the gap is reasoning never produced
+    rather than produced and unreadable; they are null when no cell was supplied.
     """
     coverage = arm.raw_present.rate
     powered = arm.powered()
@@ -157,6 +186,15 @@ def _bound_block(arm: ArmProfile, stage2_recall: float) -> dict[str, Any]:
             None if worst is None
             else {"step": worst,
                   "value": _ceiling(powered[worst].rate, stage2_recall)}
+        ),
+        "produced_share": evidence.produced_share if evidence else None,
+        "readable_given_produced": (
+            evidence.readable_given_produced if evidence else None
+        ),
+        "not_produced_share": evidence.not_produced_share if evidence else None,
+        "unknown_share": evidence.unknown_share if evidence else None,
+        "token_accounting_inconsistent": (
+            evidence.token_accounting_inconsistent if evidence else None
         ),
     }
 
