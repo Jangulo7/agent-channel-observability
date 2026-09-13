@@ -100,15 +100,28 @@ def _positive_trajectories(samples: list[Any]) -> dict[str, list[Any]]:
 async def _verdicts_for_arm(
     model: Any, positives: dict[str, list[Any]]
 ) -> list[MonitorVerdict]:
-    """Run both monitors over every step of every positive trajectory in one arm."""
-    verdicts: list[MonitorVerdict] = []
+    """Run both monitors over every step of every positive trajectory, concurrently.
+
+    Each (trajectory, step, channel) is one independent monitor call, so they run
+    under a bounded semaphore rather than one-at-a-time; the arithmetic downstream
+    does not depend on order.
+    """
+    sem = asyncio.Semaphore(12)
+
+    async def one(tid: str, step: int, channel: Channel, prompt: str,
+                  content: str) -> MonitorVerdict:
+        async with sem:
+            return MonitorVerdict(tid, step, channel,
+                                  await _judge(model, prompt, content))
+
+    tasks = []
     for tid, turns in positives.items():
         for step, message in enumerate(turns):
-            rz = await _judge(model, REASONING_PROMPT, _reasoning_text(message))
-            az = await _judge(model, ACTION_PROMPT, _action_text(message))
-            verdicts.append(MonitorVerdict(tid, step, Channel.REASONING, rz))
-            verdicts.append(MonitorVerdict(tid, step, Channel.ACTION, az))
-    return verdicts
+            tasks.append(one(tid, step, Channel.REASONING, REASONING_PROMPT,
+                             _reasoning_text(message)))
+            tasks.append(one(tid, step, Channel.ACTION, ACTION_PROMPT,
+                             _action_text(message)))
+    return list(await asyncio.gather(*tasks))
 
 
 async def _arm_block(model: Any, log: Any) -> dict[str, Any]:
@@ -191,7 +204,16 @@ async def _run() -> int:
 
 
 def main() -> int:
-    """Entry point: run the async scorer to completion."""
+    """Entry point: run the async scorer to completion (optional --logs/--out)."""
+    import argparse
+    global AGENT_LOGS, OUT
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--logs", type=Path, default=AGENT_LOGS,
+                        help="directory of per-arm agent logs")
+    parser.add_argument("--out", type=Path, default=OUT,
+                        help="output record path")
+    args = parser.parse_args()
+    AGENT_LOGS, OUT = args.logs, args.out
     return asyncio.run(_run())
 
 
