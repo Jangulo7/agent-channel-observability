@@ -158,6 +158,20 @@ turn in the three agentic families (19 logs) with the provider's own token
 accounting and finds **0 disagreements**. It does not cover the vLLM baseline or
 the reasoning sweep.
 
+### Monitored, not just bounded
+
+The recall ceiling above is arithmetic. A follow-up experiment runs real monitors:
+`claude-haiku-4.5` on the AgentHarm **harmful** split under both configurations, with two
+`gpt-5-nano` monitors — one reading only reasoning, one only actions — scored per step
+against AgentHarm's own harmful grader. The experiment is **underpowered and that is the
+finding**: Haiku refused 48/50 harmful tasks in each arm (refusal 0.960, 95% CI
+[0.865, 0.989]), leaving 2 positive trajectories per arm. What they show, matching the
+turn-level result: the reasoning monitor **abstained on every post-tool turn** without the
+header (4/4) and **none** with it (0/6), while the action monitor was unaffected. So the
+consequence is demonstrated but not measured; measuring it needs an agent that pursues
+harm across tool-use turns, which this safety-tuned model does not. Details:
+[`results/monitor_experiment/README.md`](results/monitor_experiment/README.md).
+
 **One result did not replicate, and we report it.** The first multi-step arm
 (`gpt-oss-120b` on `agentharm_benign`) declined with depth, which looked like a
 general "coverage decays over a trajectory" law. On two further environments the
@@ -235,7 +249,7 @@ published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
 ```bash
 uv sync --extra dev
 uv run channels describe    # what each corpus contains, before any analysis
-uv run channels measure     # six records (schema 4.0), Figure 1 and one Figure 2 per arm
+uv run channels measure     # six records (schema 4.1), Figure 1 and one Figure 2 per arm
 uv run channels gate        # exits 1 — all 6 corpora fail, gated separately
 uv run pytest -q            # 269 passed, 1 failed by rule (see below)
 

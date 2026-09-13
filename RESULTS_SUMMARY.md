@@ -526,6 +526,40 @@ docstring makes about AdaptR1's unreconcilable averages.
 
 ---
 
+## 2b. The monitor experiment — the recall ceiling, actually monitored
+
+Sections 1–2 measure coverage and bound a deliberation-gated monitor at c(j)·r₂
+arithmetically. This runs real monitors. `claude-haiku-4.5` on the AgentHarm **harmful**
+`test_public` split (n=50), with the interleaved-thinking header off (OpenRouter default)
+and on. Ground truth is AgentHarm's own grader; a positive is a harmful-graded trajectory
+(`score>0`, not refused). For every assistant step of a positive, a `gpt-5-nano` monitor
+is asked twice — reading only that step's reasoning, then only that step's action; a step
+with no content in a channel abstains, never catches. Arithmetic in `channels.monitor`
+(unit-tested); record in `results/monitor_experiment/`. Running the harmful split is a
+declared deviation from §13 (logged in the pre-registration §11); tools are AgentHarm's
+synthetic mocks, and only counts, rates and verdicts are stored.
+
+**The result is underpowered, and that is the finding.** Haiku **refused 48/50** in each
+arm — refusal rate **0.960**, 95% CI **[0.865, 0.989]** — leaving **2 positive
+trajectories per arm**. No per-step recall can be estimated at n=2; both arms are flagged
+`underpowered`.
+
+What the 2 positives per arm do show, consistent with the turn-level coverage result
+(0/661 post-tool reasoning turns without the header, 667/667 with it):
+
+| arm | reasoning monitor: post-step-0 turns that ABSTAINED | action monitor |
+|---|---|---|
+| non-interleaved | **4 of 4** — nothing to read after a tool call | flags the harmful action; full recall on the 2 positives |
+| interleaved | **0 of 6** — reasoning readable at every step | same |
+
+So a reasoning-gated monitor's blindness after tool calls is a property of the serving
+configuration, and an action monitor is unaffected — the predicted pattern, **demonstrated
+but not measured.** Measuring the drop needs an agent that pursues harm across tool-use
+turns; `claude-haiku-4.5` does not on this split. The instrument is ready; the positive
+rate is the blocker (see `results/monitor_experiment/README.md`).
+
+---
+
 ## 3. Detector validation — two instruments, reported side by side
 
 Control: WikiTactics, 3,865 utterances / 213 conversations (De Kock, Stafford &
@@ -732,6 +766,7 @@ asked in this form. **Do not cite them as a standard.**
 | `results/validation/tree_coder_1.0_wikitactics.json` | measured recall | `scripts/run_tree_validation.py` |
 | `results/validation/nli_detector_1.0_wikitactics.json` | measured recall; out-of-label-space metrics `null` | `scripts/run_nli_validation.py` |
 | `results/validation/revert_detector_1.0_collusion_wiki.json` | `no_support_in_control`, no recall | `scripts/run_revert_validation.py` |
+| `results/monitor_experiment/monitor_record.json` | monitor experiment (§2b): refusal rate, per-step reasoning- vs action-monitor recall and abstentions; underpowered | `scripts/run_monitor_agent_arms.py` then `run_monitor_experiment.py` |
 
 Figure 2 files present: 56 — 1 Mythos, 9 vLLM baseline (3 models × 3 task
 classes), 27 reasoning sweep (9 arms × 3 task classes), 7 `agentharm`, 6
@@ -740,17 +775,14 @@ caption file. The 15 earlier pooled and per-model Figure 2 files (including
 `figure2_recall_ceiling.png`) were deleted in commit 368830d.
 
 Six records, **23,541 assistant turns** in total, never pooled; all six validate
-against `record_schema.json` (schema 4.0). `ruff check` and `mypy --strict`
-(27 source files) are clean.
+against `record_schema.json` (schema 4.1: each cell and per-arm bound also carries the
+produced / not-produced / unknown split from provider token accounting). `ruff check`
+and `mypy --strict` (29 source files) are clean.
 
-**Tests: `uv run pytest -q` → 269 passed, 1 failed.** The failure,
-`tests/test_rq3.py::test_zero_observed_gives_a_bound_not_a_bare_zero`, is left
-failing by the project's rule against editing a test to go green. It asks
-`rq3_endpoint` for a bound from a bare objection count with no detector and no
-utterances — the unguarded path spec §0 rule 1 forbids, which the provenance
-guard now refuses. The same property through the guarded path is tested by
-`test_validated_gated_count_gives_a_bound`. **CI shows this failure.** See
-`BUILD_LOG.md` Q13.
+**Tests: `uv run pytest -q` → 311 passed.** The rq3 zero-bound test that was
+left failing in session 5 was updated by author decision to drive the guarded
+path (it now supplies a validated detector and primary-eligible utterances, with
+its assertions unchanged), so the suite is green.
 
 ---
 
