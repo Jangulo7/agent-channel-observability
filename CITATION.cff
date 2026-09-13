@@ -46,12 +46,10 @@ license: MIT
 version: 1.0.1
 date-released: "2026-09-14"
 
-# After the GitHub release is archived to Zenodo, add the minted DOI here so
-# `cff-version` tooling and Zenodo agree (the concept DOI resolves to all versions):
-# identifiers:
-#   - type: doi
-#     value: "10.5281/zenodo.XXXXXXX"
-#     description: "Concept DOI for all versions"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22739095"
+    description: "Concept DOI (resolves to the latest archived version)"
 
 references:
   - type: software
