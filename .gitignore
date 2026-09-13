@@ -82,3 +82,6 @@ data/inspect-runs-ctf/
 # Warm-up rounds are not data.
 results/annotations/*__practice.json
 results/annotations/*__smoke*.json
+
+# Third long-horizon family (OS tasks, Docker).
+data/inspect-runs-osbench/
