@@ -105,3 +105,31 @@ def test_figure_one_can_pool_task_classes(tmp_path: Path) -> None:
     assert path.is_file()
     assert "all task classes" in caption
     assert f"n={2 * MIN_CELL_N}" in caption
+
+
+def test_positional_figures_are_written_per_arm(tmp_path: Path) -> None:
+    """c(j) must not average arms whose profiles differ.
+
+    Found by reading a generated caption: the agentic corpus pooled a
+    raw-emitting arm with a fully-redacted one and reported "lowest at position
+    2 (0.490)" - a number belonging to no arm that was run. A profile averaged
+    across arms describes neither.
+    """
+    from channels.emission import binned_profile
+    from channels.figures import figure_two
+
+    readable = _model_task_turns("SYNTHETIC-READS", "t", RAW, MIN_CELL_N)
+    withheld = _model_task_turns("SYNTHETIC-HIDES", "t", ABSENT, MIN_CELL_N)
+
+    for arm, obs in (("READS", readable), ("HIDES", withheld)):
+        profile = binned_profile(build_cells(obs), n_bins=2)
+        path, caption = figure_two(profile, tmp_path / f"f2_{arm}.png")
+        assert path.is_file()
+        # Each arm's caption states its own coverage, not a blended one.
+        assert ("1.000" in caption) if arm == "READS" else ("0.000" in caption)
+
+    pooled = binned_profile(build_cells(readable + withheld), n_bins=2)
+    pooled_rate = next(iter(pooled.values())).rate
+    assert pooled_rate is not None
+    # The pooled profile sits between the two and describes neither.
+    assert 0.0 < pooled_rate < 1.0

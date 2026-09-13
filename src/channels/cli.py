@@ -1,6 +1,7 @@
 """`channels` — the command line that produces the record, the figures and the gates."""
 
 import argparse
+import re
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -243,6 +244,11 @@ def _write_figure_caption(figure_path: Path, caption: str) -> None:
     )
 
 
+def _slug(name: str) -> str:
+    """Filesystem-safe form of an arm label, for per-arm figure filenames."""
+    return re.sub(r"[^A-Za-z0-9._-]+", "-", name).strip("-")
+
+
 def _measure_one_corpus(
     args: argparse.Namespace,
     description: CorpusDescription,
@@ -254,27 +260,32 @@ def _measure_one_corpus(
     results = args.results
     suffix = "" if description.name == "inspect_logs" else f"_{description.name}"
 
-    # The axis must state the bins that actually exist, not the bins requested:
-    # a corpus whose trajectories are two turns long yields two, not `--bins`.
-    n_positions = len(binned)
-    n_trajectories = len({obs.sample_id for obs in observations})
-    step_label = (
-        f"trajectory position ({n_positions} equal-width bins of step index)"
-    )
-    panel_title = (
-        f"Measured: {description.n_utterances} turns over "
-        f"{n_trajectories} trajectory" + ("" if n_trajectories == 1 else "ies")
-    )
-
-    _write_figure_caption(
-        *figure_two(
-            binned,
-            results / "figures" / f"figure2_recall_ceiling{suffix}.png",
-            stage2_recall=args.stage2_recall,
-            step_label=step_label,
-            panel_title=panel_title,
+    # One positional figure PER ARM, not per corpus. c(j) is a profile, and
+    # averaging a raw-emitting arm with a fully-redacted one produces a curve
+    # that describes neither: the agentic corpus pooled to "lowest at position 2
+    # (0.490)", a number belonging to no arm that was run. Corpora with a single
+    # arm are unaffected and keep their existing filename.
+    arms = sorted({obs.model for obs in observations})
+    for arm in arms:
+        arm_obs = [obs for obs in observations if obs.model == arm]
+        arm_binned = binned_profile(build_cells(arm_obs), n_bins=args.bins)
+        arm_suffix = suffix if len(arms) == 1 else f"{suffix}_{_slug(arm)}"
+        n_traj = len({obs.sample_id for obs in arm_obs})
+        _write_figure_caption(
+            *figure_two(
+                arm_binned,
+                results / "figures" / f"figure2_recall_ceiling{arm_suffix}.png",
+                stage2_recall=args.stage2_recall,
+                step_label=(
+                    f"trajectory position "
+                    f"({len(arm_binned)} equal-width bins of step index)"
+                ),
+                panel_title=(
+                    f"Measured: {arm} — {len(arm_obs)} turns over "
+                    f"{n_traj} trajector" + ("y" if n_traj == 1 else "ies")
+                ),
+            )
         )
-    )
 
     record = build_record(
         corpora=[description],
