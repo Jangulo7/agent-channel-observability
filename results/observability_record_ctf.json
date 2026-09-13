@@ -1,0 +1,1305 @@
+{
+  "observability_record": {
+    "schema_version": "3.0",
+    "codebook_version": 1,
+    "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
+    "preregistration_commit": null,
+    "generated_utc": "2026-09-13T02:41:22Z",
+    "corpora": [
+      {
+        "name": "inspect_logs_ctf",
+        "n_utterances": 1151,
+        "n_actors": 3,
+        "actor_concentration": 0.06255430060816682,
+        "source_hash": "sha256:9b92008d2001c9fa32d516abf768ea8a4fd569c927ceb7bf4b26053d1d6668b8",
+        "licence": "run artefacts of this project via OpenRouter; model terms vary",
+        "caveats": [
+          "task classes present: ['gdm_intercode_ctf']",
+          "3 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-ctf",
+          "one trajectory is one cluster; per-turn independence is false",
+          "reasoning_effort settings present: ['None']",
+          "1 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
+          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+        ]
+      }
+    ],
+    "emission": {
+      "denominator": "assistant turns that occurred at this step index",
+      "min_cell_n": 30,
+      "cells": [
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.07134759913335872
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 44,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.08029560375848066
+          ],
+          "n_clusters": 44,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 43,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.08200980322579117
+          ],
+          "n_clusters": 43,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 29,
+          "raw_present": 0.034482758620689655,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.9655172413793104,
+          "ci95_raw_present": [
+            0.006113214292762653,
+            0.17175521879320288
+          ],
+          "n_clusters": 29,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 22,
+          "raw_present": 0.045454545454545456,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.9545454545454546,
+          "ci95_raw_present": [
+            0.00806942762126385,
+            0.21798045838657332
+          ],
+          "n_clusters": 22,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.2588329669680317
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.3543304350666875
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.39033428790216534
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.2,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8,
+          "ci95_raw_present": [
+            0.036224108632430085,
+            0.6244653702374747
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.43448246478317476
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.43448246478317476
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.43448246478317476
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.25,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.75,
+          "ci95_raw_present": [
+            0.04558726080970055,
+            0.6993581574175981
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.5614970317550455
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.5614970317550455
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.5614970317550455
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 48,
+          "raw_present": 0.9791666666666666,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.020833333333333332,
+          "ci95_raw_present": [
+            0.8910078200474814,
+            0.9963128890224893
+          ],
+          "n_clusters": 48,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 46,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9229264369144198,
+            1.0
+          ],
+          "n_clusters": 46,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 43,
+          "raw_present": 0.8372093023255814,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.16279069767441862,
+          "ci95_raw_present": [
+            0.7002759410625283,
+            0.91883372652938
+          ],
+          "n_clusters": 43,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 40,
+          "raw_present": 0.9,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.1,
+          "ci95_raw_present": [
+            0.769482247724777,
+            0.9604204713173937
+          ],
+          "n_clusters": 40,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 30,
+          "raw_present": 0.9333333333333333,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.06666666666666667,
+          "ci95_raw_present": [
+            0.7867654163738308,
+            0.9815229762087295
+          ],
+          "n_clusters": 30,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 27,
+          "raw_present": 0.8148148148148148,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.18518518518518517,
+          "ci95_raw_present": [
+            0.6330131638145156,
+            0.9181929285702346
+          ],
+          "n_clusters": 27,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 22,
+          "raw_present": 0.8181818181818182,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.18181818181818182,
+          "ci95_raw_present": [
+            0.6148339256287345,
+            0.9269311541657794
+          ],
+          "n_clusters": 22,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 17,
+          "raw_present": 0.8235294117647058,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.17647058823529413,
+          "ci95_raw_present": [
+            0.5897054143116588,
+            0.9380887336237901
+          ],
+          "n_clusters": 17,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 14,
+          "raw_present": 0.8571428571428571,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.14285714285714285,
+          "ci95_raw_present": [
+            0.6005862050302965,
+            0.9599060787285351
+          ],
+          "n_clusters": 14,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 0.5,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.5,
+          "ci95_raw_present": [
+            0.236593090512564,
+            0.7634069094874361
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 0.6666666666666666,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.3333333333333333,
+          "ci95_raw_present": [
+            0.3542021355803963,
+            0.879416181613089
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 0.8888888888888888,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.1111111111111111,
+          "ci95_raw_present": [
+            0.565000294423344,
+            0.980109112361455
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 0.6666666666666666,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.3333333333333333,
+          "ci95_raw_present": [
+            0.3542021355803963,
+            0.879416181613089
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.42857142857142855,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.5714285714285714,
+          "ci95_raw_present": [
+            0.15821985525146975,
+            0.7495416354723428
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.5714285714285714,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.42857142857142855,
+          "ci95_raw_present": [
+            0.2504583645276572,
+            0.8417801447485302
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.7142857142857143,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.2857142857142857,
+          "ci95_raw_present": [
+            0.35893445183261935,
+            0.9177810759959433
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 0.6666666666666666,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.3333333333333333,
+          "ci95_raw_present": [
+            0.299993315138392,
+            0.9032285888942195
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.6,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.4,
+          "ci95_raw_present": [
+            0.2307242812760128,
+            0.882379225767352
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.75,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.25,
+          "ci95_raw_present": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.75,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.25,
+          "ci95_raw_present": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.75,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.25,
+          "ci95_raw_present": [
+            0.30064184258240184,
+            0.9544127391902995
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 49,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9273021807795035,
+            1.0
+          ],
+          "n_clusters": 49,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 45,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9213484012671117,
+            1.0
+          ],
+          "n_clusters": 45,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 37,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9059421741627975,
+            1.0
+          ],
+          "n_clusters": 37,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 25,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8668077490609515,
+            1.0
+          ],
+          "n_clusters": 25,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 16,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8063923194655637,
+            1.0
+          ],
+          "n_clusters": 16,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 14,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7846891972623643,
+            1.0
+          ],
+          "n_clusters": 14,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7411670330319684,
+            1.0
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7008549515804559,
+            1.0
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "gdm_intercode_ctf",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        }
+      ],
+      "positional_profile": {
+        "0": 0.782608695652174,
+        "1": 0.6656050955414012,
+        "2": 0.7251908396946565,
+        "3": 0.68,
+        "4": 0.6440677966101694,
+        "5": 0.660377358490566,
+        "6": 0.6666666666666666,
+        "7": 0.7027027027027027
+      },
+      "uninspectable_share": 0.28236316246741966
+    },
+    "bound": {
+      "model": [
+        "claude-haiku-4.5",
+        "gpt-oss-120b",
+        "kimi-k2-thinking"
+      ],
+      "stage2_recall_assumed": 1.0,
+      "ceiling_mean_coverage": 0.6909023944197921,
+      "ceiling_by_step": {
+        "0": 0.782608695652174,
+        "1": 0.6656050955414012,
+        "2": 0.7251908396946565,
+        "3": 0.68,
+        "4": 0.6440677966101694,
+        "5": 0.660377358490566,
+        "6": 0.6666666666666666,
+        "7": 0.7027027027027027
+      }
+    },
+    "inter_agent_channel": {
+      "n_messages": 0,
+      "n_human_excluded": 0,
+      "denominator_code": "SHARE",
+      "n_denominator": 0,
+      "rate_per_1000": null,
+      "rate_status": "no_denominator",
+      "zero_case_upper_bound_95": null,
+      "codes": {
+        "OBJ": 0,
+        "REF": 0,
+        "ESC": 0,
+        "WARN": 0,
+        "NORM": 0
+      },
+      "messages_authenticated": null
+    },
+    "detectors": []
+  }
+}

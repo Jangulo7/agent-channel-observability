@@ -1,0 +1,4202 @@
+{
+  "observability_record": {
+    "schema_version": "3.0",
+    "codebook_version": 1,
+    "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
+    "preregistration_commit": null,
+    "generated_utc": "2026-09-13T02:41:23Z",
+    "corpora": [
+      {
+        "name": "inspect_logs_osbench",
+        "n_utterances": 2178,
+        "n_actors": 6,
+        "actor_concentration": 0.0844811753902663,
+        "source_hash": "sha256:0632d29d03393d244f794ca633b39daf3dc0949ef603af1436868a97ff126469",
+        "licence": "run artefacts of this project via OpenRouter; model terms vary",
+        "caveats": [
+          "task classes present: ['agent_bench_os']",
+          "6 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-osbench",
+          "one trajectory is one cluster; per-turn independence is false",
+          "reasoning_effort settings present: ['None']",
+          "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
+          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+        ]
+      }
+    ],
+    "emission": {
+      "denominator": "assistant turns that occurred at this step index",
+      "min_cell_n": 30,
+      "cells": [
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.02,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.98,
+          "ci95_raw_present": [
+            0.003539259271646236,
+            0.10495443589637815
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 42,
+          "raw_present": 0.14285714285714285,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8571428571428571,
+          "ci95_raw_present": [
+            0.06715967015962647,
+            0.27841089474444775
+          ],
+          "n_clusters": 42,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 31,
+          "raw_present": 0.06451612903225806,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.9354838709677419,
+          "ci95_raw_present": [
+            0.017874783521914572,
+            0.20718636736298127
+          ],
+          "n_clusters": 31,
+          "low_n": false
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 24,
+          "raw_present": 0.125,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.875,
+          "ci95_raw_present": [
+            0.04344334080123444,
+            0.31003881270500067
+          ],
+          "n_clusters": 24,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 20,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.16112515805281938
+          ],
+          "n_clusters": 20,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 17,
+          "raw_present": 0.11764705882352941,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8823529411764706,
+          "ci95_raw_present": [
+            0.0328797737637927,
+            0.3433635059488587
+          ],
+          "n_clusters": 17,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 15,
+          "raw_present": 0.13333333333333333,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8666666666666667,
+          "ci95_raw_present": [
+            0.03736125910306537,
+            0.37881982832322364
+          ],
+          "n_clusters": 15,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 13,
+          "raw_present": 0.15384615384615385,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8461538461538461,
+          "ci95_raw_present": [
+            0.043258178358081184,
+            0.4223463101948254
+          ],
+          "n_clusters": 13,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.14285714285714285,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.8571428571428571,
+          "ci95_raw_present": [
+            0.02567962434474355,
+            0.5131278292743189
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.3543304350666875
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.4898908364545973
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.5614970317550455
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.5,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.5,
+          "ci95_raw_present": [
+            0.09453120573423074,
+            0.9054687942657693
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.6576197724933469
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 25,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 26,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 27,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 28,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 29,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 30,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 31,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 32,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 33,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "claude-haiku-4.5",
+          "task_class": "agent_bench_os",
+          "step_index": 34,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.94,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.06,
+          "ci95_raw_present": [
+            0.8378290831116182,
+            0.979385029651026
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 35,
+          "raw_present": 0.9714285714285714,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.02857142857142857,
+          "ci95_raw_present": [
+            0.8546691276638632,
+            0.9949385081445556
+          ],
+          "n_clusters": 35,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 25,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8668077490609515,
+            1.0
+          ],
+          "n_clusters": 25,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 18,
+          "raw_present": 0.8888888888888888,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.1111111111111111,
+          "ci95_raw_present": [
+            0.672002348698212,
+            0.9689804773543876
+          ],
+          "n_clusters": 18,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 12,
+          "raw_present": 0.9166666666666666,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.08333333333333333,
+          "ci95_raw_present": [
+            0.646120088858883,
+            0.9851349055950829
+          ],
+          "n_clusters": 12,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 0.8181818181818182,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.18181818181818182,
+          "ci95_raw_present": [
+            0.523019438039156,
+            0.9486323102539149
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 0.9090909090909091,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.09090909090909091,
+          "ci95_raw_present": [
+            0.6226415635484043,
+            0.9837678271141151
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 0.625,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.375,
+          "ci95_raw_present": [
+            0.3057423946026273,
+            0.8631557141764027
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 0.5714285714285714,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.42857142857142855,
+          "ci95_raw_present": [
+            0.2504583645276572,
+            0.8417801447485302
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 0.4,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.6,
+          "ci95_raw_present": [
+            0.11762077423264783,
+            0.769275718723987
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 41,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9143324298155681,
+            1.0
+          ],
+          "n_clusters": 41,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 39,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9103331462924287,
+            1.0
+          ],
+          "n_clusters": 39,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 35,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9010990076755959,
+            1.0
+          ],
+          "n_clusters": 35,
+          "low_n": false
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 28,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8793566952341542,
+            1.0
+          ],
+          "n_clusters": 28,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 26,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8712710781407846,
+            1.0
+          ],
+          "n_clusters": 26,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 23,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8568833815495731,
+            1.0
+          ],
+          "n_clusters": 23,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 19,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8318207759473837,
+            1.0
+          ],
+          "n_clusters": 19,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 17,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8156818649911483,
+            1.0
+          ],
+          "n_clusters": 17,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 15,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7961166989641515,
+            1.0
+          ],
+          "n_clusters": 15,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7411670330319684,
+            1.0
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7008549515804559,
+            1.0
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 25,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 26,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 27,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 28,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 29,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 30,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 31,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 32,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 33,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 34,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 35,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 36,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 37,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 38,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 39,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 40,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 41,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 42,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 43,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 44,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 45,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 46,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 47,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "kimi-k2-thinking",
+          "task_class": "agent_bench_os",
+          "step_index": 48,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 45,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9213484012671117,
+            1.0
+          ],
+          "n_clusters": 45,
+          "low_n": false
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 31,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.889744604539564,
+            1.0
+          ],
+          "n_clusters": 31,
+          "low_n": false
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 30,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8864866068260312,
+            1.0
+          ],
+          "n_clusters": 30,
+          "low_n": false
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 29,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8830302015002593,
+            1.0
+          ],
+          "n_clusters": 29,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 24,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8620237953250198,
+            1.0
+          ],
+          "n_clusters": 24,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 24,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8620237953250198,
+            1.0
+          ],
+          "n_clusters": 24,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 19,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8318207759473837,
+            1.0
+          ],
+          "n_clusters": 19,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 18,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8241207763533425,
+            1.0
+          ],
+          "n_clusters": 18,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 15,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7961166989641515,
+            1.0
+          ],
+          "n_clusters": 15,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 15,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7961166989641515,
+            1.0
+          ],
+          "n_clusters": 15,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 12,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7575059933447592,
+            1.0
+          ],
+          "n_clusters": 12,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7411670330319684,
+            1.0
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 11,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7411670330319684,
+            1.0
+          ],
+          "n_clusters": 11,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7008549515804559,
+            1.0
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 25,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 26,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 27,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 28,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 29,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 30,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 31,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 32,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 33,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 34,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 35,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 36,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 37,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 38,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 39,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 40,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 41,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 42,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 43,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 44,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 45,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 46,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 47,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "minimax-m2",
+          "task_class": "agent_bench_os",
+          "step_index": 48,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 47,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9244423958360037,
+            1.0
+          ],
+          "n_clusters": 47,
+          "low_n": false
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 40,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9123783988027135,
+            1.0
+          ],
+          "n_clusters": 40,
+          "low_n": false
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 27,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8754449702581327,
+            1.0
+          ],
+          "n_clusters": 27,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 20,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8388748419471806,
+            1.0
+          ],
+          "n_clusters": 20,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 13,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7719046276458016,
+            1.0
+          ],
+          "n_clusters": 13,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 9,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7008549515804559,
+            1.0
+          ],
+          "n_clusters": 9,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 8,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6755924351161198,
+            1.0
+          ],
+          "n_clusters": 8,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 7,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6456695649333126,
+            1.0
+          ],
+          "n_clusters": 7,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 25,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 26,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 27,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 28,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 29,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 30,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 31,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 32,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 33,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "nemotron-3.5",
+          "task_class": "agent_bench_os",
+          "step_index": 34,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 23,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.8568833815495731,
+            1.0
+          ],
+          "n_clusters": 23,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 15,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7961166989641515,
+            1.0
+          ],
+          "n_clusters": 15,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 10,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.7224672001371107,
+            1.0
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 6,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.6096657120978346,
+            1.0
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 5,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5655175352168251,
+            1.0
+          ],
+          "n_clusters": 5,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 9,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 10,
+          "reasoning_effort": null,
+          "n_turns": 4,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.5101091635454027,
+            1.0
+          ],
+          "n_clusters": 4,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 11,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 12,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 13,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 14,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 15,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 16,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 17,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 18,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 19,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 20,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 21,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 22,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 23,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 24,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 25,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 26,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 27,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 28,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 29,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 30,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 31,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 32,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 33,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 34,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 35,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 36,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 37,
+          "reasoning_effort": null,
+          "n_turns": 3,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.43850296824495455,
+            1.0
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 38,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 39,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 40,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 41,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 42,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 43,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 44,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 45,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 46,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 47,
+          "reasoning_effort": null,
+          "n_turns": 2,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.34238022750665303,
+            1.0
+          ],
+          "n_clusters": 2,
+          "low_n": true
+        },
+        {
+          "model": "qwen3-32b",
+          "task_class": "agent_bench_os",
+          "step_index": 48,
+          "reasoning_effort": null,
+          "n_turns": 1,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.20654931437723745,
+            1.0
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        }
+      ],
+      "positional_profile": {
+        "0": 0.875,
+        "1": 0.8218527315914489,
+        "2": 0.875,
+        "3": 0.905982905982906,
+        "4": 0.8958333333333334,
+        "5": 0.935064935064935,
+        "6": 0.9180327868852459,
+        "7": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      },
+      "uninspectable_share": 0.12442607897153352
+    },
+    "bound": {
+      "model": [
+        "claude-haiku-4.5",
+        "gpt-oss-120b",
+        "kimi-k2-thinking",
+        "minimax-m2",
+        "nemotron-3.5",
+        "qwen3-32b"
+      ],
+      "stage2_recall_assumed": 1.0,
+      "ceiling_mean_coverage": 0.9226766692857868,
+      "ceiling_by_step": {
+        "0": 0.875,
+        "1": 0.8218527315914489,
+        "2": 0.875,
+        "3": 0.905982905982906,
+        "4": 0.8958333333333334,
+        "5": 0.935064935064935,
+        "6": 0.9180327868852459,
+        "7": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      }
+    },
+    "inter_agent_channel": {
+      "n_messages": 0,
+      "n_human_excluded": 0,
+      "denominator_code": "SHARE",
+      "n_denominator": 0,
+      "rate_per_1000": null,
+      "rate_status": "no_denominator",
+      "zero_case_upper_bound_95": null,
+      "codes": {
+        "OBJ": 0,
+        "REF": 0,
+        "ESC": 0,
+        "WARN": 0,
+        "NORM": 0
+      },
+      "messages_authenticated": null
+    },
+    "detectors": []
+  }
+}

@@ -25,6 +25,7 @@ DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
 DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
 DEFAULT_CTF_LOGS = REPO_ROOT / "data" / "inspect-runs-ctf"
+DEFAULT_OSBENCH_LOGS = REPO_ROOT / "data" / "inspect-runs-osbench"
 
 #: Largest within-model spread across task classes that still permits pooling
 #: them into one bar. Above this, pooling would hide variation the figure exists
@@ -87,6 +88,9 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
         "--agentic-logs", type=Path, default=DEFAULT_AGENTIC_LOGS
     )
     parser.add_argument("--ctf-logs", type=Path, default=DEFAULT_CTF_LOGS)
+    parser.add_argument(
+        "--osbench-logs", type=Path, default=DEFAULT_OSBENCH_LOGS
+    )
 
 
 #: Each corpus keeps its own record file. Records are never pooled across corpora:
@@ -97,6 +101,7 @@ RECORD_FILENAMES = {
     "inspect_logs_reasoning": "observability_record_reasoning.json",
     "inspect_logs_agentic": "observability_record_agentic.json",
     "inspect_logs_ctf": "observability_record_ctf.json",
+    "inspect_logs_osbench": "observability_record_osbench.json",
 }
 
 
@@ -169,6 +174,17 @@ def _corpora(
         groups.append((ctf.describe(), list(ctf.observations())))
     else:
         missing.append(f"inspect_logs_ctf (looked in {ctf.root})")
+
+    osbench = InspectLogLoader(
+        getattr(args, "osbench_logs", DEFAULT_OSBENCH_LOGS),
+        name="inspect_logs_osbench",
+        licence="run artefacts of this project via OpenRouter; model terms vary",
+        label_by_directory=True,
+    )
+    if osbench.available():
+        groups.append((osbench.describe(), list(osbench.observations())))
+    else:
+        missing.append(f"inspect_logs_osbench (looked in {osbench.root})")
 
     return groups, missing
 

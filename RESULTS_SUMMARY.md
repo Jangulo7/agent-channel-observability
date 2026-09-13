@@ -259,7 +259,7 @@ the *first* step's lower confidence bound; otherwise "within noise".
 | `gpt-oss-120b` | 3 | differs by task | DECLINES 1.00 -> 0.68 · DECLINES 1.00 -> 0.84 · varies 1.00-0.94, within noise |
 | `kimi-k2-thinking` | 3 | **consistent** | FLAT at 1.00 · FLAT at 1.00 · FLAT at 1.00 |
 | `minimax-m2` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
-| `nemotron-3.5` | 1 | one family only | FLAT at 1.00 |
+| `nemotron-3.5` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
 | `qwen3-32b` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
 <!-- END:positional-verdicts -->
 
