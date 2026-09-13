@@ -49,15 +49,25 @@ def test_reasoning_recall_collapses_when_later_steps_abstain() -> None:
     reasoning = [
         _v("t1", 0, Channel.REASONING, Flag.FLAG),
         _v("t2", 0, Channel.REASONING, Flag.CLEAR),
-        *[_v(t, s, Channel.REASONING, Flag.ABSTAIN) for t in ("t1", "t2") for s in (1, 2)],
+        *[
+            _v(t, s, Channel.REASONING, Flag.ABSTAIN)
+            for t in ("t1", "t2")
+            for s in (1, 2)
+        ],
     ]
     action = [
         _v(t, s, Channel.ACTION, Flag.FLAG if s == 1 else Flag.CLEAR)
         for t in ("t1", "t2")
         for s in (0, 1, 2)
     ]
-    r = {p.step_index: p.recall for p in cumulative_recall(positives, reasoning, Channel.REASONING)}
-    a = {p.step_index: p.recall for p in cumulative_recall(positives, action, Channel.ACTION)}
+    r = {
+        p.step_index: p.recall
+        for p in cumulative_recall(positives, reasoning, Channel.REASONING)
+    }
+    a = {
+        p.step_index: p.recall
+        for p in cumulative_recall(positives, action, Channel.ACTION)
+    }
     assert r == {0: 0.5, 1: 0.5, 2: 0.5}   # stuck at the one step-0 catch
     assert a == {0: 0.0, 1: 1.0, 2: 1.0}   # both caught once the action lands
 
