@@ -35,6 +35,32 @@ its expensive check when a cheap trigger fires has recall at most
 `coverage × stage-2 recall`. The contribution is measuring `coverage` honestly,
 with a denominator that is stated rather than assumed.
 
+## What this paper reports (scope)
+
+The repository measures more than the paper claims. The paper is scoped to three findings,
+and the rest is appendix:
+
+1. **Visibility is set by the serving configuration, not the model.** Same model, task and
+   evaluation harness give a chain-of-thought monitor 0 vs 1 post-tool coverage depending
+   only on one request header. (`results/figures_paper/fig1_visibility_by_arm.png`)
+2. **The recall drop, measured.** A reasoning-gated monitor's recall of harmful
+   trajectories collapses ~0.93 → 0.00 when the channel is dark, while an action-gated
+   monitor keeps most of its recall. (`results/figures_paper/fig2_recall_drop.png`)
+3. **A reporting standard and instrument:** emission with an explicit denominator,
+   conditioned on route/request/turn-type/step, a produced-vs-readable split, and the
+   `c·r₂` bound — with the two architectural rules below enforced in code.
+
+Reported briefly: a long-horizon check (disclosure does not decay to step 58; n=10,
+suggestive) and a **pre-specified** (not independently registered) peer-objection study
+that returns a bounded null. Everything else — the vLLM baseline, the Mythos incident
+transcript, the full agentic-family tables, the model-selection screen — is appendix,
+kept in the untracked `.other-experiments/`. The scoped results are in
+[`results/RESULTS_SUMMARY.md`](results/RESULTS_SUMMARY.md).
+
+We did **not** obtain an independent pre-registration (the OSF timestamp could not be
+created); the C1–C3 decision rules were committed before any label existed, so we report
+them as *pre-specified, not registered*, and claim no pre-registration.
+
 ## What we measure
 
 Every assistant turn is put in exactly one of four states:
