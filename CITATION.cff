@@ -4,17 +4,23 @@ title: >-
   and the recall ceiling it imposes on deliberation-gated monitors
 message: >-
   If you use this software or its measurements, please cite it. Please also
-  carry the caveats: the headline numbers rest on a single trajectory
-  (n_clusters = 1) and are descriptive, not inferential.
+  carry the caveats: every rate is per arm (model, task class, request
+  configuration and provider route) and is not a sample of vendors; the Mythos
+  transcript is a single trajectory (n_clusters = 1) with no interval; and the
+  agentic trajectories are short (pooled medians of 4-5 assistant turns).
 type: software
 authors:
   - given-names: Johanna
     family-names: Angulo
 repository-code: "https://github.com/Jangulo7/agent-channel-observability"
 abstract: >-
-  Measures, from Inspect evaluation logs, how often a model's reasoning is
-  actually observable to an external evaluator, and derives the recall ceiling
-  that observability imposes on any monitor gated on deliberation. Two rules are
+  Measures how often a model's reasoning is actually readable by an external
+  evaluator, and derives the recall ceiling that readability imposes on any
+  monitor gated on deliberation. Six corpora are measured separately and never
+  pooled: a vLLM baseline, a nine-arm reasoning-model sweep, three multi-step
+  agentic task families, and the Mythos 5 incident transcript, 23,541 assistant
+  turns in total. Provider token accounting separates reasoning that was not
+  produced from reasoning that was produced but not returned. Two rules are
   architectural: no detector reports a rate without a recorded validated recall,
   and an uninspectable sample is a failure rather than a dropped denominator.
 keywords:
@@ -45,9 +51,11 @@ references:
 
   - type: data
     title: "Mythos 5 incident transcript"
+    authors:
+      - name: Anthropic
     repository-code: "https://github.com/anthropics/mythos-5-incident-transcript"
     notes: >-
-      The corpus behind every measurement currently in results/. Licence not
+      One of six measured corpora in results/. Licence not
       stated; released by Anthropic for study. Carries a canary GUID and a
       do-not-train notice. n = 1 trajectory: one incident, one model, not a
       sample. See docs/DATA_PROVENANCE.md.

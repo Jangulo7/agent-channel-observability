@@ -26,11 +26,20 @@ Hashes are SHA-256 of the file as analysed, computed 2026-09-12 during the build
   this corpus is sent to any third-party service.
 - Anthropic states four modifications: messages 1–81 redacted, messages after 2145
   redacted, some third-party-server messages redacted, and individual words redacted
-  in place as `[redacted-xyz]`. Observed index range is therefore 82–2144, and 19
-  assistant text messages are `[redacted]`. Utterances from it are
+  in place as `[redacted-xyz]`. Observed index range is therefore 82–2144. Of the
+  700 assistant text messages, **11 are wholly redacted** (the whole content is a
+  single redaction marker) and are classified `redacted`. A further **310 of the
+  686 `raw_present` turns carry in-place redaction markers**, 307 of them inside a
+  `<thinking>` block; they are kept `raw_present` (0.3328), and would give
+  `raw_present` 0.1824 if classified `redacted` — an open author decision that
+  `channels describe` reports. Utterances from it are
   `Provenance.REDACTED_PARTIAL`, never `VERBATIM`.
+- Timing. Every timestamped assistant turn (2,060 of 2,061; one has no
+  timestamp) falls between 2026-07-18T01:02:54Z and 11:28:09Z, about 10.4 hours.
+  The latest stamps in the file, 21:29:27Z, belong to the system and human
+  messages.
 - **n = 1 trajectory.** It is one incident from one model. It supplies a real-incident
-  task class, not a sample.
+  task class, not a sample, and no interval is computed from it.
 
 ## 2. collusion.wiki frozen export ("german-collusion-wiki")
 
@@ -73,7 +82,10 @@ Each revision produces **two** utterances, because it carries two channels:
   peers, and able to express disagreement by action. Body text is **never**
   carried into an `Utterance`.
 - the `change_summary` as `Channel.INTER_AGENT_MESSAGE` — a short note to other
-  editors, present on 12,773 of 14,591 revisions (93.3%). Summary text **is**
+  editors. A non-empty summary is present on 13,619 of all 14,591 revisions
+  (93.3%). 12,773 of those are by agent handles and become
+  `INTER_AGENT_MESSAGE` utterances: 87.5% of all 14,591 revisions, or 93.5% of the
+  13,661 agent revisions. The rest fail toward `HUMAN_MESSAGE`. Summary text **is**
   carried, because the verbal codebook needs it to code the message channel at
   all; it is kept out of published artefacts instead.
 
@@ -91,7 +103,8 @@ partial revert at all.
 sensitivity analysis, reported together. Note that the spec's justification
 ("91% of edits come from the single actor `dse`") is wrong on the data: `dse` is
 a **wiki**, holding 91.9% of revisions, while the most active individual actor
-holds 2.3% across 3,102 actors.
+holds 317 revisions — 2.2% of all 14,591 revisions, or 2.3% of the 13,661 agent
+edits — across 3,102 actors.
 
 ## 3. WikiTactics
 
@@ -110,26 +123,38 @@ holds 2.3% across 3,102 actors.
   validated here to agent protocol strings is unvalidated. That is rung 1 of the
   validation ladder, and the report says so in Limitations.
 
-## 4. Inspect evaluation logs — safety-eval-pipeline
+## 4. Inspect evaluation logs — safety-eval-pipeline (vLLM baseline)
 
 | | |
 |---|---|
-| Intended source | `logs/` of the `safety-eval-pipeline` runs (sycophancy, xstest, strong_reject) |
-| Status | **NOT AVAILABLE to this build.** See `BUILD_LOG.md` Q1. |
+| Source | `logs/` of the `safety-eval-pipeline` runs (sycophancy, xstest, strong_reject), supplied to this build |
+| Local path | `data/inspect-runs/` (gitignored); `channels measure` reads it by default |
+| Status | **Available.** 12 complete logs, 0 incomplete, 0 errored samples. |
+| SHA-256 (corpus hash) | `sha256:0ae89997c224795386a597dcb27312784a0b29d9394d3c75599a58618e0690f0` |
+| Licence | Run artefacts of safety-eval-pipeline; MIT, same author. |
 
-The public repository excludes them by design (`.gitignore:43`, *"Inspect logs are not
-committed at all"*). What is public is the derived record
-`results/published/results.json` of run `run-20260830-193016`, which establishes the
-run's shape but contains no per-turn message content and therefore no reasoning channel:
+The public repository excludes these logs by design (`.gitignore:43`, *"Inspect
+logs are not committed at all"*); they were supplied separately (`BUILD_LOG.md`
+Q1, resolved). What the log headers record:
 
-- 12 cells, 3 benchmarks × 3 models, all `status: ok`.
+- **12 logs**: 3 models × 4 task runs (`strong_reject`; `sycophancy` with
+  `--limit 250`; `xstest` safe, 250; `xstest` unsafe, 200). That is **9 model ×
+  benchmark combinations**, 3,039 samples and 3,789 assistant turns. The record
+  (`results/observability_record.json`) holds 12 emission cells
+  (model × task class × step) and 9 positional profiles (model × task class).
 - Models: `vllm/Qwen/Qwen2.5-7B-Instruct`, `vllm/meta-llama/Llama-3.1-8B-Instruct`,
   `vllm/mistralai/Ministral-8B-Instruct-2410`.
-- `inspect_ai 0.3.260`, `inspect_evals 0.18.0`, provider `vllm`, grader
-  `openrouter/openai/gpt-4.1-mini`.
+- `inspect_ai 0.3.260`, `inspect_evals 0.18.0`; logs created 2026-08-30; every log
+  records `fail_on_error=False`.
+- The logs carry the scorer's own model calls interleaved with the model's,
+  which is why `scripts/verify_coverage.py` cannot pair calls with turns here and
+  does not cover this corpus.
+- *Unverified in this build:* the upstream run id (`run-20260830-193016`) and
+  grader (`openrouter/openai/gpt-4.1-mini`) come from the upstream derived record
+  `results/published/results.json` and were not re-checked against these logs.
 
-No substitute corpus was used in their place. Other Inspect logs exist on the build
-machine (`addition`, `gsm8k`, `humaneval`) and were deliberately **not** analysed:
+No substitute corpus was used. Other Inspect logs exist on the build machine
+(`addition`, `gsm8k`, `humaneval`) and were deliberately **not** analysed:
 swapping the corpus would answer a different question than the one registered.
 
 ---
@@ -142,6 +167,9 @@ swapping the corpus would answer a different question than the one registered.
 | Produced by | `scripts/run_reasoning_evals.sh`, 2026-09-12/13 |
 | Route | OpenRouter (`openrouter/<vendor>/<model>`) |
 | Benchmarks | `strong_reject` (313), `sycophancy` (250 of 4,882, `--sample-shuffle 42`), `xstest` safe (250) and unsafe (200) |
+| Arms | 9: `gpt-oss-120b`, `qwen3-32b`, `glm-4.7-flash`, `claude-haiku-4.5`, `deepseek-v3.2`, `deepseek-v3.2-reasoning-on`, `gpt-5-nano-low`, `-medium`, `-high`; 5 vendor prefixes (anthropic, deepseek, openai, qwen, z-ai) |
+| Size | 36 complete logs, 1,013 samples and 1,263 assistant turns per arm, 11,367 turns |
+| SHA-256 (corpus hash) | `sha256:67ec6d2129bf85f62cc56927056faf8651b8207d8c871860cb9762defa0989d4` |
 | Licence | Our run artefacts. The underlying models carry each vendor's own terms. |
 
 Sample counts deliberately match the vLLM baseline in §4 exactly, so the two
@@ -158,13 +186,63 @@ Grouping on the model id would pool them and destroy the comparison.
 **Caveats.**
 - Scoring is disabled (`--no-score`). We measure the reasoning channel, not
   benchmark performance, so no judge model is involved and no score is reported.
-- Requests are bounded (`--timeout 120 --max-retries 3 --fail-on-error 0.05`).
-  Samples that error contribute no assistant turn; the shortfall is counted by
+- Requests are bounded: the run script passes `--timeout 120 --max-retries 3
+  --fail-on-error 0.05`. **The logs do not record 0.05**: every one of the 36 log
+  headers records `fail_on_error=True`. The discrepancy is unexplained here and
+  moot for this corpus, because zero samples errored. Samples that error
+  contribute no assistant turn; the shortfall is counted by
   `InspectLogLoader.errored_samples()` and reported in `describe()`.
+- Reasoning-token totals quoted in `RESULTS_SUMMARY.md` §1b are the provider's
+  `usage.reasoning_tokens` summed from the logs; no committed script prints
+  them.
 - Incomplete logs (a run still in progress) are excluded and counted, never
   partially included.
 
-## 6. METR incident reports (source documents, not a corpus)
+## 6. Inspect evaluation logs — agentic families (this project's runs)
+
+Three multi-step task families, run with the same harness. All three are
+**complete**.
+
+| | `agentharm_benign` | `gdm_intercode_ctf` | `agent_bench_os` |
+|---|---|---|---|
+| Local path | `data/inspect-runs-agentic/<arm>/` | `data/inspect-runs-ctf/<arm>/` | `data/inspect-runs-osbench/<arm>/` |
+| Produced by | `scripts/run_agentic_arm.sh`, `run_replication_arm.sh`, `run_replication_arm2.sh` | `scripts/run_ctf_arm.sh`, `run_ctf_families.sh` | `scripts/run_osbench_families.sh` |
+| Environment | mock tools, no sandbox; `split=test_public` | real shell, Docker sandbox | real shell, Docker sandbox per sample; `split=test` |
+| Arms (logs) | 7: `claude-haiku-4.5`, `gpt-5-nano-medium`, `gpt-oss-120b`, `kimi-k2-thinking`, `minimax-m2`, `nemotron-3.5`, `qwen3-32b` | 6: as agentharm, without `gpt-5-nano-medium` | 6: as intercode_ctf |
+| n | 50 samples per arm (`--limit 50`) | 50 per arm | 50 per arm |
+| Assistant turns | 1,860 | 2,286 | 2,178 |
+| Message / time limit (log header) | `message_limit` 20 | `message_limit` 50 | `message_limit` 100, `time_limit` 600 s |
+| `fail_on_error` (log header) | 0.1 | 0.2 | 0.2 |
+| Scoring | `--no-score` | not disabled: per the run script, the task's solver calls a local string-check scorer to detect the flag; no judge model | `--no-score` |
+| Run date (log headers) | 2026-09-13 | 2026-09-13 | 2026-09-13 |
+| SHA-256 (corpus hash) | `sha256:cab83befadb5bbfb568ea8f3600bcc1438874316e074f7752618f77f20833a97` | `sha256:1ada9eae88ec995d49cb8de04a563db35da11f7a83b91fcdb7b40883f1958cb4` | `sha256:0632d29d03393d244f794ca633b39daf3dc0949ef603af1436868a97ff126469` |
+| Benchmark terms | AgentHarm: MIT with an additional clause restricting use to improving AI safety and security; carries a canary and a do-not-train request (per the `inspect_evals` package README) | InterCode CTF (picoCTF challenges); licence not recorded in this build | AgentBench OS tasks; licence not recorded in this build |
+
+All arms record `inspect_ai 0.3.260`, `inspect_evals 0.18.0`, `max_tokens` 8192,
+`max_retries` 3 and a request timeout of 180 s (`agentharm_benign`) or 240 s (the
+other two). `claude-haiku-4.5` is run with `--reasoning-tokens 2048`
+and `gpt-5-nano-medium` with `--reasoning-effort medium`; the other arms set no
+reasoning parameter. Our run artefacts; the models carry each vendor's own terms.
+
+**Caveats.**
+- **Served through OpenRouter, with upstream routing.** Requests go to
+  `openrouter/<vendor>/<model>`, and OpenRouter routes each call to an upstream
+  provider, which can differ between calls of one arm. Some arms were split across providers (for example `gpt-oss-120b` across
+  AkashML and DeepInfra, and `nemotron-3.5` on `gdm_intercode_ctf` across Phala and
+  DeepInfra; `scripts/report_turn_boundary.py` prints the counts). The provider
+  is part of the condition under which each turn was observed.
+- **Raw call payloads are partial.** The raw request/response (which names the
+  provider) is logged only for the first five model calls of each sample, plus,
+  in one case, the final call of the errored sample. Provider and request-payload
+  statements describe those calls; the generate config in each log header applies
+  to every call.
+- **One errored sample.** On `gdm_intercode_ctf`, one `qwen3-32b` sample errored
+  after contributing 22 assistant turns (the log header reports 50 samples, 49
+  completed). Those turns occurred and are counted in every denominator.
+- 0 incomplete logs were excluded in any family.
+- `scripts/verify_coverage.py` covers exactly these 19 logs.
+
+## 7. METR incident reports (source documents, not a corpus)
 
 | | |
 |---|---|
@@ -188,13 +266,14 @@ uninterpretable proved, in the source, to be an unambiguous request — the
 ambiguity was created by the investigators' elision, not present in the
 utterance.
 
-## 7. Disclosure to third parties
+## 8. Disclosure to third parties
 
 Two kinds of corpus text leave this machine. Both are recorded here because an
 unlicensed corpus does not stop being unlicensed when it is sent to an API.
 
-**To OpenRouter (model vendors).** Only benchmark prompts from `strong_reject`,
-`sycophancy` and `xstest`, which are public datasets. **No corpus text from
+**To OpenRouter (model vendors).** Only benchmark prompts and environment
+output from `strong_reject`, `sycophancy`, `xstest`, `agentharm_benign`,
+`gdm_intercode_ctf` and `agent_bench_os`, which are public benchmarks. **No corpus text from
 Mythos, collusion.wiki or WikiTactics is ever sent to any model API.**
 
 **To the human annotator.** collusion.wiki revisions and edit summaries are sent
@@ -210,7 +289,7 @@ request and a canary GUID. `channels.detect.check_do_not_train` raises before
 any model is loaded, and `tests/test_publication_safety.py` asserts the GUID
 appears in no tracked file and nowhere under `results/` or `docs/`.
 
-## 8. Human annotation outputs
+## 9. Human annotation outputs
 
 | | |
 |---|---|

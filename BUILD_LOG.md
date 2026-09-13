@@ -5,15 +5,28 @@ seen the diffs.
 
 ## QUESTIONS FOR JOHANNA
 
-**All previously open questions are now resolved.** Kept here in one line each so
-the record shows what was asked and how it was settled.
+**Open questions (added 2026-09-13, session 5 verification) — these need you:**
+
+| # | question | why it is yours | what the build does meanwhile |
+|---|---|---|---|
+| Q9 | **Mythos partial redactions.** 310 of 686 `raw_present` turns carry in-place `[redacted…]` markers (307 inside `<thinking>`). Keep `raw_present`, or apply turn-level strongest-limitation (→ `redacted`)? | Judgement about ambiguous data; moves a headline (0.3328 vs 0.1824). | Kept `raw_present`, `# NEEDS REVIEW`; `describe()` computes and reports the alternative. |
+| Q10 | **Separate "produced" from "readable"** by adding provider `reasoning_tokens` to `TurnObservation`? | Changes `schema.py` (RED). | Not changed. `scripts/report_turn_boundary.py` and `verify_coverage.py` read tokens outside the record. See the v5 spec §16.1. |
+| Q11 | **`gdm_intercode_ctf` vs spec §13 non-goal "no offensive cyber evaluations".** Benign CTF puzzles in Docker. Keep, relabel, drop? | Scope decision. | Kept and reported; flagged here. |
+| Q12 | **Registered RQ3 sensitivity analyses** (pre-reg §8.2 "exclude dse", "stricter attribution") were replaced by recall-correction and denominator-choice. "Exclude dse" is ill-posed: dse is a wiki. Re-specify, or log a deviation in the registration's deviations section? | Touches the frozen registration. | `rq3_endpoint` now declares the substitution in its result (`deviations`). |
+| Q13 | **`test_rq3.py::test_zero_observed_gives_a_bound_not_a_bare_zero` fails, by rule.** It asks `rq3_endpoint` for a bound from a bare count with no detector and no utterances — the path spec §0 rule 1 forbids, now blocked by the guard. The test is wrong, not the code. Update its setup (pass a validated detector + utterances) or delete it? | Rule: never edit a test to go green; leave failing with reasoning. **CI is red on this one test.** | Left failing. The same property through the guarded path is tested by `test_validated_gated_count_gives_a_bound`. |
+| Q14 | **`test_zz_prefix_consistent_across_sources`** asserts ≥ 2 distinct actors; all zz rows come from one document, so "independent sources" is not evidenced. Add sources, or rename the claim? | Research claim. | Unchanged. |
+| Q15 | **pyproject**: transformers/torch are both core deps and the `nli` extra, whose comment says they are kept out of core. Which? | Dependency decision. | Unchanged. |
+| Q16 | **OpenRouter credit — which runs next?** See `.research-plan/conclusions.md` §7: R1 haiku with interleaved thinking, R2 haiku replication with `--log-model-api`, R3 provider-pinned gpt-oss-120b/nemotron (10 logs, ≈ $9–17). | Spends money. | Nothing launched. |
+
+**Earlier questions, resolved.** Kept in one line each so the record shows what was
+asked and how it was settled.
 
 | # | question | resolution |
 |---|---|---|
 | Q1 | Where are the Inspect `logs/`? | **Resolved.** Supplied as `data/inspect-runs/`; step 3 measured. |
 | Q2 | Is AI Village in scope? | Out of scope, unchanged. |
 | Q3 | Spec function names vs upstream | `wilson_upper_bound` is new code, marked as such. |
-| Q4 | CI blocked by missing `workflow` token scope | **Resolved.** CI runs; green on every push. |
+| Q4 | CI blocked by missing `workflow` token scope | **Resolved.** CI runs. (Not green on every push: `beeba51` failed on a test I wrote, fixed in `aa5adba`; CI is red again by rule on Q13.) |
 | Q5 | Clustering unit for collusion.wiki | **Resolved by Johanna:** page primary, actor sensitivity. Implemented; both reported together. |
 | Q6 | Does `ARTEFACT_EDIT` need adding to the schema? | **Resolved by Johanna: yes.** Added, plus `REVERT` in codebook v2. |
 | Q7 | METR page references unverified | **Resolved.** Both PDFs supplied; 10 of 10 rows verified, 0 mismatches. |
@@ -31,7 +44,9 @@ the record shows what was asked and how it was settled.
 2. **`config/channels.yaml` thresholds are still illustrative** (floor 0.50,
    ceiling 0.50). Nothing in the literature sets these. They must not be cited
    as a standard, and the README says so.
-3. **`scripts/verify_coverage.py` now exits non-zero, on three benign cases —
+3. *(Resolved in session 5: the verifier now reports trailing unpaired calls as
+   informational unless the provider billed reasoning on them; exit 0.)*
+   **`scripts/verify_coverage.py` now exits non-zero, on three benign cases —
    your call how to score them** (AMBER, found 2026-09-13 audit). All three are
    `qwen3-32b` trajectories whose *final* model call never became an assistant
    turn: one hit a provider 400 (context length), two hit the 600 s time limit.
@@ -873,13 +888,13 @@ coder's labels into C1–C3. The 1.51× "coverage decays with depth" headline fr
   **5 / 5 / 4** turns (max 9 / 24 / 49); per-arm medians 2–8. Corrected in §1c.
 - **`channels measure` with no flags silently drops the baseline.** Its default
   path is `data/inspect_logs`, the data is in `data/inspect-runs`; it prints
-  NOT AVAILABLE and regenerates Figure 1 without those cells. Not fixed — the
-  README's one-line reproduce command inherits this. Pass `--inspect-logs`.
+  NOT AVAILABLE and regenerates Figure 1 without those cells. *(Fixed in
+  `beeba51`: the default is now `data/inspect-runs`.)*
 - `RESULTS_SUMMARY.md` §9 listed 3 records and "159 tests"; now 6 records, 191.
 
 Passing: `ruff`, `mypy --strict`, `pytest -q` → 191 passed.
 
-## Honest assessment — current
+## Honest assessment — session 4 (superseded by session 5)
 
 **What shipped.** All twelve steps; six never-pooled records over 23,541
 assistant turns; a nine-arm reasoning sweep; three agentic families × six model
@@ -904,4 +919,106 @@ generated, not typed.
 **With two more hours.** Fix the `--inspect-logs` default; make the remaining
 typed numbers in `RESULTS_SUMMARY.md` generated blocks; run one genuinely long
 arm (a raised step cap on `agent_bench_os`, where trajectories already reach 49).
+
+---
+
+# Session 5 — 2026-09-13, independent verification and repair
+
+Johanna asked for the path fix, the long-horizon conclusions, a v5 spec and an expert
+verification. Four independent read-only agents ran in parallel: a code review, a
+number-by-number claims audit (~520 claims), forensics on the long-horizon logs, and a gap
+analysis against plan v4 and spec v4. Then two fix agents on disjoint files, then a docs
+pass. Private outputs: `.research-plan/conclusions.md`,
+`.research-plan/SPEC_agent_channel_observability_v5.md`.
+
+## What the verification found
+
+- **The haiku result was misread, including by me in session 4.** The step-0 cliff is
+  a cliff in *deliberation*, not *disclosure*: all 615 haiku turns at step ≥ 1 that
+  follow a tool result have provider `reasoning_tokens = 0` and no reasoning block; all 24
+  that follow a user message reason and are readable. The request is identical across
+  steps (OpenRouter reasoning max_tokens 2048, no interleaved-thinking header from
+  Inspect) — consistent with non-interleaved extended thinking, not proven beyond
+  OpenRouter. `gpt-oss-120b`'s decline is also zero-reasoning turns, confounded by
+  upstream routing (AkashML 0.79 vs DeepInfra 0.97 reasoning at steps 1–4). Produced-but-hidden
+  reasoning in the agentic corpora is `gpt-5-nano` (encrypted) plus 7 `gpt-oss-120b`
+  turns with billed tokens and blank blocks. Reproducible:
+  `scripts/report_turn_boundary.py`.
+- **Code defects that moved published numbers** (all fixed in `368830d`): records pooled
+  every arm into one binned profile (keys were bins, mean unweighted); Figure 2 binning
+  hid haiku's c(0)=1.00; whitespace reasoning counted as raw (gpt-oss agentharm c(5)
+  0.682 → 0.659, verdict unchanged); `clustered_wilson` could exclude its own estimate
+  (this feeds the registered C1 rule); pooled multi-step intervals were naive; records
+  said `codebook_version: 1` and `preregistration_commit: null`; `channels gate` pooled
+  six corpora into shared strata; 11 whole-message Mythos redactions were ABSENT.
+- **Guards were never called in production.** `require_validation` and
+  `assert_primary_eligible` existed and were tested but no entry point called them; rq3
+  hard-coded both detectors' recalls. Now wired at `rq3_endpoint` and
+  `analyse_annotations`; recalls read from the validation records.
+- **Claims audit: ~50 mismatches** in README, RESULTS_SUMMARY, DATA_PROVENANCE,
+  CITATION.cff and this log, including two headline supports that were false ("5,818
+  reasoning tokens then exactly zero"; "verify_coverage: no disagreements"), a Mythos
+  "20-hour" run whose assistant turns span ≈ 10.4 h, stale sweep tables, mislabelled
+  actors-per-page bins, and per-sample token means labelled per turn.
+- **CI was red on `beeba51` because of the test I added in session 4** (`git
+  check-ignore` matches `dir/` rules only for existing directories). Fixed in `aa5adba`.
+- **Plan vs data:** effort-varies-visibility contradicted (one model); decay-with-depth
+  not supported; task-dependence weak and confounded; RQ3 unanswered; C1–C3 not run.
+
+## What was built or changed
+
+`aa5adba` CI test fix · `beeba51` default `data/inspect-runs` path · `368830d` the
+repairs above plus: schema 4.0 (per-arm profiles, true step keys, action-weighted mean
+labelled, ceiling at worst powered step); `inter_agent_channel` `not_measured` with nulls;
+Figure 2 per step with low-n hollow and named, AdaptR1 as 1 − no-think; 15 orphaned pooled
+figures removed; Figure 1 intervals clustered by trajectory; errored-sample caveat
+truthful; missing model/task raise; per-corpus gate with ties listed; epoch-qualified
+trajectory ids; `verify_coverage` rewrite (0 disagreements over 19 logs; 3 trailing
+unpaired calls and 7 blank billed blocks informational; reverse check added; scope
+stated); out-of-label-space metrics null; `run_tree_validation.py` and
+`run_revert_validation.py` reproduce the committed validation records exactly;
+`report_positional` RISES / NON-MONOTONE / insufficient-powered verdicts;
+`report_turn_boundary.py`. Docs rewritten to the regenerated data in the following commit.
+
+**AMBER.** Record schema changed 3.0 → 4.0 (not the Utterance schema). Existing tests
+whose fixtures encoded the pooled/binned record shape were updated to the per-arm shape
+with every assertion kept. Mythos partial redactions kept `raw_present` pending Q9.
+
+**Passing:** ruff clean; mypy --strict clean (27 files); pytest 269 passed, **1 failed
+by rule (Q13)**; all six records schema-valid; `verify_coverage` exit 0; `channels
+gate` exit 1 (all six corpora fail their worst stratum — the demonstration).
+
+**Numbers now:** 23,541 turns over six records. Mythos raw 686 (0.3328), redacted 11,
+absent 1,364. gpt-oss-120b agentharm arm 0.843. Figure 1 haiku agentharm interval
+0.209–0.490 (was naive 0.265–0.415). Model-run spend recorded by OpenRouter $11.76,
+≈ $17.41 extrapolated.
+
+## Honest assessment — current (session 5)
+
+**What shipped.** A measurement instrument that now does what its thesis says: per-arm
+records that cannot pool what should not be pooled, intervals that respect trajectory
+dependence, guards enforced where rates would be produced, and a verifier that checks the
+classification against the provider's own accounting. Six corpora, 23,541 turns. The
+defensible headline is narrower and better than the one the build started with: readable
+reasoning is set by provider route and request configuration; configuration decides
+whether reasoning is *produced*, disclosure policy decides whether produced reasoning is
+*readable*, and the four-state measure alone cannot tell those apart.
+
+**What did not.** No confirmatory result: C1–C3 have no labels. No objection rate or
+bound. Rung 2 unbuilt. The "decline with depth" hypothesis is not supported, and the one
+positional effect that survives is a turn-type effect whose mechanism is plausible but not
+proven. Nothing measured approaches hundred-step agents (median 4–5 turns).
+
+**Biggest weakness — two, honestly ranked.** (1) *The artifact's interpretation layer
+failed before its measurement layer did.* Every serious error this project made — the
+haiku "hidden after step 0" reading, the 1.51× decay headline, the "no disagreements"
+claim, the pooled record — was prose or aggregation outrunning the per-arm, per-turn data.
+The code's guards stopped unvalidated *rates*; nothing stopped unvalidated
+*interpretations*. (2) *The four states measure readability, and the research question is
+about deliberation.* Until provider token accounting is part of the record (Q10), every
+"uninspectable" number mixes "hidden" with "never happened".
+
+**With two more hours.** Q10 (produced × readable in the record), then run R1 (haiku
+with interleaved thinking, ≈ $4–12) — the one experiment that turns the surviving
+positional finding from "consistent with" into established or refuted. Not more arms.
 
