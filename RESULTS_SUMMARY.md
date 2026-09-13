@@ -9,7 +9,8 @@ Generated 2026-09-13. Codebook **v3**, `sha256:a67d3c09dfab3cb3fda0aea911322b15a
 > **Status.** The reasoning-model sweep (§1b) is **complete**: 9 of 9 arms,
 > 11,367 assistant turns, zero errored samples. The human annotation (§10) has
 > **not** run, so `REVERT` still has no recall and no rate is reported from
-> `collusion_wiki`.
+> `collusion_wiki`. The three agentic families are complete: 6 model families
+> on each, 7 on `agentharm`.
 
 ---
 
@@ -258,9 +259,9 @@ the *first* step's lower confidence bound; otherwise "within noise".
 | `gpt-5-nano-medium` | 1 | one family only | FLAT at 0.00 |
 | `gpt-oss-120b` | 3 | differs by task | DECLINES 1.00 -> 0.68 · DECLINES 1.00 -> 0.84 · varies 1.00-0.94, within noise |
 | `kimi-k2-thinking` | 3 | **consistent** | FLAT at 1.00 · FLAT at 1.00 · FLAT at 1.00 |
-| `minimax-m2` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
-| `nemotron-3.5` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
-| `qwen3-32b` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
+| `minimax-m2` | 3 | **consistent** | FLAT at 1.00 · FLAT at 1.00 · FLAT at 1.00 |
+| `nemotron-3.5` | 3 | **consistent** | FLAT at 1.00 · FLAT at 0.96 · FLAT at 1.00 |
+| `qwen3-32b` | 3 | **consistent** | FLAT at 1.00 · FLAT at 1.00 · FLAT at 1.00 |
 <!-- END:positional-verdicts -->
 
 Models that hold their shape across environments as different as mock function
@@ -321,9 +322,12 @@ sometimes the task, and always the step — is not a measurement of anything.
 That is precisely what `positional_profile` exists to force, and it is why this
 repository reports `c(j)` and refuses to collapse it.
 
-> **Limits.** Median trajectory length is 8 turns (`agentharm`), 7
-> (`intercode_ctf`), 5 (`agent_bench_os`); genuinely multi-step, but not the
-> hundred-step setting the argument ultimately concerns. Late-step cells fall
+> **Limits.** Median trajectory length, pooled over every arm, is 5 assistant
+> turns (`agentharm`, max 9), 5 (`intercode_ctf`, max 24) and 4
+> (`agent_bench_os`, max 49); per-arm medians range 2–8. Genuinely multi-step,
+> but not the hundred-step setting the argument ultimately concerns. (An earlier
+> version of this note said 8/7/5 — those were one arm's figures, `gpt-oss-120b`,
+> generalised to every family. Corrected 2026-09-13 from the records.) Late-step cells fall
 > below n=30 and are flagged; every verdict above rests only on powered cells.
 > And the shapes are **measured, not explained** — nothing here identifies why
 > one provider stops disclosing after the first turn.
@@ -546,17 +550,23 @@ asked in this form. **Do not cite them as a standard.**
 
 | file | contents |
 |---|---|
-| `results/observability_record.json` | Inspect-logs baseline record, schema-valid, 12 cells |
-| `results/observability_record_reasoning.json` | Reasoning-model record, schema-valid, updated as arms land |
-| `results/observability_record_mythos.json` | Mythos record, schema-valid, 2,061 cells |
+| `results/observability_record.json` | Inspect-logs baseline record, 3,789 turns |
+| `results/observability_record_reasoning.json` | Reasoning-model sweep, 9 arms, 11,367 turns |
+| `results/observability_record_mythos.json` | Mythos transcript, 2,061 turns |
+| `results/observability_record_agentic.json` | `agentharm_benign`, 7 arms, 1,860 turns |
+| `results/observability_record_ctf.json` | `gdm_intercode_ctf`, 6 arms, 2,286 turns |
+| `results/observability_record_osbench.json` | `agent_bench_os`, 6 arms, 2,178 turns |
 | `results/record_schema.json` | JSON Schema draft 2020-12, `additionalProperties: false` |
 | `results/figures/figure1_emission_states.png` | + `_caption.txt` |
 | `results/figures/figure2_recall_ceiling.png` | Inspect logs, + `_caption.txt` |
 | `results/figures/figure2_recall_ceiling_mythos_transcript.png` | Mythos, + `_caption.txt` |
+| `results/figures/figure2_recall_ceiling_<corpus>[_<arm>].png` | one per corpus and per arm (36 PNGs in `results/figures/` including Figure 1), each + `_caption.txt` |
 | `results/validation/tree_coder_1.0_wikitactics.json` | measured recall |
 | `results/validation/nli_detector_1.0_wikitactics.json` | measured recall |
 
-159 tests pass with no network, 89% coverage; `ruff` and `mypy --strict` clean.
+Six records, **23,541 assistant turns** in total, never pooled; all six validate
+against `record_schema.json`. 191 tests pass with no network; `ruff` and
+`mypy --strict` clean.
 
 ---
 

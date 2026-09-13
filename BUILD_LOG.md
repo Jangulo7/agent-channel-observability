@@ -31,6 +31,13 @@ the record shows what was asked and how it was settled.
 2. **`config/channels.yaml` thresholds are still illustrative** (floor 0.50,
    ceiling 0.50). Nothing in the literature sets these. They must not be cited
    as a standard, and the README says so.
+3. **`scripts/verify_coverage.py` now exits non-zero, on three benign cases —
+   your call how to score them** (AMBER, found 2026-09-13 audit). All three are
+   `qwen3-32b` trajectories whose *final* model call never became an assistant
+   turn: one hit a provider 400 (context length), two hit the 600 s time limit.
+   None reports reasoning tokens, so none is billed-but-unrecorded reasoning. I
+   did not change the script: counting a call-vs-turn mismatch as a failure is
+   the conservative reading, and loosening a verifier is not mine to decide.
 
 ---
 
@@ -783,7 +790,7 @@ because their disclosure behaviour differs.
 
 ---
 
-## Honest assessment — final, 2026-09-13 03:00
+## Honest assessment — 2026-09-13 03:00 (superseded by the audit below)
 
 **What shipped.** All twelve build-order steps, plus four things the spec did not
 ask for: a nine-arm reasoning-model sweep, an action channel with a structurally
@@ -832,3 +839,69 @@ consume it already exists, and it would convert the project's central limitation
 from "unmeasured" to "measured at small n". I would not spend the time on the
 objection arm; it needs human labels, and no amount of engineering substitutes
 for them.
+
+---
+
+# Session 4 — 2026-09-13, audit of the handoff
+
+Asked "where is the morning handoff". It was `BUILD_LOG.md` + `RESULTS_SUMMARY.md`
+on `build/overnight`, but this log stopped at 03:00 while eleven more commits
+(03:02–04:41) landed, and the last of them made two claims that do not hold.
+
+**Unlogged work, 03:02–04:41, recorded here.** Three long-horizon task families
+wired as their own corpora (`agentharm_benign`, `gdm_intercode_ctf`,
+`agent_bench_os`); `verify_coverage.py` cross-checks our classification against
+the provider's `reasoning_tokens`; `report_positional.py` applies a stated shape
+criterion and writes the verdict table; `analyse_annotations.py` turns the
+coder's labels into C1–C3. The 1.51× "coverage decays with depth" headline from
+`ef81565` **did not replicate** across families and was withdrawn in
+`RESULTS_SUMMARY.md` §1c — correctly.
+
+**What this audit found and fixed.**
+- **The ctf record was stale.** `minimax-m2`, `nemotron-3.5` and `qwen3-32b`
+  ctf runs finished 03:07–03:37 UTC, after the last commit (02:41 UTC). Re-ran
+  `channels measure --inspect-logs data/inspect-runs`: ctf 1,151 → **2,286
+  turns**, six records now **23,541 turns**, all schema-valid. No positional
+  verdict flipped; `nemotron-3.5` on ctf is mean 0.919 but FLAT at 0.96 on
+  powered cells (the low-n tail pulls the mean down).
+- **"Verification clean across every arm" was false.** `verify_coverage.py`
+  never read `data/inspect-runs-osbench/`. Added it. Result over 19 logs: 0
+  billed-but-unrecorded reasoning turns, and 3 call/turn mismatches — see
+  Question 3 above.
+- **Median trajectory length 8/7/5 was one arm's number.** It came from
+  `gpt-oss-120b` and was generalised to every family. From the records, pooled:
+  **5 / 5 / 4** turns (max 9 / 24 / 49); per-arm medians 2–8. Corrected in §1c.
+- **`channels measure` with no flags silently drops the baseline.** Its default
+  path is `data/inspect_logs`, the data is in `data/inspect-runs`; it prints
+  NOT AVAILABLE and regenerates Figure 1 without those cells. Not fixed — the
+  README's one-line reproduce command inherits this. Pass `--inspect-logs`.
+- `RESULTS_SUMMARY.md` §9 listed 3 records and "159 tests"; now 6 records, 191.
+
+Passing: `ruff`, `mypy --strict`, `pytest -q` → 191 passed.
+
+## Honest assessment — current
+
+**What shipped.** All twelve steps; six never-pooled records over 23,541
+assistant turns; a nine-arm reasoning sweep; three agentic families × six model
+families; a registered, unrun annotation study. The strongest claim stands and
+is measured: what an evaluator can read is set by provider and configuration —
+one model goes 0.0000 → 0.9802 on one request parameter, and `claude-haiku-4.5`
+discloses at step 0 and ~nothing after, consistently across all three families,
+confirmed by the provider's own token accounting.
+
+**What did not.** No human labels, so `REVERT` has no recall, C1–C3 have no
+numbers, and the objection arm produces no rate. Two detectors disagree 3×.
+
+**Biggest weakness.** Still transfer: trajectories median 4–5 turns, capped at
+9 on `agentharm`. The "decline with depth" story is dead; what survives is a
+step-0 cliff for one provider and flat profiles for the rest — a smaller claim
+than the thesis wants. Second: **the handoff drifted from the data three times
+in one night** (stale record, untrue verification claim, one arm's median
+presented as three families'). The code refuses to report unvalidated rates;
+the prose around it had no such guard. Every number in the summary should be
+generated, not typed.
+
+**With two more hours.** Fix the `--inspect-logs` default; make the remaining
+typed numbers in `RESULTS_SUMMARY.md` generated blocks; run one genuinely long
+arm (a raised step cap on `agent_bench_os`, where trajectories already reach 49).
+

@@ -29,6 +29,7 @@ from inspect_ai._util.content import ContentReasoning
 LOG_ROOTS = (
     Path("data/inspect-runs-agentic"),
     Path("data/inspect-runs-ctf"),
+    Path("data/inspect-runs-osbench"),
 )
 
 
