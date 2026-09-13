@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agent-channel-observability"
-version = "1.0.0"
+version = "1.0.1"
 description = "Measures how often a model's reasoning is observable, and the recall ceiling that imposes on monitors gated on deliberation."
 readme = "README.md"
 license = { text = "MIT" }

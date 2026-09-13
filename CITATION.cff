@@ -43,8 +43,8 @@ keywords:
   - monitor recall
   - Inspect
 license: MIT
-version: 1.0.0
-date-released: "2026-09-13"
+version: 1.0.1
+date-released: "2026-09-14"
 
 # After the GitHub release is archived to Zenodo, add the minted DOI here so
 # `cff-version` tooling and Zenodo agree (the concept DOI resolves to all versions):
