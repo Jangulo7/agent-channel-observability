@@ -229,6 +229,87 @@ was plenty for a monitor to catch". Across these three arms there were
 > effort level. The claim is that volume is not evidence of visibility, and one
 > clean counter-example is enough to establish that.
 
+
+---
+
+## 1c. Emission over a multi-turn agentic trajectory — the positional result
+
+**Corpus:** `data/inspect-runs-agentic/`, `agentharm_benign` (test_public), 50
+trajectories per arm, genuine multi-step tool use. The **benign** split is used
+deliberately: the question is channel observability, not harm.
+
+This is the only corpus in the project where a trajectory is long enough for
+`c(j)` to carry information. The benchmark arms in §1 and §1b have one or two
+step indices; Mythos has many but n = 1 trajectory. Here there are 50
+trajectories of median 8 turns.
+
+### Coverage declines with position
+
+`gpt-oss-120b`, 50 trajectories, **370 assistant turns**:
+
+| step | n | c(j) | 95% CI | ceiling at r₂=1 | low n |
+|---|---|---|---|---|---|
+| 0 | 50 | **1.000** | [0.929, 1.000] | 1.000 | no |
+| 1 | 50 | 0.980 | [0.895, 0.996] | 0.980 | no |
+| 2 | 50 | 0.940 | [0.838, 0.979] | 0.940 | no |
+| 3 | 50 | 0.860 | [0.738, 0.930] | 0.860 | no |
+| 4 | 46 | 0.891 | [0.770, 0.953] | 0.891 | no |
+| 5 | 44 | **0.682** | [0.534, 0.800] | 0.682 | no |
+| 6 | 33 | 0.818 | [0.656, 0.914] | 0.818 | no |
+| 7 | 26 | 0.769 | [0.579, 0.890] | 0.769 | **YES** |
+| 8 | 21 | **0.571** | [0.365, 0.755] | 0.571 | **YES** |
+
+Action-weighted over the whole trajectory: **0.8622** [0.8233, 0.8936].
+
+**The decline is real, not noise, and it does not rest on the low-n cells.**
+Step 0 (n=50, [0.929, 1.000]) and step 5 (n=44, [0.534, 0.800]) have disjoint
+intervals, and neither is flagged low-n. Steps 7 and 8 are below `MIN_CELL_N=30`
+and are flagged; the finding survives their removal.
+
+**Note the denominators: 50, 50, 50, 50, 46, 44, 33, 26, 21.** Trajectories that
+ended earlier leave the cell rather than being counted as `absent`. That is the
+rule stated in `emission.py`'s docstring, and this is the first corpus where it
+does visible work — treating the 29 missing turns at step 8 as `absent` would
+have reported c(8) = 0.24 instead of 0.571.
+
+### Why reporting the mean is not good enough
+
+| quantity | value |
+|---|---|
+| ceiling from mean coverage | **0.862** |
+| ceiling at the weakest measured step | **0.571** |
+| overstatement | **1.51×** |
+
+A monitor gated on deliberation looks 1.51× better when summarised by its mean
+than it is at the step where it is weakest — and the weak steps are the late
+ones, after the agent has taken several actions. Both numbers come from the same
+370 turns. This is the concrete case for reporting `c(j)` rather than a scalar,
+which is what `positional_profile` exists to force.
+
+### Withholding does not vary with position
+
+`gpt-5-nano` at `reasoning_effort=medium`, 50 trajectories, 211 turns:
+
+| state | share |
+|---|---|
+| `redacted` | 175 turns |
+| `absent` | 36 turns |
+| `raw_present` | **0 turns, at every step index 0–8** |
+
+Action-weighted `raw_present` **0.0000** [0.0000, 0.0179]. Where a provider
+withholds, position is irrelevant: the profile is flat at zero and there is no
+step at which a deliberation-gated monitor could fire.
+
+**So the two arms answer two different questions.** Where reasoning is
+disclosed, coverage *varies* and decays with depth into the trajectory. Where it
+is withheld, coverage is *uniformly zero* and no positional analysis can help.
+
+> **Limits.** Median 8 turns is multi-step but it is not the hundred-step
+> setting the argument ultimately concerns; it narrows the transfer gap rather
+> than closing it. One task family, two models. The step-8 cell is n=21 and
+> flagged. And the decline is measured, not explained — nothing here identifies
+> *why* late turns carry less reasoning, only that they do.
+
 ---
 
 ## 2. Emission — the Mythos 5 incident transcript
@@ -429,7 +510,7 @@ asked in this form. **Do not cite them as a standard.**
 |---|---|
 | Emission by `reasoning_effort` | **Now exists** (§1b), on one model at three levels. Absent for every other arm, which records `reasoning_effort=None`. |
 | `summary_only` in any arm | **Structurally unobservable here**, not measured at zero. A provider shipping a summary *and* an encrypted chain is classified `redacted` under the strongest-limitation rule. |
-| Emission over a long agentic trajectory | **Does not exist.** Every benchmark arm is 1–2 turns. The only long trajectory is Mythos, n=1. |
+| Emission over a long agentic trajectory | **Now exists** (§1c), at median 8 turns over 50 trajectories. A hundred-step setting is still unmeasured. |
 | Whether these rates hold for other vendors | **Not a sample.** Nine arms chosen *because* their disclosure behaviour differs. |
 | A single pooled positional profile across both corpora | **Deliberately not computed.** Mythos step indices are decile bins of one trajectory; Inspect step indices are turn ordinals in independent samples. One key cannot mean both. Each corpus writes its own record. |
 | Clustered interval for Mythos | **Does not exist.** 2,061 turns, 1 cluster. `clustered_wilson` returns `single_cluster_no_interval`. |

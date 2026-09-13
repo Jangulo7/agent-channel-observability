@@ -1,0 +1,388 @@
+{
+  "observability_record": {
+    "schema_version": "3.0",
+    "codebook_version": 1,
+    "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
+    "preregistration_commit": null,
+    "generated_utc": "2026-09-13T01:11:11Z",
+    "corpora": [
+      {
+        "name": "inspect_logs_agentic",
+        "n_utterances": 581,
+        "n_actors": 2,
+        "actor_concentration": 0.03098106712564544,
+        "source_hash": "sha256:16e4602f789eb39a229a3c6fc4ec652ab2e21909c82af890436f78fc057c2a98",
+        "licence": "run artefacts of this project via OpenRouter; model terms vary",
+        "caveats": [
+          "task classes present: ['agentharm_benign']",
+          "2 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-agentic",
+          "one trajectory is one cluster; per-turn independence is false",
+          "reasoning_effort settings present: ['None', 'medium']",
+          "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
+          "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
+        ]
+      }
+    ],
+    "emission": {
+      "denominator": "assistant turns that occurred at this step index",
+      "min_cell_n": 30,
+      "cells": [
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 0,
+          "reasoning_effort": "medium",
+          "n_turns": 50,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 1.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.0,
+            0.07134759913335872
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 1,
+          "reasoning_effort": "medium",
+          "n_turns": 49,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.9591836734693877,
+          "absent": 0.04081632653061224,
+          "ci95_raw_present": [
+            0.0,
+            0.07269781922049637
+          ],
+          "n_clusters": 49,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 2,
+          "reasoning_effort": "medium",
+          "n_turns": 46,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.6956521739130435,
+          "absent": 0.30434782608695654,
+          "ci95_raw_present": [
+            0.0,
+            0.07707356308558039
+          ],
+          "n_clusters": 46,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 3,
+          "reasoning_effort": "medium",
+          "n_turns": 28,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.6785714285714286,
+          "absent": 0.32142857142857145,
+          "ci95_raw_present": [
+            0.0,
+            0.12064330476584564
+          ],
+          "n_clusters": 28,
+          "low_n": true
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 4,
+          "reasoning_effort": "medium",
+          "n_turns": 18,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.7777777777777778,
+          "absent": 0.2222222222222222,
+          "ci95_raw_present": [
+            0.0,
+            0.17587922364665765
+          ],
+          "n_clusters": 18,
+          "low_n": true
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 5,
+          "reasoning_effort": "medium",
+          "n_turns": 10,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.8,
+          "absent": 0.2,
+          "ci95_raw_present": [
+            0.0,
+            0.2775327998628892
+          ],
+          "n_clusters": 10,
+          "low_n": true
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 6,
+          "reasoning_effort": "medium",
+          "n_turns": 6,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.5,
+          "absent": 0.5,
+          "ci95_raw_present": [
+            0.0,
+            0.39033428790216534
+          ],
+          "n_clusters": 6,
+          "low_n": true
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 7,
+          "reasoning_effort": "medium",
+          "n_turns": 3,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.6666666666666666,
+          "absent": 0.3333333333333333,
+          "ci95_raw_present": [
+            0.0,
+            0.5614970317550455
+          ],
+          "n_clusters": 3,
+          "low_n": true
+        },
+        {
+          "model": "gpt-5-nano-medium",
+          "task_class": "agentharm_benign",
+          "step_index": 8,
+          "reasoning_effort": "medium",
+          "n_turns": 1,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 1.0,
+          "ci95_raw_present": [
+            0.0,
+            0.7934506856227626
+          ],
+          "n_clusters": 1,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 0,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 1.0,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.9286524008666414,
+            1.0
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 1,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.98,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.02,
+          "ci95_raw_present": [
+            0.8950455641036219,
+            0.9964607407283539
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 2,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.94,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.06,
+          "ci95_raw_present": [
+            0.8378290831116182,
+            0.979385029651026
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 3,
+          "reasoning_effort": null,
+          "n_turns": 50,
+          "raw_present": 0.86,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.14,
+          "ci95_raw_present": [
+            0.7381380628941446,
+            0.9304916657298371
+          ],
+          "n_clusters": 50,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 4,
+          "reasoning_effort": null,
+          "n_turns": 46,
+          "raw_present": 0.8913043478260869,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.10869565217391304,
+          "ci95_raw_present": [
+            0.7696217135574916,
+            0.9526685414190106
+          ],
+          "n_clusters": 46,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 5,
+          "reasoning_effort": null,
+          "n_turns": 44,
+          "raw_present": 0.6818181818181818,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.3181818181818182,
+          "ci95_raw_present": [
+            0.5344310393781776,
+            0.8000069228914658
+          ],
+          "n_clusters": 44,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 6,
+          "reasoning_effort": null,
+          "n_turns": 33,
+          "raw_present": 0.8181818181818182,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.18181818181818182,
+          "ci95_raw_present": [
+            0.6561176836533009,
+            0.9138923179105933
+          ],
+          "n_clusters": 33,
+          "low_n": false
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 7,
+          "reasoning_effort": null,
+          "n_turns": 26,
+          "raw_present": 0.7692307692307693,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.23076923076923078,
+          "ci95_raw_present": [
+            0.5794844592105632,
+            0.8896615059421671
+          ],
+          "n_clusters": 26,
+          "low_n": true
+        },
+        {
+          "model": "gpt-oss-120b",
+          "task_class": "agentharm_benign",
+          "step_index": 8,
+          "reasoning_effort": null,
+          "n_turns": 21,
+          "raw_present": 0.5714285714285714,
+          "summary_only": 0.0,
+          "redacted": 0.0,
+          "absent": 0.42857142857142855,
+          "ci95_raw_present": [
+            0.36546554369306705,
+            0.7553003107462405
+          ],
+          "n_clusters": 21,
+          "low_n": true
+        }
+      ],
+      "positional_profile": {
+        "0": 0.5,
+        "1": 0.494949494949495,
+        "2": 0.4895833333333333,
+        "3": 0.5512820512820513,
+        "4": 0.640625,
+        "5": 0.5555555555555556,
+        "6": 0.6923076923076923,
+        "7": 0.6896551724137931,
+        "8": 0.5454545454545454
+      },
+      "uninspectable_share": 0.4509466437177281
+    },
+    "bound": {
+      "model": [
+        "gpt-5-nano-medium",
+        "gpt-oss-120b"
+      ],
+      "stage2_recall_assumed": 1.0,
+      "ceiling_mean_coverage": 0.5732680939218295,
+      "ceiling_by_step": {
+        "0": 0.5,
+        "1": 0.494949494949495,
+        "2": 0.4895833333333333,
+        "3": 0.5512820512820513,
+        "4": 0.640625,
+        "5": 0.5555555555555556,
+        "6": 0.6923076923076923,
+        "7": 0.6896551724137931,
+        "8": 0.5454545454545454
+      }
+    },
+    "inter_agent_channel": {
+      "n_messages": 0,
+      "n_human_excluded": 0,
+      "denominator_code": "SHARE",
+      "n_denominator": 0,
+      "rate_per_1000": null,
+      "rate_status": "no_denominator",
+      "zero_case_upper_bound_95": null,
+      "codes": {
+        "OBJ": 0,
+        "REF": 0,
+        "ESC": 0,
+        "WARN": 0,
+        "NORM": 0
+      },
+      "messages_authenticated": null
+    },
+    "detectors": []
+  }
+}

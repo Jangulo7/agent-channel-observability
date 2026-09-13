@@ -75,3 +75,6 @@ coder-bundle*.zip
 
 # Long-horizon agentic arm logs.
 data/inspect-runs-agentic/
+
+# Long-horizon CTF arm logs (Docker sandbox).
+data/inspect-runs-ctf/
