@@ -125,13 +125,22 @@ monitor** — zero observed, 95% one-sided upper bound 0.00071. The
 reasoning-model sweep is complete: 9 of 9 arms, 1,013 samples each, zero errored
 samples.
 
-![Figure 1: share of assistant turns in each reasoning-channel state, one bar per model and task class, across all six corpora](results/figures/figure1_emission_states.png)
+![Figure 1: readable / redacted / absent share per model arm across the reasoning sweep](results/figures_paper/fig1_visibility_by_arm.png)
 
-*Figure 1.* Share of assistant turns in each state, per model × task class,
-across all six corpora. The denominator is turns that occurred. Error bars are
-Wilson 95% intervals clustered by trajectory; a bar drawn from a single
-trajectory (Mythos) has no interval. Full caption with every n:
-[`figure1_emission_states_caption.txt`](results/figures/figure1_emission_states_caption.txt).
+*Figure 1.* Share of assistant turns in each reasoning-channel state, per model arm over
+three safety benchmarks (1,263 turns per arm, identical samples). Visibility is a
+partition, not a spectrum: five arms readable at ~1.0; `deepseek-v3.2` absent by default
+versus 0.980 readable when reasoning is requested; `gpt-5-nano` redacted at every effort
+level. Full caption:
+[`fig1_visibility_by_arm.caption.txt`](results/figures_paper/fig1_visibility_by_arm.caption.txt).
+
+![Figure 2: CoT-monitor vs action-monitor recall by step, reasoning visible vs dark](results/figures_paper/fig2_recall_drop.png)
+
+*Figure 2.* Cumulative monitor recall by step on harmful `qwen3-32b` trajectories. With
+reasoning visible the reasoning-only monitor reaches ~1.0 by step 2; with the channel dark
+(`/no_think`) it collapses to ~0 (abstaining on 144/155 turns), while the action-only
+monitor is largely unaffected. Full caption:
+[`fig2_recall_drop.caption.txt`](results/figures_paper/fig2_recall_drop.caption.txt).
 
 ### Across multi-step agent runs, the shape belongs to the arm
 
