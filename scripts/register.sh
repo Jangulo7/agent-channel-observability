@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# DEPRECATED 2026-09-13: the plan is no longer tracked or registered (no OSF timestamp);
+# it lives privately at .research-plan/ANALYSIS_PLAN_not_registered.md. Do not run.
 # Stamp the pre-registration with the commit that registers it.
 #
 # Run this LAST, when everything you intend to register is committed and you are

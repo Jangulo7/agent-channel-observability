@@ -1,8 +1,10 @@
 """The coding instrument: eight codes, loaded from YAML and hashed.
 
-The hash is what makes pre-registration mean anything. `gates.codebook_drift` compares
-it against the hash recorded in `docs/PREREGISTRATION.md`, so editing the codebook after
-registration fails the build rather than silently changing what was measured.
+The hash pins the instrument the analyses ran against. `gates.codebook_drift` compares
+it against the hash in `config/channels.yaml` (provenance.codebook_hash), so editing the
+codebook fails the build rather than silently changing what was measured. (We committed
+the analysis plan before any label existed but obtained no independent pre-registration;
+see .research-plan/ANALYSIS_PLAN_not_registered.md.)
 """
 
 import hashlib

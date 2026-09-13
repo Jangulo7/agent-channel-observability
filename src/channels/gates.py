@@ -130,8 +130,8 @@ def codebook_drift(observed_hash: str, registered_hash: str) -> GateResult:
     if not registered_hash or registered_hash.startswith("TODO"):
         return GateResult(
             "codebook_drift", GateStatus.UNEVALUABLE, None, 0.0, None,
-            "no codebook hash recorded in docs/PREREGISTRATION.md; "
-            "the registration is incomplete until it is filled in",
+            "no codebook hash pinned in config provenance.codebook_hash; "
+            "the instrument the analyses ran against is unspecified",
         )
     matched = observed_hash == registered_hash
     return GateResult(

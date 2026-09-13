@@ -155,7 +155,7 @@ Q1, resolved). What the log headers record:
 
 No substitute corpus was used. Other Inspect logs exist on the build machine
 (`addition`, `gsm8k`, `humaneval`) and were deliberately **not** analysed:
-swapping the corpus would answer a different question than the one registered.
+swapping the corpus would answer a different question than the pre-specified one.
 
 ---
 
@@ -192,7 +192,7 @@ Grouping on the model id would pool them and destroy the comparison.
   moot for this corpus, because zero samples errored. Samples that error
   contribute no assistant turn; the shortfall is counted by
   `InspectLogLoader.errored_samples()` and reported in `describe()`.
-- Reasoning-token totals quoted in `RESULTS_SUMMARY.md` §1b are the provider's
+- Reasoning-token totals quoted in the results summary are the provider's
   `usage.reasoning_tokens` summed from the logs; no committed script prints
   them.
 - Incomplete logs (a run still in progress) are excluded and counted, never

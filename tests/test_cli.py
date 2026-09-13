@@ -378,14 +378,14 @@ def test_unfound_registration_commit_is_null_and_announced(
 ) -> None:
     import channels.cli as cli
 
-    prereg = tmp_path / "SYNTHETIC_PREREGISTRATION.md"
-    prereg.write_text("| Field | Value |\n|---|---|\n| Other | `x` |\n")
-    monkeypatch.setattr(cli, "PREREGISTRATION", prereg)
+    # No plan commit resolvable -> the field is null and the absence is announced,
+    # never guessed. The commit is read from config's provenance block.
+    monkeypatch.setattr(cli, "_plan_commit", lambda: None)
     results = tmp_path / "results"
     assert main(["measure", *args(transcript, "--results", str(results))]) == 0
     record = json.loads((results / "observability_record_mythos.json").read_text())
     assert record["observability_record"]["preregistration_commit"] is None
-    assert "NOT FOUND: 'Registration commit SHA'" in capsys.readouterr().out
+    assert "NOT FOUND: provenance.plan_commit" in capsys.readouterr().out
 
 
 def test_unreadable_codebook_refuses_rather_than_writing_a_placeholder_hash(

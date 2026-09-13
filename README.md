@@ -239,7 +239,8 @@ published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
   `scripts/verify_citations.py`, which exits non-zero on a mismatch.
 - **Missing numbers stay missing.** A code with no examples in the control has
   *undefined* recall, not zero. An errored sample is reported, not quietly
-  dropped. `RESULTS_SUMMARY.md` has a table of every number that does **not**
+  dropped. `results/RESULTS_SUMMARY.md` has the scoped results (the full
+  internal write-up is private in `.research-plan/`), including the numbers that do **not**
   exist and why.
 - **Human labels are the gold standard.** No LLM produces a label used to
   validate anything. See [`coder-kit/`](coder-kit/).
@@ -286,7 +287,7 @@ the reasoning in `BUILD_LOG.md` (Q13).
 3. **No rate is reported for agent-to-agent objection.** The instruments were
    validated on human prose; nothing shows they transfer to agent protocol
    strings. That transfer is unbuilt, and it is why `rq3` returns a bound. The
-   two sensitivity analyses registered for RQ3 were not run; substitutes were,
+   two sensitivity analyses pre-specified for RQ3 were not run; substitutes were,
    and the substitution is declared as a deviation.
 4. **Mythos is one trajectory**, and its readable share depends on an open
    decision about partial redactions (33.3% vs 18.2%).
@@ -312,8 +313,8 @@ src/channels/        the package: schema, coverage, emission, bound, detectors
 coder-kit/           everything a human annotator needs
 scripts/             runners, citation verification, the annotation tool
 data/codebook/       the frozen codebook
-results/             six records, figures, validation records  (committed)
-docs/                provenance, pre-registration, deviations log
+results/             focus records, both paper figures, validation, scoped summary
+docs/                data provenance (the analysis plan is private; not registered)
 ```
 
 ## Citation

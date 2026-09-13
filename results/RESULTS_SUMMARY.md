@@ -1,0 +1,102 @@
+# Results summary (scoped)
+
+The three findings the paper reports, plus the two short items. Every number is produced
+from the committed records by the named script; the full internal write-up (all six
+corpora, every arm) is kept privately in `.research-plan/RESULTS_SUMMARY_full.md`.
+
+**On pre-registration.** We wrote and git-committed the C1–C3 decision rules before any
+label existed (commit `ae377b0`; order is provable from history) but obtained no
+independent pre-registration — the OSF timestamp could not be created. We therefore report
+C1–C3 as **pre-specified, not pre-registered**, and make no registration claim. The
+codebook the analyses ran against is pinned in `config/channels.yaml` (`provenance`).
+
+---
+
+## Finding 1 — what an evaluator can read is set by the serving configuration
+
+Across a nine-arm sweep on three safety benchmarks (identical 1,013 samples per arm, 1,263
+assistant turns each), the readable-reasoning share is a partition, not a spectrum, and it
+is moved by the request and the provider rather than the model:
+
+- **Within-model control:** `deepseek-v3.2` readable share **0.0000 → 0.9802** on one
+  request parameter, same samples (0 → 539,635 reasoning tokens).
+- **Effort ≠ visibility:** `gpt-5-nano` reasoning volume up **13.8×** across low/medium/high;
+  readable share **0.0000** at every level (all `redacted`/encrypted).
+- **The eval harness decides it silently (controlled experiment):** `claude-haiku-4.5` on
+  three agentic families discloses reasoning after a tool result on **0 of 661** turns
+  under the OpenRouter default and **667 of 667** with the `interleaved-thinking` header —
+  same model, tasks and Bedrock upstream. Inspect's native Anthropic provider sends that
+  header automatically; its OpenRouter provider does not.
+
+Figure: `results/figures_paper/fig1_visibility_by_arm.png`.
+Source: `results/observability_record_reasoning.json`; `scripts/report_turn_boundary.py`,
+`scripts/run_followup_arms.py`.
+
+## Finding 2 — the recall drop, measured
+
+Two `gpt-5-nano` monitors (one reading only reasoning, one only actions) over harmful-graded
+`qwen3-32b` trajectories (AgentHarm harmful; AgentHarm's own grader is ground truth),
+reasoning visible vs dark (`/no_think`). Cumulative recall by step:
+
+| step | CoT visible | CoT dark | action visible | action dark |
+|---|---|---|---|---|
+| 0 | **0.929** | **0.000** | 0.476 | 0.263 |
+| 1 | 0.952 | 0.000 | 0.690 | 0.605 |
+| 2 | 1.000 | 0.062 | 0.828 | 0.750 |
+| 3 | 1.000 | 0.167 | 0.909 | 0.708 |
+
+42 positives visible, 38 dark. The reasoning-gated monitor abstains on 0/161 turns visible
+vs 144/155 dark; its recall drops ~0.83–0.93 when the channel is dark, while the
+action-gated monitor keeps most of its recall. Figure:
+`results/figures_paper/fig2_recall_drop.png`. Caveat: `/no_think` also raised refusals
+(0.10 → 0.28), so the arms are not a perfectly clean A/B; the CoT collapse is unambiguous.
+Source: `results/monitor_experiment_qwen3/`.
+
+## Finding 3 — the reporting standard, the bound, and produced-vs-readable
+
+- **Bound:** a monitor gated on deliberation has recall ≤ c·r₂; c is imposed by the model
+  and configuration (a truncation of Hua et al.'s p_m). Finding 2 measures the consequence.
+- **Uninspectable is a failure, not a dropped denominator:** summary-only, redacted and
+  absent turns stay in every denominator and fail the gate (`channels gate`).
+- **Produced vs readable (schema 4.1):** the four states say what is *readable*; provider
+  reasoning-token accounting says what was *produced*. Most "unreadable" agentic turns
+  produced no reasoning (tokens = 0), not reasoning that was withheld; the only
+  produced-but-withheld reasoning is `gpt-5-nano` (encrypted) plus 7 blank `gpt-oss-120b`
+  blocks. Reporting a bare "monitorability %" without route, request, turn type, step and a
+  denominator describes no deployment.
+- **No rate without a validated recall:** `require_validation` gates every rate path.
+
+## Long horizon (one paragraph)
+
+SWE-bench Verified, scoring off, n = 10 per model, message limit 120. For the two models
+that sustain long trajectories (median 59 assistant turns), reasoning disclosure does **not**
+decay with depth: `nemotron-3.5` readable 0.994 to step 58; `gpt-oss-120b` 0.856, a mild
+0.92 → 0.83 dip that plateaus. `qwen3-32b` submits in ~6 turns and cannot test it.
+Suggestive, not powered (per-step n ≤ 10; 7/10 right-censored). Source:
+`results/swebench_longhorizon/`.
+
+## Pre-specified peer-objection endpoints (C1–C3)
+
+Coder JAG (blind) + author JAD; `scripts/analyse_annotations.py`,
+`results/annotations/analysis_results.json`.
+
+- **C1 revert precision (n = 60):** 0.700; page-clustered 95% CI [0.174, 0.963] on only 3
+  pages → **not validated** (lower bound below the 0.50 threshold).
+- **C2 verbal objection:** 0 of 156 coded → one-sided upper bound < 0.017 (< 0.013 over the
+  coder's full 200). A tool key-collision dropped the coder's SHARE presses; the
+  zero-objection result is unaffected (no objection key was pressed).
+- **C3 reliability κ:** 0.229 (68% raw agreement; base-rate paradox) → below 0.40, so C1 is
+  reported unreliable regardless of its point estimate.
+
+No revert-based rate is reported. `collusion.wiki` is structurally thin: 2,824/4,024 pages
+(70.2%) have a single agent.
+
+## Artifacts and status
+
+Records: `observability_record_reasoning.json` (finding 1), `monitor_experiment/` and
+`monitor_experiment_qwen3/` (finding 2), `swebench_longhorizon/`, `annotations/`,
+`validation/`, `record_schema.json` (schema 4.1). Figures: `figures_paper/` (the two body
+figures) and the per-arm reasoning figures. `ruff` and `mypy --strict` clean; `uv run
+pytest -q` passes; `channels gate` exits non-zero (the demonstration). The other corpora
+(vLLM baseline, Mythos, agentic/ctf/osbench, the model-selection screen) are appendix
+material in `.other-experiments/`.

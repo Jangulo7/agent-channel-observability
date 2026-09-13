@@ -42,11 +42,11 @@ from channels.validate import VALIDATION_DIR, require_validation
 #: (detector name, OBJ recall, 95% interval), as read from a validation record.
 ObjRecall = tuple[str, float, tuple[float, float]]
 
-#: What PREREGISTRATION §8.2 registered, verbatim in substance.
+#: What the analysis plan §8.2 pre-specified, verbatim in substance.
 REGISTERED_SENSITIVITY_ANALYSES: tuple[str, ...] = (
-    "exclude the dominant actor 'dse' (PREREGISTRATION §8.2)",
+    "exclude the dominant actor 'dse' (analysis plan §8.2)",
     "restrict to a stricter attribution subset defined by the source authors' "
-    "filter criteria in manifest.json (PREREGISTRATION §8.2)",
+    "filter criteria in manifest.json (analysis plan §8.2)",
 )
 
 #: What this module actually ships in their place.
@@ -59,9 +59,9 @@ SENSITIVITY_ANALYSES_RUN: tuple[str, ...] = (
 
 #: Plain-English record of the substitution. Travels with every result.
 RQ3_DEVIATIONS: tuple[str, ...] = (
-    "Neither sensitivity analysis registered in PREREGISTRATION §8.2 was run. "
-    "Two unregistered analyses (recall correction, denominator choice) were run "
-    "instead. That substitution is a deviation from the registration and belongs "
+    "Neither sensitivity analysis pre-specified in the analysis plan §8.2 was run. "
+    "Two other analyses (recall correction, denominator choice) were run instead. "
+    "That substitution is a deviation from the pre-specified plan and belongs "
     "in its §11 deviations log.",
     "'Exclude the dominant actor dse' is ill-posed as registered: dse is a wiki "
     "holding 91.9% of revisions, not an actor, so excluding it removes most of "
@@ -217,7 +217,7 @@ def rq3_endpoint(
 def recall_corrected_bound(observed_rate: float, recall: float) -> float:
     """Exploratory, unregistered: the true rate an observed rate implies at a recall.
 
-    Shipped in place of the analyses registered in PREREGISTRATION §8.2; see
+    Shipped in place of the analyses pre-specified in the analysis plan §8.2; see
     RQ3_DEVIATIONS.
     An observed rate of r from an instrument with recall k implies a true rate of
     about r/k. At the rung-1 recalls measured here this inflates an observed rate
@@ -234,7 +234,7 @@ def denominator_sensitivity(
 ) -> tuple[float, float]:
     """Exploratory, unregistered: one numerator over two defensible denominators.
 
-    Shipped in place of the analyses registered in PREREGISTRATION §8.2; see
+    Shipped in place of the analyses pre-specified in the analysis plan §8.2; see
     RQ3_DEVIATIONS. Returns (rate over all pages, rate over multi-agent pages
     only). At this corpus's 70/30 split the second is 3.35x the first, which is
     the size of the reporting-unit choice the prior art leaves unstated.

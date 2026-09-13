@@ -29,7 +29,6 @@ DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
 DEFAULT_CTF_LOGS = REPO_ROOT / "data" / "inspect-runs-ctf"
 DEFAULT_OSBENCH_LOGS = REPO_ROOT / "data" / "inspect-runs-osbench"
-PREREGISTRATION = REPO_ROOT / "docs" / "PREREGISTRATION.md"
 
 #: Largest within-model spread across task classes that still permits pooling
 #: them into one bar. Above this, pooling would hide variation the figure exists
@@ -360,7 +359,7 @@ def _run_gate(args: argparse.Namespace) -> int:
     """
     groups, missing = _corpora(args)
     config = load_config(args.config)
-    observed, registered = _codebook_hash(), _registered_codebook_hash()
+    observed, registered = _codebook_hash(), _pinned_codebook_hash()
     evaluated: list[tuple[str, list[TurnObservation]]] = [
         (description.name, observations) for description, observations in groups
     ] or [("(no corpus available)", [])]
@@ -410,9 +409,9 @@ def _record_provenance() -> dict[str, Any]:
     if version is None:
         print(f"NOT FOUND: integer `version` field in {CODEBOOK_PATH}; "
               "recording codebook_version as null")
-    commit = _preregistration_commit()
+    commit = _plan_commit()
     if commit is None:
-        print(f"NOT FOUND: 'Registration commit SHA' row in {PREREGISTRATION}; "
+        print("NOT FOUND: provenance.plan_commit in config; "
               "recording preregistration_commit as null")
     return {
         "codebook_hash": _codebook_hash(),
@@ -421,25 +420,24 @@ def _record_provenance() -> dict[str, Any]:
     }
 
 
-def _preregistration_commit() -> str | None:
-    """The registration commit SHA from the pre-registration table, or None."""
-    if not PREREGISTRATION.is_file():
-        return None
-    for line in PREREGISTRATION.read_text(encoding="utf-8").splitlines():
-        cells = [cell.strip().strip("`") for cell in line.split("|")]
-        if len(cells) > 2 and cells[1] == "Registration commit SHA":
-            return cells[2] if re.fullmatch(r"[0-9a-f]{40}", cells[2]) else None
+def _plan_commit() -> str | None:
+    """The git commit that recorded the pre-specified analysis plan, or None.
+
+    We committed the C1-C3 decision rules before any label existed - the order is
+    provable from git history - but obtained no independent pre-registration (the OSF
+    timestamp could not be created). This is that commit: a provenance pointer, not a
+    registration. It is read from config so it does not depend on any untracked plan.
+    """
+    commit = load_config(DEFAULT_CONFIG).get("provenance", {}).get("plan_commit")
+    if isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit):
+        return commit
     return None
 
 
-def _registered_codebook_hash() -> str:
-    """The codebook hash recorded in the pre-registration, or an empty string."""
-    if not PREREGISTRATION.is_file():
-        return ""
-    for line in PREREGISTRATION.read_text().splitlines():
-        if "Codebook SHA-256" in line and "|" in line:
-            return line.split("|")[2].strip().strip("`")
-    return ""
+def _pinned_codebook_hash() -> str:
+    """The codebook hash the analyses were pinned to (config), or an empty string."""
+    pinned = load_config(DEFAULT_CONFIG).get("provenance", {}).get("codebook_hash", "")
+    return str(pinned)
 
 
 if __name__ == "__main__":
