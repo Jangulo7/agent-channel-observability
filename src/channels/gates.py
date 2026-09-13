@@ -138,7 +138,7 @@ def codebook_drift(observed_hash: str, registered_hash: str) -> GateResult:
         "codebook_drift",
         GateStatus.PASS if matched else GateStatus.FAIL,
         None, 0.0, None,
-        f"observed {observed_hash[:23]}... vs registered {registered_hash[:23]}...",
+        f"observed {observed_hash[:23]}... vs pinned {registered_hash[:23]}...",
     )
 
 

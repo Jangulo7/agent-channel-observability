@@ -2,7 +2,8 @@
 
     uv run python scripts/analyse_annotations.py
 
-Every threshold below was fixed in `docs/PREREGISTRATION.md` §0.2 BEFORE any
+Every threshold below was fixed in the analysis plan §0.2 (pre-specified, not
+independently registered) BEFORE any
 label existed. This script applies them; it does not choose them. If a result
 falls the wrong side of a line, that is the registration working.
 """
@@ -24,7 +25,7 @@ RESULTS: dict = {}
 
 CORPUS = Path("data/german-collusion-wiki")
 
-#: Registered in PREREGISTRATION §0.2. Not adjustable here, by design.
+#: Pre-specified in the analysis plan §0.2. Not adjustable here, by design.
 REVERT_VALIDATED_LOWER_BOUND = 0.50
 KAPPA_ADEQUATE = 0.60
 KAPPA_UNRELIABLE = 0.40
@@ -47,6 +48,11 @@ def _records(task: str) -> list:
     """Every saved record for one task, newest coder last."""
     records = []
     for path in sorted(ANNOTATION_DIR.glob("*.json")):
+        # Coder records are named `<task>_n<N>_seed<seed>__<coder>.json`; skip anything
+        # without the `__coder` marker (e.g. this script's own analysis_results.json,
+        # which shares the directory and is not a record).
+        if "__" not in path.stem:
+            continue
         record = load_record(path)
         if record.task == task and record.coder_id not in EXCLUDED_CODERS:
             records.append(record)
@@ -201,7 +207,7 @@ def main() -> int:
     out = ANNOTATION_DIR / "analysis_results.json"
     out.write_text(json.dumps(
         {"codebook_hash": codebook_hash(),
-         "registered_rules": {
+         "decision_rules": {
              "revert_validated_lower_bound": REVERT_VALIDATED_LOWER_BOUND,
              "kappa_adequate": KAPPA_ADEQUATE,
              "kappa_unreliable": KAPPA_UNRELIABLE,

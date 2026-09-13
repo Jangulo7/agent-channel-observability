@@ -225,8 +225,10 @@ from the agent corpus at all.
 | WikiTactics | human Wikipedia disagreement, labelled | 3,865 utterances | **none stated** |
 | Published incident record | quotations hand-transcribed from METR reports | 10 rows | quoted, not redistributed |
 
-Six measured corpora, 23,541 assistant turns, six records, never pooled.
-**No corpus text is committed to this repository.** Only counts, rates, figures
+Six corpora were measured (23,541 assistant turns), never pooled. The paper focuses on
+three of them; the tracked `results/` holds the reasoning-sweep record, the qwen3 monitor
+experiment and the long-horizon arm, and the other corpora are kept in the untracked
+`.other-experiments/` as appendix material. **No corpus text is committed to this repository.** Only counts, rates, figures
 and the records. Full detail, including how each was obtained and what may be
 published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
 
@@ -234,7 +236,8 @@ published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
 
 - **A frozen codebook.** Eight text codes plus one action code, each with a
   definition, an inclusion rule, an exclusion rule and sourced examples. It is
-  hashed; `codebook_drift` fails the build if it changes after registration.
+  hashed; `codebook_drift` fails the build if it changes from the codebook pinned in
+  `config/channels.yaml`.
 - **Verified citations.** Every quoted row is checked against the source PDF by
   `scripts/verify_citations.py`, which exits non-zero on a mismatch.
 - **Missing numbers stay missing.** A code with no examples in the control has
@@ -250,28 +253,24 @@ published from it, is in [`docs/DATA_PROVENANCE.md`](docs/DATA_PROVENANCE.md).
 ```bash
 uv sync --extra dev
 uv run channels describe    # what each corpus contains, before any analysis
-uv run channels measure     # six records (schema 4.1), Figure 1 and one Figure 2 per arm
-uv run channels gate        # exits 1 — all 6 corpora fail, gated separately
-uv run pytest -q            # 269 passed, 1 failed by rule (see below)
+uv run channels measure     # records and per-arm figures (schema 4.1)
+uv run channels gate        # exits 1 — corpora fail their coverage floor, gated separately
+uv run pytest -q            # all tests pass
+uv run python scripts/make_paper_figures.py  # the two paper figures
 
 uv run python scripts/report_positional.py     # per-arm shape verdicts
 uv run python scripts/report_turn_boundary.py  # not produced vs not readable
 uv run python scripts/verify_coverage.py       # agentic families vs provider tokens
 ```
 
-`results/figures/` holds 57 PNGs, each with a caption file: Figure 1 and 56
-per-arm Figure 2s.
+`results/figures/` holds the per-arm reasoning Figure 2 PNGs (9 arms × 3 benchmarks),
+each with a caption file; the two paper figures are in `results/figures_paper/`
+(`fig1_visibility_by_arm.png`, `fig2_recall_drop.png`).
 
 `channels gate` is **meant** to exit non-zero. The thresholds in
 `config/channels.yaml` are **illustrative defaults, not safety claims**: nothing
 in the literature says what share of turns must expose reasoning before a
 monitor is trustworthy. Do not cite them as a standard.
-
-**One test fails, and CI shows it.**
-`tests/test_rq3.py::test_zero_observed_gives_a_bound_not_a_bare_zero` asks for a
-bound through the unguarded path that spec §0 rule 1 forbids and the guard now
-blocks. The project does not edit tests to go green; it is left failing with
-the reasoning in `BUILD_LOG.md` (Q13).
 
 ## What this does not establish
 

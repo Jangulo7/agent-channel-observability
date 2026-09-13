@@ -182,7 +182,8 @@ def _update_results_block() -> None:
     """Write the verdict table into RESULTS_SUMMARY's generated block."""
     import re
 
-    summary = Path("RESULTS_SUMMARY.md")
+    # The generated tables live in the full internal summary, now kept privately.
+    summary = Path(".research-plan/RESULTS_SUMMARY_full.md")
     text = summary.read_text(encoding="utf-8")
     marker = "positional-verdicts"
     pattern = re.compile(

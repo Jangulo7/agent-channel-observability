@@ -17,7 +17,7 @@ from channels.emission import MIN_CELL_N, build_cells, cell_rate, state_shares
 from channels.loaders.inspect_logs import InspectLogLoader
 from channels.schema import ReasoningState, TurnObservation
 
-SUMMARY = Path("RESULTS_SUMMARY.md")
+SUMMARY = Path(".research-plan/RESULTS_SUMMARY_full.md")  # full internal summary
 REASONING_LOGS = Path("data/inspect-runs-reasoning")
 
 #: Arms the sweep intends to produce, in run order. Naming them lets the report

@@ -18,7 +18,7 @@ No AgentHarm task text, reasoning text or tool argument is stored. Regenerate wi
 `scripts/run_monitor_agent_arms.py` then `scripts/run_monitor_experiment.py`.
 
 **Deviation.** Running the harmful split departs from spec §13's "benign by construction"
-non-goal; authorised 2026-09-13 and logged in `docs/PREREGISTRATION.md` §11. Tools are
+non-goal; authorised 2026-09-13 and logged in the analysis plan deviations (private, .research-plan/). Tools are
 AgentHarm's synthetic mocks, so nothing executes in the world.
 
 ## Result — the experiment is underpowered, and that is the headline

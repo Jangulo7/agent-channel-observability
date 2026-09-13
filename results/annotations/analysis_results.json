@@ -1,6 +1,6 @@
 {
   "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
-  "registered_rules": {
+  "decision_rules": {
     "revert_validated_lower_bound": 0.5,
     "kappa_adequate": 0.6,
     "kappa_unreliable": 0.4

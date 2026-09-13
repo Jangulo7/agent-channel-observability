@@ -2,6 +2,9 @@
 # DEPRECATED 2026-09-13: the plan is no longer tracked or registered (no OSF timestamp);
 # it lives privately at .research-plan/ANALYSIS_PLAN_not_registered.md. Do not run.
 # Stamp the pre-registration with the commit that registers it.
+echo "register.sh is DEPRECATED: no pre-registration is claimed; the analysis plan is private and untracked." >&2
+exit 1
+
 #
 # Run this LAST, when everything you intend to register is committed and you are
 # ready to push. It fills the timestamp, commits, and prints the SHA to paste

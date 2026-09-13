@@ -54,7 +54,7 @@
         "codebook_hash": {"type": "string", "minLength": 1},
         "preregistration_commit": {
           "type": ["string", "null"],
-          "description": "Registration commit SHA from docs/PREREGISTRATION.md, read at measure time. null when it could not be found."
+          "description": "The git commit that recorded the pre-specified analysis plan (config provenance.plan_commit); a provenance pointer, not an independent registration. null when not found."
         },
         "generated_utc": {
           "type": "string",
