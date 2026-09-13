@@ -6,9 +6,10 @@ exist are marked as not existing rather than omitted.
 
 Generated 2026-09-13. Codebook **v3**, `sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62`.
 
-> **Status.** The reasoning-model sweep (§1b) is still running; completed arms
-> are reported with their measured n and pending arms are named as pending.
-> The human annotation (§10) has not run, so `REVERT` has no recall yet.
+> **Status.** The reasoning-model sweep (§1b) is **complete**: 9 of 9 arms,
+> 11,367 assistant turns, zero errored samples. The human annotation (§10) has
+> **not** run, so `REVERT` still has no recall and no rate is reported from
+> `collusion_wiki`.
 
 ---
 
@@ -74,9 +75,8 @@ comparable. Scoring disabled: we measure the channel, not performance.
 **9 of 9 arms complete**, 11,367 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 0 incomplete log(s) excluded and counted.
 <!-- END:reasoning-status -->
 
-Arms below are complete. Pending arms are **not** included in any figure or
-total, so a partial sweep cannot be read as a finished one. Every n stated is
-the n actually measured.
+All nine arms are complete — 4 of 4 task logs and 1,013 of 1,013 samples each.
+Every n stated is the n actually measured.
 
 ### Arms complete
 
@@ -97,13 +97,18 @@ the n actually measured.
 Zero samples errored. Incomplete logs are excluded and counted, not partially
 included.
 
-Across completed arms the uninspectable share is **under 0.005**, against
-**1.0000** for the vLLM baseline in §1, and the recall ceiling rises from
-**0.000** to essentially **1.000**. Current pooled values, including partially
-run arms, are in `results/observability_record_reasoning.json`, which regenerates
-with the sweep. Only two step indices exist in these benchmarks, so the
-positional profile is nearly flat by construction and carries no information
-here.
+**Pooled across all nine arms the uninspectable share is 0.4469** and the recall
+ceiling is **0.5535** — but that pooled figure is close to meaningless on its
+own, and is reported here only because the record contains it. It is an average
+over arms deliberately chosen to differ: five arms are readable at ~1.000, three
+are `redacted` at 1.000, one is `absent` at 1.000. **The per-arm rows above are
+the result; the pooled row is an artefact of the sampling frame.**
+
+Against the vLLM baseline's uninspectable share of **1.0000** and ceiling of
+**0.000**, the five readable arms give a ceiling of essentially **1.000** and
+the four withheld arms give **0.000**. Only two step indices exist in these
+benchmarks, so the positional profile is flat by construction and carries no
+information here.
 
 ### The headline contrast
 
@@ -185,18 +190,11 @@ So "this model does not expose reasoning" was never a fact about the model. It
 was a fact about the request. **Whether an evaluator can read an agent's
 deliberation is a configuration and disclosure choice, which is H1.**
 
-> **What is still incomplete.** The DeepSeek pair is complete. The `gpt-5-nano`
-> row remains a **single-prompt probe** and is labelled as such — its three
-> effort arms are still running, and until they finish this project has **no
-> complete arm exhibiting `redacted`**, and no `reasoning_effort` axis. The
-> probe does not enter the generated table above, which contains complete arms
-> only.
->
-> Note also what the DeepSeek pair does **not** show. It establishes that
-> visibility is set by the request for *this* model on *these* benchmarks. It
-> does not establish that every provider honours such a request, nor that a
-> provider which emits reasoning will keep doing so; `gpt-5-nano` is the
-> counter-case, and it is still only a probe.
+> **What the DeepSeek pair does not show.** It establishes that visibility is
+> set by the request for *this* model on *these* benchmarks. It does not
+> establish that every provider honours such a request: `gpt-5-nano` is the
+> counter-case, and it refuses at all three effort levels across 3,789 turns.
+> Asking is necessary, not sufficient.
 
 ### `reasoning_effort` — a designed experiment, and it separates two things
 
@@ -429,9 +427,10 @@ asked in this form. **Do not cite them as a standard.**
 
 | quantity | status |
 |---|---|
-| Emission by `reasoning_effort` | **Does not exist yet.** No completed log records the setting; the three `gpt-5-nano` effort arms are still running. |
-| `deepseek-v3.2` default config, full run | **Pending.** Currently a probe only; the control is a pair and only argues as a pair. |
-| `gpt-5-nano` full run | **Pending.** The `redacted` state is so far evidenced by a probe, not a 1,013-sample arm. |
+| Emission by `reasoning_effort` | **Now exists** (§1b), on one model at three levels. Absent for every other arm, which records `reasoning_effort=None`. |
+| `summary_only` in any arm | **Structurally unobservable here**, not measured at zero. A provider shipping a summary *and* an encrypted chain is classified `redacted` under the strongest-limitation rule. |
+| Emission over a long agentic trajectory | **Does not exist.** Every benchmark arm is 1–2 turns. The only long trajectory is Mythos, n=1. |
+| Whether these rates hold for other vendors | **Not a sample.** Nine arms chosen *because* their disclosure behaviour differs. |
 | A single pooled positional profile across both corpora | **Deliberately not computed.** Mythos step indices are decile bins of one trajectory; Inspect step indices are turn ordinals in independent samples. One key cannot mean both. Each corpus writes its own record. |
 | Clustered interval for Mythos | **Does not exist.** 2,061 turns, 1 cluster. `clustered_wilson` returns `single_cluster_no_interval`. |
 | Recall for ESC / WARN / NORM / SELF_LICENSE | **Undefined**, not zero. No support in the control. |

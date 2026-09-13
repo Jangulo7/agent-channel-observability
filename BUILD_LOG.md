@@ -654,7 +654,7 @@ schema-valid records (`inspect_logs`, `mythos_transcript`,
 rather than assumption: `task_class_spread` ≤ 0.011 for every model, recomputed
 on every run so the justification cannot silently expire.
 
-## Honest assessment (current)
+## Honest assessment (written before the sweep finished — superseded)
 
 **What shipped.** All twelve build-order steps, plus three things the spec did
 not anticipate: a reasoning-capable model sweep across nine arms, an action
@@ -780,3 +780,55 @@ Nothing in it speaks to a hundred-step agentic run, which is the setting the
 argument is about, and the only long trajectory in the project is still Mythos
 at n = 1. Nine arms is also not a sample of vendors: it is nine arms chosen
 because their disclosure behaviour differs.
+
+---
+
+## Honest assessment — final, 2026-09-13 03:00
+
+**What shipped.** All twelve build-order steps, plus four things the spec did not
+ask for: a nine-arm reasoning-model sweep, an action channel with a structurally
+scored code, a complete human-annotation apparatus, and a `reasoning_effort`
+axis that the spec listed as a *post-hackathon extension*. Three corpora, three
+schema-valid records, 187 tests, CI green on every push.
+
+**The strongest claim, and it is now measured rather than argued.** What an
+external evaluator can read is set by disclosure policy and request
+configuration, not by model capability. Three complete 1,263-turn arms carry it:
+the same model at 0.0000 and 0.9802 depending on one request parameter; a model
+emitting 4.7M reasoning tokens at 0.0000 readable; and a 13.8× monotone increase
+in reasoning volume with the readable share pinned at exactly 0.0000 throughout.
+
+**What did not ship.** Rung-2 validation is untouched, so no rate is reported
+from `collusion_wiki` and `rq3` returns a bound with three computed blockers.
+`REVERT` has no recall — `no_support_in_control` — until the coder's labels
+arrive. Five of nine codes still have zero real positive examples and four have
+no measurable recall on any control that exists. `shuffled_control` is
+implemented, tested, and never run, because there is no rung-2 rate to compare
+against.
+
+**The biggest weakness, and it has moved twice.** Session 2's was "the headline
+is measured on models that could never emit reasoning" — the sweep answered
+that. The remaining one is **transfer**: every benchmark arm here is one or two
+turns, and the argument is about agents taking hundreds of actions. The only
+long-horizon trajectory in the project is Mythos at n = 1, whose intervals are
+explicitly descriptive because one trajectory is one cluster. Nothing measured
+here establishes that emission behaves the same way at step 200 as at step 0. A
+reviewer who presses on that is right to, and the honest answer is that the
+instrument is ready for it and the measurement has not been made.
+
+The second weakness is unchanged: the **objection arm produces no number**.
+`TreeCoder` at 0.072 recall cannot support a claim, the two detectors disagree
+3× with non-overlapping intervals, and the project is saved from overclaiming
+only because `require_validation` refuses to let it report a rate. That is the
+machinery working, but it means the artifact demonstrates one measurement
+convincingly and a second not at all.
+
+**What I would do with two more hours.** Not more arms — the disclosure result
+is saturated at nine, and a tenth vendor adds a row, not an argument. I would
+spend both hours on one long-horizon arm: a single agentic benchmark with a real
+filesystem and tool use, even at n = 50, measured with the same four states.
+That is the only thing that touches the transfer objection, everything needed to
+consume it already exists, and it would convert the project's central limitation
+from "unmeasured" to "measured at small n". I would not spend the time on the
+objection arm; it needs human labels, and no amount of engineering substitutes
+for them.
