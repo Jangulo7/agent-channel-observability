@@ -1,6 +1,11 @@
 """Reasoning at the turn boundary: what follows a user message vs a tool result.
 
-    uv run python scripts/report_turn_boundary.py [--json PATH]
+    uv run python scripts/report_turn_boundary.py [--followup] [--json PATH]
+
+With --followup the report is built from the follow-up replication/control arms
+(scripts/run_followup_arms.py) instead of the original family runs; that is where
+the interleaved-thinking header comparison lives (claude-haiku-4.5-replicate,
+header off, vs claude-haiku-4.5-interleaved, header on).
 
 What this establishes. For every (task family, arm) in the three agentic
 families, assistant turns are split by the role of the message immediately
@@ -55,6 +60,17 @@ FAMILIES = {
     "agentharm": Path("data/inspect-runs-agentic"),
     "intercode_ctf": Path("data/inspect-runs-ctf"),
     "agent_bench_os": Path("data/inspect-runs-osbench"),
+}
+
+#: The follow-up replication/control arms (scripts/run_followup_arms.py), one
+#: subdirectory per arm per family. This is where the interleaved-thinking
+#: header comparison lives: `claude-haiku-4.5-replicate` (header off) vs
+#: `claude-haiku-4.5-interleaved` (header on), same model, tasks and budget.
+#: Selected with --followup so the header result regenerates from the cited script.
+FOLLOWUP_FAMILIES = {
+    "agentharm_followup": Path("data/inspect-runs-followup/agentharm"),
+    "intercode_ctf_followup": Path("data/inspect-runs-followup/ctf"),
+    "agent_bench_os_followup": Path("data/inspect-runs-followup/osbench"),
 }
 
 #: Header key fragments that would turn on Anthropic interleaved thinking.
@@ -241,10 +257,12 @@ def arm_report(paths: Sequence[Path], arm: str) -> tuple[ArmReport, dict[str, An
     return report, generate
 
 
-def collect() -> dict[str, dict[str, dict[str, Any]]]:
+def collect(
+    families: dict[str, Path] = FAMILIES,
+) -> dict[str, dict[str, dict[str, Any]]]:
     """Run every family and arm present on disk; absent families are named."""
     results: dict[str, dict[str, dict[str, Any]]] = {}
-    for family, root in FAMILIES.items():
+    for family, root in families.items():
         loader = InspectLogLoader(root, label_by_directory=True)
         by_arm: dict[str, list[Path]] = {}
         for path in loader.log_paths():
@@ -339,8 +357,14 @@ def main(argv: list[str] | None = None) -> int:
     """Print the turn-boundary tables; optionally write the counts as JSON."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--json", type=Path, default=None)
+    parser.add_argument(
+        "--followup",
+        action="store_true",
+        help="read the follow-up replication/control arms (the interleaved-thinking "
+        "header comparison) instead of the original family runs.",
+    )
     args = parser.parse_args(argv)
-    results = collect()
+    results = collect(FOLLOWUP_FAMILIES if args.followup else FAMILIES)
     if not results:
         print("no agentic corpora available")
         return 2

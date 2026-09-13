@@ -1,0 +1,842 @@
+{
+  "agent_bench_os_followup": {
+    "claude-haiku-4.5-interleaved": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 278,
+          "raw_present": 278,
+          "reasoning_tokens_gt0": 278,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 278
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 19,
+          "raw_present": 19,
+          "reasoning_tokens_gt0": 19,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 19
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 347,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "anthropic-beta",
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": true,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 347
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "claude-haiku-4.5-replicate": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 271,
+          "n": 271,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 271
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 21,
+          "raw_present": 21,
+          "reasoning_tokens_gt0": 21,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 21
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 342,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 342
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-akashml": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 21,
+          "n": 180,
+          "raw_present": 159,
+          "reasoning_tokens_gt0": 159,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 180
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 32,
+          "raw_present": 32,
+          "reasoning_tokens_gt0": 32,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 32
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 263,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "AkashML": 262,
+        "not recorded": 1
+      },
+      "unpaired_mid_sample_calls": 1,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-deepinfra": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 3,
+          "n": 172,
+          "raw_present": 169,
+          "reasoning_tokens_gt0": 169,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 172
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 52,
+          "raw_present": 52,
+          "reasoning_tokens_gt0": 52,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 52
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 274,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "DeepInfra": 274
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    }
+  },
+  "agentharm_followup": {
+    "claude-haiku-4.5-interleaved": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 108,
+          "raw_present": 108,
+          "reasoning_tokens_gt0": 108,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 108
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 158,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "anthropic-beta",
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": true,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 158
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "claude-haiku-4.5-replicate": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 101,
+          "n": 101,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 101
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 151,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 151
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-akashml": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 67,
+          "n": 290,
+          "raw_present": 223,
+          "reasoning_tokens_gt0": 223,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 290
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 353,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "AkashML": 340,
+        "not recorded": 13
+      },
+      "unpaired_mid_sample_calls": 13,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-deepinfra": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 4,
+          "absent_no_block": 32,
+          "n": 281,
+          "raw_present": 245,
+          "reasoning_tokens_gt0": 249,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 281
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 331,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "DeepInfra": 331
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    }
+  },
+  "intercode_ctf_followup": {
+    "claude-haiku-4.5-interleaved": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 281,
+          "raw_present": 281,
+          "reasoning_tokens_gt0": 281,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 281
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 4,
+          "raw_present": 4,
+          "reasoning_tokens_gt0": 4,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 4
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 335,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "anthropic-beta",
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": true,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 335
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "claude-haiku-4.5-replicate": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 289,
+          "n": 289,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 289
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 3,
+          "raw_present": 3,
+          "reasoning_tokens_gt0": 3,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 3
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 342,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "reasoning"
+        ],
+        "extra_body_reasoning": {
+          "max_tokens": 2048
+        },
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": 2048
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Amazon Bedrock": 341,
+        "Anthropic": 1
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-akashml": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 45,
+          "n": 332,
+          "raw_present": 287,
+          "reasoning_tokens_gt0": 288,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 332
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 49,
+          "raw_present": 49,
+          "reasoning_tokens_gt0": 49,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 49
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 441,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "AkashML": 431,
+        "not recorded": 10
+      },
+      "unpaired_mid_sample_calls": 10,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "gpt-oss-120b-pin-deepinfra": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 18,
+          "n": 275,
+          "raw_present": 257,
+          "reasoning_tokens_gt0": 257,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 275
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 54,
+          "raw_present": 54,
+          "reasoning_tokens_gt0": 54,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 54
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 379,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "DeepInfra": 379
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "nemotron-3.5-pin-deepinfra": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 559,
+          "n": 559,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 559
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 16,
+          "n": 16,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 16
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 50,
+          "n": 50,
+          "raw_present": 0,
+          "reasoning_tokens_gt0": 0,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 625,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "DeepInfra": 625
+      },
+      "unpaired_mid_sample_calls": 0,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    },
+    "nemotron-3.5-pin-phala": {
+      "buckets": {
+        "after tool": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 355,
+          "raw_present": 355,
+          "reasoning_tokens_gt0": 355,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 355
+        },
+        "after user": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 16,
+          "raw_present": 16,
+          "reasoning_tokens_gt0": 16,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 16
+        },
+        "step 0": {
+          "absent_empty_block": 0,
+          "absent_no_block": 0,
+          "n": 50,
+          "raw_present": 50,
+          "reasoning_tokens_gt0": 50,
+          "redacted": 0,
+          "summary_only": 0,
+          "usage_recorded": 50
+        }
+      },
+      "calls_with_raw_logged": 422,
+      "calls_without_raw_logged": 0,
+      "first_call_config": {
+        "extra_body_keys": [
+          "provider"
+        ],
+        "extra_body_reasoning": null,
+        "header_keys": [
+          "x-irid"
+        ],
+        "interleaved_or_beta_header_key_present": false,
+        "request_reasoning_effort": null
+      },
+      "generate_config": {
+        "extra_body_reasoning": null,
+        "reasoning_effort": null,
+        "reasoning_tokens": null
+      },
+      "incomplete_logs_excluded": 0,
+      "n_samples": 50,
+      "pairing_role_mismatches": 0,
+      "providers": {
+        "Phala": 421,
+        "not recorded": 1
+      },
+      "unpaired_mid_sample_calls": 1,
+      "unpaired_trailing_calls": 0,
+      "unpaired_turns": 0
+    }
+  }
+}
