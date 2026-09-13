@@ -96,3 +96,6 @@ data/monitor-smoke/
 # SWE-bench long-horizon staging.
 data/inspect-runs-swebench/
 data/inspect-runs-swebench-smoke/
+
+# Out-of-focus experiments relocated from the paper focus (local only).
+.other-experiments/
