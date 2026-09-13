@@ -38,8 +38,12 @@ from channels.schema import RateWithCI, ReasoningState
 STATE_COLOURS: dict[ReasoningState, str] = {
     ReasoningState.RAW_PRESENT: "#0d366b",
     ReasoningState.SUMMARY_ONLY: "#1c5cab",
-    ReasoningState.REDACTED: "#3987e5",
-    ReasoningState.ABSENT: "#86b6ef",
+    # REDACTED and ABSENT are the pair a reader must never confuse - "withheld"
+    # versus "never produced" is the distinction the four-state scheme exists
+    # for - so they are separated by hue as well as lightness rather than being
+    # two steps of one blue ramp.
+    ReasoningState.REDACTED: "#b4522b",
+    ReasoningState.ABSENT: "#c9c6c0",
 }
 
 # Categorical slots 1-3. Validated all-pairs: worst CVD dE 9.2, normal-vision 24.0.
@@ -53,7 +57,7 @@ TEXT_SECONDARY = "#52514e"
 
 # The two darkest ramp steps need light text on them; the two lightest need dark.
 _DARK_SEGMENTS = frozenset(
-    {ReasoningState.RAW_PRESENT, ReasoningState.SUMMARY_ONLY}
+    {ReasoningState.RAW_PRESENT, ReasoningState.SUMMARY_ONLY, ReasoningState.REDACTED}
 )
 
 STATE_LABELS: dict[ReasoningState, str] = {
@@ -81,6 +85,7 @@ def figure_one(
     grouped = (
         _group_by_model_task(cells) if by_task else _group_by_model(cells)
     )
+    grouped = _ordered_for_story(grouped)
     plotted = {
         key: group for key, group in grouped.items() if _n_of(group) >= MIN_CELL_N
     }
@@ -326,6 +331,28 @@ def _pooled_rate(group: Sequence[EmissionCell]) -> RateWithCI:
         n_clusters=max((c.n_clusters or 0) for c in group) or None,
     )
     return cell_rate(merged)
+
+
+def _ordered_for_story(
+    grouped: dict[tuple[str, ...], list[EmissionCell]],
+) -> dict[tuple[str, ...], list[EmissionCell]]:
+    """Order bars by readability, then by withholding, not alphabetically.
+
+    Alphabetical order scatters the finding: `deepseek-v3.2` (absent) landed
+    beside `deepseek-v3.2-reasoning-on` (raw) purely because of their names,
+    while the three arms that share a state sat apart. Sorting by raw_present
+    descending, then by redacted descending, puts the readable arms on the left,
+    the withheld arms together on the right, and the arms that produced nothing
+    at the far end - so the two different ways of scoring zero are adjacent and
+    comparable rather than interleaved.
+    """
+    def key(item: tuple[tuple[str, ...], list[EmissionCell]]) -> tuple[float, float]:
+        rate = _pooled_rate(item[1])
+        raw = rate.rate if rate.rate is not None else 0.0
+        redacted = _share_of(item[1], ReasoningState.REDACTED)
+        return (-raw, -redacted)
+
+    return dict(sorted(grouped.items(), key=key))
 
 
 def _bar_label(key: tuple[str, ...]) -> str:

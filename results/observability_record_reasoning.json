@@ -4,21 +4,21 @@
     "codebook_version": 1,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
     "preregistration_commit": null,
-    "generated_utc": "2026-09-13T00:12:06Z",
+    "generated_utc": "2026-09-13T00:54:07Z",
     "corpora": [
       {
         "name": "inspect_logs_reasoning",
-        "n_utterances": 10104,
-        "n_actors": 8,
-        "actor_concentration": 0.000791765637371338,
-        "source_hash": "sha256:e109c6652168ba4b354a216ba9b12b7e1786ad7f27eee0376ba159a7cdff417c",
+        "n_utterances": 11367,
+        "n_actors": 9,
+        "actor_concentration": 0.0008797395970792645,
+        "source_hash": "sha256:67ec6d2129bf85f62cc56927056faf8651b8207d8c871860cb9762defa0989d4",
         "licence": "run artefacts of this project via OpenRouter; model terms vary by vendor",
         "caveats": [
           "task classes present: ['strong_reject', 'sycophancy', 'xstest']",
-          "32 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-reasoning",
+          "36 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs-reasoning",
           "one trajectory is one cluster; per-turn independence is false",
-          "reasoning_effort settings present: ['None', 'low', 'medium']",
-          "1 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
+          "reasoning_effort settings present: ['None', 'high', 'low', 'medium']",
+          "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",
           "0 sample(s) errored and contributed no assistant turn; they are absent from the denominator, not counted as emitting nothing"
         ]
       }
@@ -300,6 +300,74 @@
           "low_n": false
         },
         {
+          "model": "gpt-5-nano-high",
+          "task_class": "strong_reject",
+          "step_index": 0,
+          "reasoning_effort": "high",
+          "n_turns": 313,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 1.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.0,
+            0.012124230316929803
+          ],
+          "n_clusters": 313,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "sycophancy",
+          "step_index": 0,
+          "reasoning_effort": "high",
+          "n_turns": 250,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 1.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.0,
+            0.015133299495444574
+          ],
+          "n_clusters": 250,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "sycophancy",
+          "step_index": 1,
+          "reasoning_effort": "high",
+          "n_turns": 250,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 1.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.0,
+            0.015133299495444574
+          ],
+          "n_clusters": 250,
+          "low_n": false
+        },
+        {
+          "model": "gpt-5-nano-high",
+          "task_class": "xstest",
+          "step_index": 0,
+          "reasoning_effort": "high",
+          "n_turns": 450,
+          "raw_present": 0.0,
+          "summary_only": 0.0,
+          "redacted": 1.0,
+          "absent": 0.0,
+          "ci95_raw_present": [
+            0.0,
+            0.008464318862970664
+          ],
+          "n_clusters": 450,
+          "low_n": false
+        },
+        {
           "model": "gpt-5-nano-low",
           "task_class": "strong_reject",
           "step_index": 0,
@@ -573,10 +641,10 @@
         }
       ],
       "positional_profile": {
-        "0": 0.6219151036525172,
-        "1": 0.6235
+        "0": 0.5528134254689042,
+        "1": 0.5542222222222222
       },
-      "uninspectable_share": 0.3777711797307997
+      "uninspectable_share": 0.4469077153162664
     },
     "bound": {
       "model": [
@@ -584,16 +652,17 @@
         "deepseek-v3.2",
         "deepseek-v3.2-reasoning-on",
         "glm-4.7-flash",
+        "gpt-5-nano-high",
         "gpt-5-nano-low",
         "gpt-5-nano-medium",
         "gpt-oss-120b",
         "qwen3-32b"
       ],
       "stage2_recall_assumed": 1.0,
-      "ceiling_mean_coverage": 0.6227075518262586,
+      "ceiling_mean_coverage": 0.5535178238455631,
       "ceiling_by_step": {
-        "0": 0.6219151036525172,
-        "1": 0.6235
+        "0": 0.5528134254689042,
+        "1": 0.5542222222222222
       }
     },
     "inter_agent_channel": {

@@ -732,3 +732,51 @@ stated in the registration itself: a commit in a repository the author controls
 proves content and order, not date, to someone who distrusts the author. Posting
 the two hashes above to any dated public service closes that gap whenever it is
 convenient, and where that happened belongs in the deviations log.
+
+---
+
+## Sweep complete — 2026-09-13 02:45
+
+Nine arms, four vendors, **11,367 assistant turns**, 9,117 samples,
+**10.86 million reasoning tokens**. Zero errored samples, zero incomplete logs.
+Total OpenRouter spend **$9.73**.
+
+| arm | raw_present | 95% CI | redacted | absent | reasoning tokens |
+|---|---|---|---|---|---|
+| `gpt-oss-120b` | 1.0000 | [0.9970, 1.0000] | 0 | 0 | 234,951 |
+| `qwen3-32b` | 1.0000 | [0.9970, 1.0000] | 0 | 0 | 1,045,862 |
+| `claude-haiku-4.5` | 1.0000 | [0.9970, 1.0000] | 0 | 0 | 355,991 |
+| `glm-4.7-flash` | 0.9976 | [0.9930, 0.9992] | 0 | 0.0024 | 1,774,952 |
+| `deepseek-v3.2-reasoning-on` | 0.9802 | [0.9709, 0.9866] | 0 | 0.0198 | 539,635 |
+| `deepseek-v3.2` (default) | **0.0000** | [0.0000, 0.0030] | 0 | **1.0000** | **0** |
+| `gpt-5-nano-low` | **0.0000** | [0.0000, 0.0030] | **1.0000** | 0 | 341,726 |
+| `gpt-5-nano-medium` | **0.0000** | [0.0000, 0.0030] | **1.0000** | 0 | 1,834,432 |
+| `gpt-5-nano-high` | **0.0000** | [0.0000, 0.0030] | **1.0000** | 0 | 4,731,968 |
+
+### What the sweep established, and what it did not
+
+**Three of the four states are populated by complete 1,263-turn arms.** That is
+the whole reason for a four-state classification rather than a binary: the
+DeepSeek default arm and the three `gpt-5-nano` arms all score 0.0000 on
+`raw_present`, and they are not the same finding. One produced no reasoning at
+all; the others produced up to 4.7 million tokens of it and withheld every word.
+
+**The within-model control.** Same model, same provider, same 1,013 sample ids,
+one request parameter: 0.0000 → 0.9802. Visibility was never a property of the
+model.
+
+**The effort axis** — the only manipulated variable in the project. Volume rose
+13.8× across three levels, monotonically; `raw_present` stayed at exactly 0.0000
+at every level. Thinking harder buys a deliberation-gated monitor nothing when
+the disclosure policy is what sets the gate.
+
+**`summary_only` is 0.0000 everywhere and that is an artefact, not a finding.**
+OpenRouter returns an encrypted chain *and* a summary for `gpt-5-nano`;
+`coverage.py` records the strongest limitation, so those turns are `redacted`.
+The state is structurally unobservable in this configuration.
+
+**What the sweep does not establish.** Every benchmark here is one or two turns.
+Nothing in it speaks to a hundred-step agentic run, which is the setting the
+argument is about, and the only long trajectory in the project is still Mythos
+at n = 1. Nine arms is also not a sample of vendors: it is nine arms chosen
+because their disclosure behaviour differs.
