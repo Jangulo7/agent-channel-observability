@@ -78,3 +78,7 @@ data/inspect-runs-agentic/
 
 # Long-horizon CTF arm logs (Docker sandbox).
 data/inspect-runs-ctf/
+
+# Warm-up rounds are not data.
+results/annotations/*__practice.json
+results/annotations/*__smoke*.json
