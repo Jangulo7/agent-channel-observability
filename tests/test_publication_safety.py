@@ -119,8 +119,12 @@ def test_every_default_corpus_path_is_gitignored() -> None:
         cli.DEFAULT_OSBENCH_LOGS,
     ]
     for path in defaults:
-        rel = path.relative_to(REPO).as_posix()
+        rel = path.relative_to(cli.REPO_ROOT).as_posix()
+        # Directory defaults are ignored by `dir/` rules, which git only matches
+        # when told the path is a directory; CI has no corpora on disk to stat.
+        if not path.suffix:
+            rel += "/"
         result = subprocess.run(
-            ["git", "check-ignore", "-q", rel], cwd=REPO, check=False
+            ["git", "check-ignore", "-q", rel], cwd=cli.REPO_ROOT, check=False
         )
         assert result.returncode == 0, f"default corpus path is not gitignored: {rel}"
