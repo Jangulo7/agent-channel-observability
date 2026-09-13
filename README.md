@@ -1,6 +1,9 @@
-[![DOI](https://zenodo.org/badge/1367457116.svg)](https://doi.org/10.5281/zenodo.22739095)
-
 # agent-channel-observability
+
+[![DOI](https://zenodo.org/badge/1367457116.svg)](https://doi.org/10.5281/zenodo.22739095)
+[![CI](https://github.com/Jangulo7/agent-channel-observability/actions/workflows/ci.yml/badge.svg)](https://github.com/Jangulo7/agent-channel-observability/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
 **What this does, in one sentence:** it measures how often you can actually *see*
 an AI agent's reasoning when you go looking for it — and shows what that ceiling
