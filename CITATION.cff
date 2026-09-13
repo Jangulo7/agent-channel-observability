@@ -73,7 +73,7 @@ references:
     title: "Mythos 5 incident transcript"
     authors:
       - name: Anthropic
-    repository-code: "https://github.com/anthropics/mythos-5-incident-transcript"
+    url: "https://www.anthropic.com/claude-fable-and-mythos-5-1"
     notes: >-
       One of six measured corpora in results/. Licence not
       stated; released by Anthropic for study. Carries a canary GUID and a
