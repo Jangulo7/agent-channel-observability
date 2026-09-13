@@ -526,6 +526,29 @@ docstring makes about AdaptR1's unreconcilable averages.
 
 ---
 
+## 1d. Long-horizon coverage — SWE-bench Verified (the transfer test)
+
+Earlier corpora were short (median 4–5 turns). SWE-bench Verified gives real multi-step
+tool use; three cheap open models, n=10 instances each, scoring off, message_limit 120
+(`results/swebench_longhorizon/`, regenerate with `scripts/run_swebench_arm.py` then
+`scripts/report_swebench_longhorizon.py`).
+
+| model | median turns | max | censored at limit | readable overall | steps 0–9 | steps 40+ |
+|---|---|---|---|---|---|---|
+| `nemotron-3.5` | 59 | 59 | 7/10 | **0.994** | 1.00 | 0.99 |
+| `gpt-oss-120b` | 59 | 59 | 7/10 | **0.856** | 0.92 | 0.83 |
+| `qwen3-32b` | 6.5 | 9 | 0/10 | 0.836 | 0.84 | never reaches |
+
+**First evidence at depth: disclosure does not decay over long trajectories.** The two
+models that sustain ~59-turn runs hold their reasoning channel — nemotron ~1.00 to step
+58, gpt-oss a mild dip to a ~0.83 plateau — against the withdrawn "decay with depth"
+hypothesis. `qwen3-32b` submits in ~6 turns, so a cheap model is not automatically
+long-horizon-capable. **Caveats travel with it:** n=10/model (per-step n≤10, below
+`MIN_CELL_N=30` — suggestive, not powered); 7/10 trajectories right-censored at the
+message limit (depth is a floor); scoring off (long, not necessarily successful, runs).
+
+---
+
 ## 2b. The monitor experiment — the recall ceiling, actually monitored
 
 Sections 1–2 measure coverage and bound a deliberation-gated monitor at c(j)·r₂
