@@ -4,7 +4,7 @@
     "codebook_version": 1,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
     "preregistration_commit": null,
-    "generated_utc": "2026-09-13T10:11:46Z",
+    "generated_utc": "2026-09-13T10:28:22Z",
     "corpora": [
       {
         "name": "inspect_logs",
@@ -15,7 +15,7 @@
         "licence": "run artefacts of safety-eval-pipeline; MIT, same author",
         "caveats": [
           "task classes present: ['strong_reject', 'sycophancy', 'xstest']",
-          "12 complete log file(s) under data/inspect-runs",
+          "12 complete log file(s) under /home/hana77/ia_jo/agent-channel-observability/data/inspect-runs",
           "one trajectory is one cluster; per-turn independence is false",
           "reasoning_effort settings present: ['None']",
           "0 incomplete log(s) EXCLUDED (run not finished); their samples are absent from every denominator rather than partially counted",

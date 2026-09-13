@@ -21,7 +21,7 @@ DEFAULT_RESULTS = REPO_ROOT / "results"
 DEFAULT_MYTHOS = (
     REPO_ROOT / "data" / "mythos-5-incident-transcript" / "transcript.jsonl"
 )
-DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
+DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect-runs"
 DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
 DEFAULT_CTF_LOGS = REPO_ROOT / "data" / "inspect-runs-ctf"

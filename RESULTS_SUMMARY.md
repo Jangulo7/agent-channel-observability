@@ -1,6 +1,6 @@
 # Results summary
 
-Every number below is produced by `channels measure` from the committed corpora
+Every number below is produced by `channels measure` from the local (gitignored) corpora
 and is reproducible with the three commands in the README. Numbers that do not
 exist are marked as not existing rather than omitted.
 
