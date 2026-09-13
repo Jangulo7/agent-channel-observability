@@ -64,6 +64,39 @@ def _verdict(profile: dict[int, object]) -> str:
     return f"varies {max(rates):.2f}-{lowest:.2f}, within noise"
 
 
+def verdict_table_markdown() -> str:
+    """The replication verdict table, as markdown for RESULTS_SUMMARY."""
+    present = {k: _by_arm(v) for k, v in FAMILIES.items()}
+    present = {k: v for k, v in present.items() if v}
+    arms = sorted({a for grouped in present.values() for a in grouped})
+    lines = [
+        "| model | families run | verdict | shape |",
+        "|---|---|---|---|",
+    ]
+    for arm in arms:
+        shapes = []
+        for grouped in present.values():
+            obs = grouped.get(arm)
+            if not obs:
+                continue
+            cells = build_cells(obs)
+            shapes.append(
+                _verdict(positional_profile(cells, arm, cells[0].task_class))
+            )
+        if not shapes:
+            continue
+        kinds = {s.split()[0] for s in shapes}
+        verdict = (
+            "**consistent**" if len(kinds) == 1 and len(shapes) > 1
+            else "differs by task" if len(shapes) > 1
+            else "one family only"
+        )
+        lines.append(
+            f"| `{arm}` | {len(shapes)} | {verdict} | {' · '.join(shapes)} |"
+        )
+    return "\n".join(lines)
+
+
 def main() -> int:
     """Print the cross-family table and each cell's shape verdict."""
     present = {k: _by_arm(v) for k, v in FAMILIES.items()}
@@ -108,5 +141,30 @@ def main() -> int:
     return 0
 
 
+def _update_results_block() -> None:
+    """Write the verdict table into RESULTS_SUMMARY's generated block."""
+    import re
+
+    summary = Path("RESULTS_SUMMARY.md")
+    text = summary.read_text(encoding="utf-8")
+    marker = "positional-verdicts"
+    pattern = re.compile(
+        rf"(<!-- BEGIN:{marker} -->\n).*?(\n<!-- END:{marker} -->)", re.DOTALL
+    )
+    if not pattern.search(text):
+        print("no positional-verdicts markers in RESULTS_SUMMARY.md")
+        return
+    summary.write_text(
+        pattern.sub(lambda m: m.group(1) + verdict_table_markdown() + m.group(2), text),
+        encoding="utf-8",
+    )
+    print("updated RESULTS_SUMMARY positional-verdicts block")
+
+
 if __name__ == "__main__":
+    import sys as _sys
+
+    if "--update-results" in _sys.argv:
+        _update_results_block()
+        raise SystemExit(0)
     raise SystemExit(main())

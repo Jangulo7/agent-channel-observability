@@ -251,15 +251,20 @@ the *first* step's lower confidence bound; otherwise "within noise".
 
 ### The result: disclosure shape is mostly a property of the provider
 
-| model | verdict across families | shape |
-|---|---|---|
-| `claude-haiku-4.5` | **consistent ×3** | 1.00 → 0.00 / 0.00 / 0.02 |
-| `kimi-k2-thinking` | **consistent ×3** | flat at 1.00 |
-| `qwen3-32b` | consistent ×2 | flat at 1.00 |
-| `gpt-oss-120b` | **differs by task** | 0.68 / 0.84 / within noise |
+<!-- BEGIN:positional-verdicts -->
+| model | families run | verdict | shape |
+|---|---|---|---|
+| `claude-haiku-4.5` | 3 | **consistent** | DECLINES 1.00 -> 0.00 · DECLINES 1.00 -> 0.00 · DECLINES 1.00 -> 0.02 |
+| `gpt-5-nano-medium` | 1 | one family only | FLAT at 0.00 |
+| `gpt-oss-120b` | 3 | differs by task | DECLINES 1.00 -> 0.68 · DECLINES 1.00 -> 0.84 · varies 1.00-0.94, within noise |
+| `kimi-k2-thinking` | 3 | **consistent** | FLAT at 1.00 · FLAT at 1.00 · FLAT at 1.00 |
+| `minimax-m2` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
+| `nemotron-3.5` | 1 | one family only | FLAT at 1.00 |
+| `qwen3-32b` | 2 | **consistent** | FLAT at 1.00 · FLAT at 1.00 |
+<!-- END:positional-verdicts -->
 
-Three of four models hold their shape across environments as different as mock
-function calls and a real Linux shell. One does not.
+Models that hold their shape across environments as different as mock function
+calls and a real Linux shell are marked **consistent**. One model does not.
 
 ### The strongest positional finding: a cliff after the first action
 
