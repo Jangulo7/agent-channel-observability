@@ -96,6 +96,7 @@ def args(transcript: Path, *extra: str) -> list[str]:
         "--mythos", str(transcript),
         "--inspect-logs", str(transcript.parent / "no_such_logs_dir"),
         "--reasoning-logs", str(transcript.parent / "no_such_reasoning_dir"),
+        "--agentic-logs", str(transcript.parent / "no_such_agentic_dir"),
         *extra,
     ]
 
@@ -201,6 +202,7 @@ def test_measure_refuses_when_no_corpus_is_available(
         "--mythos", str(tmp_path / "no_such_transcript.jsonl"),
         "--inspect-logs", str(tmp_path / "no_such_logs_dir"),
         "--reasoning-logs", str(tmp_path / "no_such_reasoning_dir"),
+        "--agentic-logs", str(tmp_path / "no_such_agentic_dir"),
         "--results", str(results),
     ])
     assert code == 2
@@ -298,6 +300,8 @@ def test_corpora_are_never_pooled_into_one_record(
             str(logs_root),
             "--reasoning-logs",
             str(tmp_path / "no_such_reasoning_dir"),
+            "--agentic-logs",
+            str(tmp_path / "no_such_agentic_dir"),
             "--results",
             str(results),
         ]

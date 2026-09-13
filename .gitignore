@@ -72,3 +72,6 @@ data/METR/
 # Built artefact for the human coder; regenerate with scripts/make_coder_bundle.sh
 coder-bundle/
 coder-bundle*.zip
+
+# Long-horizon agentic arm logs.
+data/inspect-runs-agentic/

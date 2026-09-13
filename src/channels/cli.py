@@ -22,6 +22,7 @@ DEFAULT_MYTHOS = (
 )
 DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
 DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
+DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
 
 #: Largest within-model spread across task classes that still permits pooling
 #: them into one bar. Above this, pooling would hide variation the figure exists
@@ -80,6 +81,9 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--reasoning-logs", type=Path, default=DEFAULT_REASONING_LOGS
     )
+    parser.add_argument(
+        "--agentic-logs", type=Path, default=DEFAULT_AGENTIC_LOGS
+    )
 
 
 #: Each corpus keeps its own record file. Records are never pooled across corpora:
@@ -88,6 +92,7 @@ RECORD_FILENAMES = {
     "inspect_logs": "observability_record.json",
     "mythos_transcript": "observability_record_mythos.json",
     "inspect_logs_reasoning": "observability_record_reasoning.json",
+    "inspect_logs_agentic": "observability_record_agentic.json",
 }
 
 
@@ -138,6 +143,17 @@ def _corpora(
         missing.append(
             f"inspect_logs_reasoning (looked in {reasoning.root})"
         )
+
+    agentic = InspectLogLoader(
+        getattr(args, "agentic_logs", DEFAULT_AGENTIC_LOGS),
+        name="inspect_logs_agentic",
+        licence="run artefacts of this project via OpenRouter; model terms vary",
+        label_by_directory=True,
+    )
+    if agentic.available():
+        groups.append((agentic.describe(), list(agentic.observations())))
+    else:
+        missing.append(f"inspect_logs_agentic (looked in {agentic.root})")
 
     return groups, missing
 
