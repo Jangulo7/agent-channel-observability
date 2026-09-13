@@ -821,7 +821,7 @@ are the only confirmatory results in the project; everything else is exploratory
 | endpoint | measured | registered rule | verdict |
 |---|---|---|---|
 | **C1** revert precision (coder JAG, n=60) | 42 genuine / 14 housekeeping / 4 unclear; precision **0.700**; page-clustered 95% CI **[0.174, 0.963]** (3 page clusters), actor-clustered [0.481, 0.855] | validated only if page-clustered lower bound > 0.50 | **NOT validated** (lower bound 0.174) |
-| **C2** verbal objection (coder JAG, n=156 coded of 200) | **0** OBJ/REF/ESC/WARN | zero → one-sided upper bound, never "no objection occurs" | **zero observed; rate < 0.017 (95%)** |
+| **C2** verbal objection (coder JAG) | **0** OBJ/REF/ESC/WARN in 156 recorded; see tool-bug note | zero → one-sided upper bound, never "no objection occurs" | **zero observed; rate < 0.017 (95%) at n=156, < 0.013 at the coder's full n=200** |
 | **C3** reliability κ (JAG vs author JAD, n=60) | percent agreement 0.683; **κ = 0.229** | κ<0.40 ⇒ C1 unreliable; ≥0.60 adequate | **below 0.40 → C1 reported unreliable** |
 
 **What this resolves.** The registration worked as designed: the revert detector is
@@ -833,6 +833,8 @@ the kind of instrument disagreement the reliability check exists to catch. **No
 revert-based RQ3 rate is reported**, and the verbal-objection channel is bounded at
 essentially zero. `κ` measures whether the written codebook reproduces the author's
 intent, not inter-rater reliability (the second coder wrote the codebook).
+
+> **A third, more serious deviation — a tool bug the coder caught (2026-09-13).** `scripts/annotate.py` bound *skip* to the key `s`, which is the message codebook's SHARE code, so every SHARE press was silently dropped. The coder confirmed by email she used `s`=SHARE and skipped nothing; the data shows 156/200 recorded (all `u`) with the 44 missing items **scattered** across positions 0–194 and the coder reaching the final item — consistent with dropped SHARE presses, not an early stop. **C2's conclusion is unaffected**: no objection key (`o/r/e/w`) was pressed, so objections = 0 across both the 156 recorded and the 44 dropped (SHARE, per the coder) — a coded denominator of 200, all non-objection, tightening the bound to ~0.013. What is lost is the SHARE-vs-UNCL distribution, which C2 never used. The tool is fixed (skip=Enter, quit=`.`, reserved keys asserted against every codebook, regression test added). See `docs/PREREGISTRATION.md` §11.
 
 > **Two deviations from §0.2, both logged.** (a) The author (JAD) coded all 60 revert
 > items, not the registered first 50, so κ is on the 60 shared items (more data, same

@@ -130,3 +130,17 @@ def test_every_task_offers_an_unclear_option() -> None:
     """A coder with no 'cannot tell' answer is forced to guess."""
     for task in (REVERT_VALIDITY, MESSAGE_CODE):
         assert "u" in task.choices
+
+
+def test_no_task_uses_a_reserved_control_key() -> None:
+    """Skip is Enter ('') and quit is '.'; no codebook key may collide with them.
+
+    Regression for the 2026-09-13 incident: the annotate tool bound skip to 's',
+    which is the message task's SHARE code, so every SHARE press was dropped.
+    """
+    from channels.annotate import TASKS
+
+    reserved = {"", "."}
+    for name, task in TASKS.items():
+        clash = reserved & set(task.choice_keys())
+        assert not clash, f"task {name} uses reserved control key(s) {clash}"

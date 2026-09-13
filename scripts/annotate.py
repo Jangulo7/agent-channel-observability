@@ -139,13 +139,22 @@ def _prompt(task: AnnotationTask, recap: str = "") -> str:
     lines += [f"  {task.question}", ""]
     for key, meaning in task.choices.items():
         lines.append(f"    [{key}] {meaning}")
-    lines.append("    [s] skip for now      [q] save and quit")
+    # Skip is Enter and quit is [.] — NEITHER may be a codebook key, or a real
+    # code would be swallowed. That bug dropped every SHARE ("s") press in the
+    # message task on 2026-09-13; see PREREGISTRATION §11. `_run` asserts no clash.
+    lines.append("    [enter] skip for now      [.] save and quit")
     return "\n".join(lines)
 
 
 def _run(args: argparse.Namespace) -> int:
     """Draw or resume a sample and take labels until it is finished or quit."""
     task = TASKS[args.task]
+    reserved = {"", "."} & set(task.choice_keys())
+    if reserved:
+        raise SystemExit(
+            f"task {task.name!r} uses a reserved control key {sorted(reserved)}; "
+            "skip is Enter and quit is '.', so no code may use them"
+        )
     loader = CollusionWikiLoader(args.corpus)
     if not loader.available():
         print(f"corpus not found under {args.corpus}", file=sys.stderr)
@@ -192,11 +201,12 @@ def _run(args: argparse.Namespace) -> int:
         except (EOFError, KeyboardInterrupt):
             print("\ninterrupted")
             break
-        if choice == "q":
+        if choice == ".":
             break
-        if choice == "s" or choice not in task.choice_keys():
-            if choice != "s":
-                print(f"  '{choice}' is not a valid choice; skipping")
+        if choice == "":
+            continue  # Enter = skip for now; the item stays in `remaining`
+        if choice not in task.choice_keys():
+            print(f"  '{choice}' is not a valid choice; skipping")
             continue
         record.labels.append(
             Label(
