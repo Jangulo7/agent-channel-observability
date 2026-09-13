@@ -71,7 +71,7 @@ OpenRouter, 2026-09-12/13. Sample counts match §1 exactly so the two are
 comparable. Scoring disabled: we measure the channel, not performance.
 
 <!-- BEGIN:reasoning-status -->
-**7 of 9 arms complete**, 8,841 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Not yet run: `gpt-5-nano-medium`, `gpt-5-nano-high`.
+**8 of 9 arms complete**, 10,104 assistant turns measured. `MIN_CELL_N=30`; no cell is low-n. 0 sample(s) errored; 1 incomplete log(s) excluded and counted. Not yet run: `gpt-5-nano-high`.
 <!-- END:reasoning-status -->
 
 Arms below are complete. Pending arms are **not** included in any figure or
@@ -90,6 +90,7 @@ the n actually measured.
 | `deepseek-v3.2` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 0.0000 | 1.0000 |
 | `deepseek-v3.2-reasoning-on` | 1,263 | **0.9802** | [0.9709, 0.9866] | 0.0000 | 0.0000 | 0.0198 |
 | `gpt-5-nano-low` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 1.0000 | 0.0000 |
+| `gpt-5-nano-medium` | 1,263 | **0.0000** | [0.0000, 0.0030] | 0.0000 | 1.0000 | 0.0000 |
 <!-- END:reasoning-arms -->
 
 Zero samples errored. Incomplete logs are excluded and counted, not partially
@@ -196,11 +197,37 @@ deliberation is a configuration and disclosure choice, which is H1.**
 > provider which emits reasoning will keep doing so; `gpt-5-nano` is the
 > counter-case, and it is still only a probe.
 
-### `reasoning_effort` — still not measured
+### `reasoning_effort` — a designed experiment, and it separates two things
 
-Every completed arm records `reasoning_effort=None`. The three `gpt-5-nano`
-effort arms are pending. Until they land, the effort axis remains **absent from
-this project**, exactly as in §1.
+This is the only arm where a variable was **manipulated** rather than observed,
+which is what spec §15 extension A asks for. `gpt-5-nano` was run over the same
+1,013 samples at each effort level, changing nothing else.
+
+| effort | n turns | reasoning tokens | mean tokens/turn | `raw_present` | `redacted` |
+|---|---|---|---|---|---|
+| low | 1,263 | 341,726 | 337 | **0.0000** | **1.0000** |
+| medium | 1,263 | 1,834,432 | 1,811 | **0.0000** | **1.0000** |
+| high | *running* | — | — | — | — |
+
+**The manipulation worked and the outcome did not move.** Raising effort from
+low to medium multiplied reasoning volume by **5.4×** — the model demonstrably
+thought far harder — while the share an evaluator can read stayed at exactly
+**0.0000**, and every turn stayed `redacted`.
+
+So *how much* a model reasons and *how much of it you may read* are separate
+quantities, and this arm moves one without moving the other. A monitor gated on
+deliberation gains **nothing** from the model thinking 5.4× harder, because the
+gate is not set by the thinking. It is set by the disclosure policy.
+
+This matters for a specific bad inference: "the model reasoned a lot, so there
+was plenty for a monitor to catch". Here there were **1.8 million reasoning
+tokens** and a recall ceiling of **0.000**.
+
+> **Scope.** One model, one vendor, two of three levels so far. It shows that
+> effort and disclosure *can* be independent, not that they always are — a
+> vendor that returns raw chains would presumably show `raw_present` at every
+> effort level. The claim is that volume is not evidence of visibility, and one
+> clean counter-example is enough to establish that.
 
 ---
 
