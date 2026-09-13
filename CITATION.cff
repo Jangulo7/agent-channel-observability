@@ -1,80 +1,14 @@
 cff-version: 1.2.0
-title: >-
-  agent-channel-observability: measuring reasoning-channel emission
-  and the recall ceiling it imposes on deliberation-gated monitors
-message: >-
-  If you use this software or its measurements, please cite it. Please also
-  carry the caveats: every rate is per arm (model, task class, request
-  configuration and provider route) and is not a sample of vendors; the recall
-  drop is measured on a model that is not a clean behavioural A/B (the /no_think
-  arm also raised refusals); the long-horizon and peer-objection results are
-  suggestive and a bounded null respectively, not powered; and the peer-objection
-  endpoints (C1-C3) were pre-specified but not independently pre-registered.
-type: software
+message: "If you use this software, please cite it as below."
 authors:
-  - given-names: Johanna
-    family-names: Angulo
-repository-code: "https://github.com/Jangulo7/agent-channel-observability"
-abstract: >-
-  Measures how often a model's reasoning is actually readable by an external
-  evaluator, and derives the recall ceiling that readability imposes on any
-  monitor gated on deliberation. The headline result is that whether reasoning
-  is readable is set by the serving configuration rather than by the model:
-  across a nine-arm reasoning-model sweep the same model moves from 0 to 98%
-  readable on one request parameter, and in a controlled agentic experiment
-  post-tool-call reasoning goes from 0 of 661 turns to 667 of 667 readable on a
-  single provider beta header, with model and task held fixed. On harmful-graded
-  trajectories a monitor reading only the reasoning channel loses recall (0.93 to
-  0.00) when that channel is dark, while a monitor reading only the actions is
-  largely unaffected: the coverage-to-recall collapse, measured rather than
-  assumed. Six corpora (23,541 assistant turns) are measured separately and never
-  pooled; the paper reports three of them and keeps the rest as appendix material.
-  Provider token accounting separates reasoning that was not produced from
-  reasoning that was produced but not returned. Two rules are architectural: no
-  detector reports a rate without a recorded validated recall, and an
-  uninspectable sample is a failure rather than a dropped denominator. No corpus
-  text is committed; only counts, rates, figures and the records, and every
-  reported number regenerates from a committed record.
-keywords:
-  - AI safety
-  - evaluation
-  - chain-of-thought monitorability
-  - observability
-  - monitor recall
-  - Inspect
-license: MIT
-version: 1.0.1
-date-released: "2026-09-14"
-
-identifiers:
-  - type: doi
-    value: "10.5281/zenodo.22739095"
-    description: "Concept DOI (resolves to the latest archived version)"
-
-references:
-  - type: software
-    title: "safety-eval-pipeline"
-    authors:
-      - given-names: Johanna
-        family-names: Angulo
-    repository-code: "https://github.com/Jangulo7/safety-eval-pipeline"
-    version: "v1.1.0"
-    doi: "10.5281/zenodo.22182741"
-    notes: >-
-      Source of the vendored statistics helpers in src/channels/_vendored_stats.py
-      and of this project's gate contract: an aggregate bound plus a per-stratum
-      bound, the worst stratum always reported, a marginal annotation when the
-      confidence interval crosses the threshold, and un-evaluable counting as
-      failure rather than being dropped.
-
-  - type: data
-    title: "Mythos 5 incident transcript"
-    authors:
-      - name: Anthropic
-    repository-code: "https://github.com/anthropics/mythos-5-incident-transcript"
-    url: "https://www.anthropic.com/claude-fable-and-mythos-5-1"
-    notes: >-
-      One of six measured corpora in results/. Licence not
-      stated; released by Anthropic for study. Carries a canary GUID and a
-      do-not-train notice. n = 1 trajectory: one incident, one model, not a
-      sample. See docs/DATA_PROVENANCE.md.
+- family-names: "YOUR_NAME_HERE"
+  given-names: "YOUR_NAME_HERE"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+- family-names: "Lisa"
+  given-names: "Mona"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "agent-channel-observability"
+version: 1.0.0
+doi: 10.5281/zenodo.1234
+date-released: 2026-09-13
+url: "https://github.com/Jangulo7/agent-channel-observability"
