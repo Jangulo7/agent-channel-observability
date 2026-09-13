@@ -232,83 +232,96 @@ was plenty for a monitor to catch". Across these three arms there were
 
 ---
 
-## 1c. Emission over a multi-turn agentic trajectory — the positional result
+## 1c. Positional coverage across three task families — what replicates
 
-**Corpus:** `data/inspect-runs-agentic/`, `agentharm_benign` (test_public), 50
-trajectories per arm, genuine multi-step tool use. The **benign** split is used
-deliberately: the question is channel observability, not harm.
+**Corpora:** three long-horizon families, 50 trajectories per (family, model):
 
-This is the only corpus in the project where a trajectory is long enough for
-`c(j)` to carry information. The benchmark arms in §1 and §1b have one or two
-step indices; Mythos has many but n = 1 trajectory. Here there are 50
-trajectories of median 8 turns.
+| family | environment | logs |
+|---|---|---|
+| `agentharm_benign` | mock tools, no sandbox | `data/inspect-runs-agentic/` |
+| `gdm_intercode_ctf` | real shell in Docker, puzzle tasks | `data/inspect-runs-ctf/` |
+| `agent_bench_os` | real shell in Docker, sysadmin tasks | `data/inspect-runs-osbench/` |
 
-### Coverage declines with position
+One model on one task cannot separate a task effect from a model effect. Three
+families can. `scripts/report_positional.py` regenerates everything below and
+applies a **stated criterion** rather than inviting a reader to eyeball a
+downward wiggle: adequately-powered cells only (n ≥ `MIN_CELL_N` = 30); **flat**
+if they span ≤ 0.05; **declines** only if the weakest powered cell falls below
+the *first* step's lower confidence bound; otherwise "within noise".
 
-`gpt-oss-120b`, 50 trajectories, **370 assistant turns**:
+### The result: disclosure shape is mostly a property of the provider
 
-| step | n | c(j) | 95% CI | ceiling at r₂=1 | low n |
-|---|---|---|---|---|---|
-| 0 | 50 | **1.000** | [0.929, 1.000] | 1.000 | no |
-| 1 | 50 | 0.980 | [0.895, 0.996] | 0.980 | no |
-| 2 | 50 | 0.940 | [0.838, 0.979] | 0.940 | no |
-| 3 | 50 | 0.860 | [0.738, 0.930] | 0.860 | no |
-| 4 | 46 | 0.891 | [0.770, 0.953] | 0.891 | no |
-| 5 | 44 | **0.682** | [0.534, 0.800] | 0.682 | no |
-| 6 | 33 | 0.818 | [0.656, 0.914] | 0.818 | no |
-| 7 | 26 | 0.769 | [0.579, 0.890] | 0.769 | **YES** |
-| 8 | 21 | **0.571** | [0.365, 0.755] | 0.571 | **YES** |
+| model | verdict across families | shape |
+|---|---|---|
+| `claude-haiku-4.5` | **consistent ×3** | 1.00 → 0.00 / 0.00 / 0.02 |
+| `kimi-k2-thinking` | **consistent ×3** | flat at 1.00 |
+| `qwen3-32b` | consistent ×2 | flat at 1.00 |
+| `gpt-oss-120b` | **differs by task** | 0.68 / 0.84 / within noise |
 
-Action-weighted over the whole trajectory: **0.8622** [0.8233, 0.8936].
+Three of four models hold their shape across environments as different as mock
+function calls and a real Linux shell. One does not.
 
-**The decline is real, not noise, and it does not rest on the low-n cells.**
-Step 0 (n=50, [0.929, 1.000]) and step 5 (n=44, [0.534, 0.800]) have disjoint
-intervals, and neither is flagged low-n. Steps 7 and 8 are below `MIN_CELL_N=30`
-and are flagged; the finding survives their removal.
+### The strongest positional finding: a cliff after the first action
 
-**Note the denominators: 50, 50, 50, 50, 46, 44, 33, 26, 21.** Trajectories that
-ended earlier leave the cell rather than being counted as `absent`. That is the
-rule stated in `emission.py`'s docstring, and this is the first corpus where it
-does visible work — treating the 29 missing turns at step 8 as `absent` would
-have reported c(8) = 0.24 instead of 0.571.
+`claude-haiku-4.5` discloses its reasoning on the **first** assistant turn and
+essentially nothing afterwards, while continuing to call tools:
 
-### Why reporting the mean is not good enough
+| step | agentharm | intercode_ctf | agent_bench_os |
+|---|---|---|---|
+| 0 | **1.000** (n=50) | **1.000** (n=50) | **1.000** (n=50) |
+| 1 | 0.000 (n=37) | 0.000 (n=44) | 0.020 (n=50) |
+| 2 | 0.000 (n=32) | 0.000 (n=38) | 0.143 (n=42) |
+| 3 | 0.000 (low n) | 0.000 (n=31) | 0.065 (n=31) |
 
-| quantity | value |
+**This is not a measurement artefact.** `scripts/verify_coverage.py` checks our
+classification against the provider's own `reasoning_tokens` accounting, which
+comes from their billing path and not from this repository. For this arm the API
+reports 5,818 reasoning tokens at step 0 and **exactly zero at every step
+after**. Across all arms checked: **no disagreements**.
+
+**What it means for monitoring.** For this model a deliberation-gated monitor
+sees the opening move and is blind to everything after it — including every
+action taken in response to tool output, which is where an agentic failure
+actually develops. Mean coverage of 0.34 does not convey that; `c(0)=1.00,
+c(1+)≈0.00` does.
+
+### What did NOT replicate, and it was my first headline
+
+The first long-horizon arm run was `gpt-oss-120b` on `agentharm`, which declined
+1.000 → 0.682 by step 5. That looked like a general "coverage decays with depth"
+result and was briefly written up as one. It does not survive:
+
+| family | `gpt-oss-120b` |
 |---|---|
-| ceiling from mean coverage | **0.862** |
-| ceiling at the weakest measured step | **0.571** |
-| overstatement | **1.51×** |
+| `agentharm` | declines 1.00 → 0.68 |
+| `intercode_ctf` | declines 1.00 → 0.84 |
+| `agent_bench_os` | 1.00 → 0.94, **within noise** |
 
-A monitor gated on deliberation looks 1.51× better when summarised by its mean
-than it is at the step where it is weakest — and the weak steps are the late
-ones, after the agent has taken several actions. Both numbers come from the same
-370 turns. This is the concrete case for reporting `c(j)` rather than a scalar,
-which is what `positional_profile` exists to force.
+The *direction* is consistent — coverage is highest at step 0 in all three — but
+the magnitude varies several-fold and vanishes into noise on one family. And
+four of six models on `agentharm` (`kimi`, `minimax`, `nemotron`, `qwen3`) are
+**flat at 1.000** across every step, so no general decay law is available at all.
 
-### Withholding does not vary with position
+This is recorded rather than quietly dropped because it is the clearest case in
+the project of a single-arm result that looked like a finding.
 
-`gpt-5-nano` at `reasoning_effort=medium`, 50 trajectories, 211 turns:
+### Why this strengthens rather than weakens the argument
 
-| state | share |
-|---|---|
-| `redacted` | 175 turns |
-| `absent` | 36 turns |
-| `raw_present` | **0 turns, at every step index 0–8** |
+If coverage decayed uniformly with depth, that would be one fact to report. What
+is actually true is worse for anyone quoting a coverage number: **the profile
+depends on which vendor's model is running**, and for at least one model on
+which task it is running. A recall ceiling quoted without naming the model — and
+sometimes the task, and always the step — is not a measurement of anything.
 
-Action-weighted `raw_present` **0.0000** [0.0000, 0.0179]. Where a provider
-withholds, position is irrelevant: the profile is flat at zero and there is no
-step at which a deliberation-gated monitor could fire.
+That is precisely what `positional_profile` exists to force, and it is why this
+repository reports `c(j)` and refuses to collapse it.
 
-**So the two arms answer two different questions.** Where reasoning is
-disclosed, coverage *varies* and decays with depth into the trajectory. Where it
-is withheld, coverage is *uniformly zero* and no positional analysis can help.
-
-> **Limits.** Median 8 turns is multi-step but it is not the hundred-step
-> setting the argument ultimately concerns; it narrows the transfer gap rather
-> than closing it. One task family, two models. The step-8 cell is n=21 and
-> flagged. And the decline is measured, not explained — nothing here identifies
-> *why* late turns carry less reasoning, only that they do.
+> **Limits.** Median trajectory length is 8 turns (`agentharm`), 7
+> (`intercode_ctf`), 5 (`agent_bench_os`); genuinely multi-step, but not the
+> hundred-step setting the argument ultimately concerns. Late-step cells fall
+> below n=30 and are flagged; every verdict above rests only on powered cells.
+> And the shapes are **measured, not explained** — nothing here identifies why
+> one provider stops disclosing after the first turn.
 
 ---
 

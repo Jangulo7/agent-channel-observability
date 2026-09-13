@@ -104,39 +104,43 @@ into long-horizon settings.
 > descriptive, not inferential, and `cluster.py` refuses to compute a clustered
 > interval from a single cluster rather than emitting one that looks inferential.
 
-### Coverage collapses late in a trajectory, where the actions are
+### What you can see depends on the vendor, not on the work
 
-The benchmarks above are one or two turns, which cannot speak to an agent taking
-many actions. So we ran 50 multi-step agentic trajectories (`agentharm_benign`,
-real tool use), 370 assistant turns, median 8 turns each:
+We ran 50 multi-step agentic trajectories per model across **three** different
+environments — mock tools, a real Linux shell solving puzzles, and a real shell
+doing system administration. Same trajectories, same harness.
 
-| step in trajectory | turns | reasoning readable |
-|---|---|---|
-| 0 | 50 | **1.000** |
-| 3 | 50 | 0.860 |
-| 5 | 44 | **0.682** |
-| 8 | 21 | **0.571** |
-
-**Coverage is not constant — it decays with depth.** The decline is not an
-artefact of thin late cells: step 0 (n=50) and step 5 (n=44) have
-non-overlapping intervals and neither is flagged low-n.
-
-This is the practical consequence:
-
-| | |
+| model | across the three environments |
 |---|---|
-| recall ceiling from **mean** coverage | **0.862** |
-| recall ceiling at the **weakest** step | **0.571** |
-| overstatement from reporting the mean | **1.51×** |
+| `kimi-k2-thinking` | reasoning readable on **every** step, all three |
+| `qwen3-32b` | readable on every step |
+| **`claude-haiku-4.5`** | **readable on step 0, then ~0 — on all three** |
+| `gpt-5-nano` | never readable, at any step or effort |
 
-A monitor summarised by its average looks half again better than it is at the
-step where it is weakest — and the weak steps are the *late* ones, after the
-agent has already acted. Both numbers come from the same 370 turns. That is why
-this repository reports a positional profile `c(j)` and never a single number.
+`claude-haiku-4.5` is the sharpest case. It explains its first action and then
+goes quiet while it keeps working:
 
-Run the same 50 trajectories through `gpt-5-nano` instead and coverage is
-**0.000 at every step index** — where a provider withholds, position is
-irrelevant and no positional analysis can help.
+| step | agentharm | CTF shell | OS shell |
+|---|---|---|---|
+| 0 | **1.000** | **1.000** | **1.000** |
+| 1 | 0.000 | 0.000 | 0.020 |
+| 2 | 0.000 | 0.000 | 0.143 |
+
+**A monitor watching this agent's reasoning sees its opening move and is blind to
+everything after** — including every action it takes in response to what the
+tools return, which is where an agentic failure would actually develop.
+
+This is not an artefact of our tooling. The provider's own token accounting
+reports **5,818 reasoning tokens on step 0 and exactly zero afterwards**;
+`scripts/verify_coverage.py` cross-checks every arm against that accounting and
+finds no disagreements.
+
+**One result did not replicate, and we report it.** The first long-horizon arm
+(`gpt-oss-120b` on one task) declined steadily with depth, which looked like a
+general "coverage decays over a trajectory" law. Run on two further
+environments, the decline shrinks and then vanishes into noise — and four of six
+models show no decay at all. There is no general decay law here; there is a
+per-vendor disclosure policy.
 
 ### Two instruments, one corpus, two different answers
 
@@ -158,7 +162,7 @@ from the agent corpus at all.
 |---|---|---|---|
 | Inspect eval logs (baseline) | 3 models × 3 safety benchmarks, run on local vLLM | 3,789 turns | MIT (own runs) |
 | Inspect eval logs (reasoning) | 9 arms, 4 vendors, via OpenRouter | 11,367 turns | own runs; vendor terms vary |
-| Agentic trajectories | `agentharm_benign`, real multi-step tool use, 50 trajectories × 2 models | 581 turns | own runs; benign split only |
+| Agentic trajectories | three families — `agentharm_benign`, `gdm_intercode_ctf`, `agent_bench_os` — 50 trajectories per model | growing; 6 model families | own runs; benign splits only |
 | Mythos 5 transcript | Anthropic's released incident transcript | 2,061 turns | not stated; **do-not-train, carries a canary** |
 | collusion.wiki | AI agents editing a German wiki | 14,591 revisions | **none stated** |
 | WikiTactics | human Wikipedia disagreement, labelled | 3,865 utterances | **none stated** |
@@ -198,11 +202,11 @@ monitor is trustworthy. Do not cite them as a standard.
 
 ## What this does not establish
 
-1. **Trajectory length is still limited.** The agentic arm has a median of 8
-   turns, which is genuinely multi-step but not the hundred-step setting the
-   argument ultimately concerns. It narrows the transfer gap rather than closing
-   it. The decline in coverage with depth is also *measured, not explained* —
-   nothing here identifies why late turns carry less reasoning.
+1. **Trajectory length is still limited.** Median 5–8 turns across the three
+   agentic families. Genuinely multi-step, but not the hundred-step setting the
+   argument ultimately concerns; it narrows the transfer gap rather than closing
+   it. The shapes are also *measured, not explained* — nothing here identifies
+   why one vendor stops disclosing after the first turn.
 2. **No rate is reported for agent-to-agent objection.** The instruments were
    validated on human prose; nothing shows they transfer to agent protocol
    strings. That transfer is unbuilt, and it is why `rq3` returns a bound.
