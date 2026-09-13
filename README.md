@@ -295,6 +295,7 @@ uv run python scripts/make_paper_figures.py  # the two paper figures
 
 uv run python scripts/report_positional.py     # per-arm shape verdicts
 uv run python scripts/report_turn_boundary.py  # not produced vs not readable
+uv run python scripts/report_turn_boundary.py --followup --json results/turn_boundary_followup.json  # the 0/661 -> 667/667 header result
 uv run python scripts/verify_coverage.py       # agentic families vs provider tokens
 ```
 
