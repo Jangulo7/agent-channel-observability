@@ -24,6 +24,7 @@ DEFAULT_MYTHOS = (
 DEFAULT_INSPECT_LOGS = REPO_ROOT / "data" / "inspect_logs"
 DEFAULT_REASONING_LOGS = REPO_ROOT / "data" / "inspect-runs-reasoning"
 DEFAULT_AGENTIC_LOGS = REPO_ROOT / "data" / "inspect-runs-agentic"
+DEFAULT_CTF_LOGS = REPO_ROOT / "data" / "inspect-runs-ctf"
 
 #: Largest within-model spread across task classes that still permits pooling
 #: them into one bar. Above this, pooling would hide variation the figure exists
@@ -85,6 +86,7 @@ def _add_corpus_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--agentic-logs", type=Path, default=DEFAULT_AGENTIC_LOGS
     )
+    parser.add_argument("--ctf-logs", type=Path, default=DEFAULT_CTF_LOGS)
 
 
 #: Each corpus keeps its own record file. Records are never pooled across corpora:
@@ -94,6 +96,7 @@ RECORD_FILENAMES = {
     "mythos_transcript": "observability_record_mythos.json",
     "inspect_logs_reasoning": "observability_record_reasoning.json",
     "inspect_logs_agentic": "observability_record_agentic.json",
+    "inspect_logs_ctf": "observability_record_ctf.json",
 }
 
 
@@ -155,6 +158,17 @@ def _corpora(
         groups.append((agentic.describe(), list(agentic.observations())))
     else:
         missing.append(f"inspect_logs_agentic (looked in {agentic.root})")
+
+    ctf = InspectLogLoader(
+        getattr(args, "ctf_logs", DEFAULT_CTF_LOGS),
+        name="inspect_logs_ctf",
+        licence="run artefacts of this project via OpenRouter; model terms vary",
+        label_by_directory=True,
+    )
+    if ctf.available():
+        groups.append((ctf.describe(), list(ctf.observations())))
+    else:
+        missing.append(f"inspect_logs_ctf (looked in {ctf.root})")
 
     return groups, missing
 
