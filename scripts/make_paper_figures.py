@@ -65,7 +65,15 @@ def _arm_shares() -> list[tuple[str, dict[str, float]]]:
     states = ("raw_present", "summary_only", "redacted", "absent")
     out = [(arm, {k: row[k] / row["n"] for k in states} | {"n": row["n"]})
            for arm, row in agg.items()]
-    return sorted(out, key=lambda kv: kv[1]["raw_present"])
+    # Arms tied on readable share (the three gpt-5-nano effort arms are all 0.0000)
+    # would otherwise order incidentally; break the tie on effort, then on name, so
+    # low/medium/high always read in that order and the figure is deterministic.
+    effort = {"low": 0, "medium": 1, "high": 2}
+    def _key(kv: tuple[str, dict[str, float]]) -> tuple[float, int, str]:
+        arm = kv[0]
+        suffix = arm.rsplit("-", 1)[-1]
+        return (kv[1]["raw_present"], effort.get(suffix, -1), arm)
+    return sorted(out, key=_key)
 
 
 def figure_visibility() -> tuple[Path, str]:
@@ -107,27 +115,36 @@ def figure_recall_drop() -> tuple[Path, str]:
         return [(p["step_index"], p["recall"])
                 for p in arms[arm]["recall_by_step"][channel]]
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(12, 6))
     max_step = 3  # powered steps; later steps fall below n=10 (noted in the caption)
+    # Series are labelled at the line end rather than in a legend box, and their
+    # step-0 value is annotated at the left, so the figure reads without a key.
+    # No descriptive note is drawn inside the axes: that text is the caption's job
+    # (see the .caption.txt written alongside), and duplicating it here renders it
+    # too small to read in the compiled paper.
     for arm, ch, colour, ls, marker, label in (
-        ("qwen3-on", "reasoning", C_COT, "-", "o", "CoT monitor, reasoning visible"),
-        ("qwen3-nothink", "reasoning", C_COT, "--", "o",
-         "CoT monitor, reasoning dark (/no_think)"),
-        ("qwen3-on", "action", C_ACTION, "-", "s", "action monitor, visible arm"),
-        ("qwen3-nothink", "action", C_ACTION, "--", "s", "action monitor, dark arm"),
+        ("qwen3-on", "reasoning", C_COT, "-", "o", "CoT monitor · visible"),
+        ("qwen3-nothink", "reasoning", C_COT, "--", "o", "CoT monitor · dark"),
+        ("qwen3-on", "action", C_ACTION, "-", "s", "action monitor · visible"),
+        ("qwen3-nothink", "action", C_ACTION, "--", "s", "action monitor · dark"),
     ):
         xy = [(x, y) for x, y in series(arm, ch) if x <= max_step]
-        ax.plot([x for x, _ in xy], [y for _, y in xy], ls, color=colour,
-                marker=marker, markersize=6, linewidth=2, label=label)
-    ax.set_xlim(-0.15, max_step + 0.15)
-    ax.set_ylim(-0.03, 1.03)
+        xs, ys = [x for x, _ in xy], [y for _, y in xy]
+        ax.plot(xs, ys, ls, color=colour, marker=marker, markersize=7, linewidth=2.2)
+        ax.text(xs[-1] + 0.10, ys[-1], label, color=colour, fontsize=12.5,
+                va="center", ha="left")
+        ax.text(xs[0] - 0.10, ys[0], f"{ys[0]:.2f}", color=TEXT, fontsize=12.5,
+                va="center", ha="right")
+    ax.set_xlim(-0.55, max_step + 1.45)
+    ax.set_ylim(-0.04, 1.06)
     ax.set_xticks(range(max_step + 1))
     ax.set_xlabel("trajectory step (assistant turn)")
     ax.set_ylabel("cumulative recall of harmful trajectories")
-    ax.set_title("A reasoning-gated monitor loses recall when the channel is dark;\n"
-                 "an action-gated monitor does not (qwen3-32b, AgentHarm harmful)",
-                 fontsize=12.5, color=TEXT)
-    ax.legend(loc="center right", frameon=False, fontsize=9.5)
+    ax.set_title("A reasoning-gated monitor collapses when the channel is dark;\n"
+                 "an action-gated monitor degrades but does not",
+                 fontsize=15, color=TEXT)
+    ax.grid(axis="y", color="#DDDDDD", linewidth=0.8)
+    ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     path = OUT / "fig2_recall_drop.png"
