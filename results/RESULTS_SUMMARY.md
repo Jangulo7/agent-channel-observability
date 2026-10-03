@@ -52,7 +52,7 @@ reasoning visible vs dark (`/no_think`). Cumulative recall by step:
 | 3 | 1.000 | 0.167 | 0.909 | 0.708 |
 
 42 positives visible, 38 dark. The reasoning-gated monitor abstains on 0/161 turns visible
-vs 144/155 dark; its recall drops ~0.83–0.93 when the channel is dark, while the
+vs 144/155 dark; its recall drops ~0.83–0.95 when the channel is dark, while the
 action-gated monitor keeps most of its recall. Figure:
 `results/figures_paper/fig2_recall_drop.png`. Caveat: `/no_think` also raised refusals
 (0.10 → 0.28), so the arms are not a perfectly clean A/B; the CoT collapse is unambiguous.
