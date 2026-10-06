@@ -31,12 +31,14 @@ per-step recall curve is not estimable at n = 2; the numbers in `monitor_record.
 descriptive only, and `underpowered` is `true` on both arms.
 
 **What the 2 positives per arm do show**, consistent with the turn-level coverage result
-(0/661 post-tool reasoning turns without the header, 667/667 with it):
+(0/661 post-tool reasoning turns without the header, 667/667 with it; the 661 dark
+turns report zero reasoning tokens and carry no block, so the reasoning was never
+produced rather than withheld):
 
 | arm | reasoning monitor: post-step-0 turns that ABSTAINED | action monitor |
 |---|---|---|
 | non-interleaved | **4 of 4** (nothing to read after a tool call) | flags actions; reaches full recall on the 2 positives |
-| interleaved | **0 of 6** (reasoning readable at every step) | same |
+| interleaved | **0 of 5** (reasoning readable at every step) | same |
 
 So the reasoning monitor's blindness after tool calls is a property of the serving
 configuration, and an action monitor is unaffected — the predicted pattern, demonstrated

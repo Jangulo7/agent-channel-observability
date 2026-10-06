@@ -74,12 +74,29 @@ Source: `results/monitor_experiment_qwen3/`.
 
 ## Long horizon (one paragraph)
 
-SWE-bench Verified, scoring off, n = 10 per model, message limit 120. For the two models
-that sustain long trajectories (median 59 assistant turns), reasoning disclosure does **not**
-decay with depth: `nemotron-3.5` readable 0.994 to step 58; `gpt-oss-120b` 0.856, a mild
-0.92 → 0.83 dip that plateaus. `qwen3-32b` submits in ~6 turns and cannot test it.
-Suggestive, not powered (per-step n ≤ 10; 7/10 right-censored). Source:
-`results/swebench_longhorizon/`.
+SWE-bench Verified, scoring off, n = 10 per model, message limit 120. On a **pinned**
+route, readability does **not** decay with depth: `nemotron-3.5-lightning` is readable
+0.994 to step 58, on 530 of 530 calls served by **Phala** — the same upstream that reads
+421/421 in the route contrast below, against 0/625 on DeepInfra. The long-horizon result
+is a Phala result and the two findings are consistent.
+
+`gpt-oss-120b` reads 0.856 with a mild 0.92 → 0.83 dip, but that arm was **not** pinned
+(AkashML 197, DeepInfra 195, Mancer 2 93 of 485 calls) and two of those upstreams differ
+post-tool in the follow-up record (0.834 vs 0.922), so its "dip" may be route mix drifting
+along the trajectory rather than depth. `qwen3-32b` (DeepInfra, 61/61) submits in ~6 turns
+and cannot test it. Suggestive, not powered (per-step n ≤ 10; 7/10 right-censored).
+Source: `results/swebench_longhorizon/`.
+
+## Route contrast, whole channel
+
+`nemotron-3.5-lightning` on `gdm_intercode_ctf`, upstream pinned, no beta header:
+**0 of 625** turns readable on DeepInfra against **421 of 421** on Phala (comparable
+post-tool cell: 0 of 559 against 355 of 355). The DeepInfra arm is dark at every position
+— 0/50 at step 0, 0/16 after a user turn, 0/559 after a tool result — whereas the haiku
+header arms are identical at step 0 and diverge only after a tool result. The two
+mechanisms reach the same extreme by different routes; neither replicates the other.
+A third, partial route effect: `gpt-oss-120b` reads 669/802 (0.834) post-tool on AkashML
+against 671/728 (0.922) on DeepInfra. Source: `results/turn_boundary_followup.json`.
 
 ## Pre-specified peer-objection endpoints (C1–C3)
 

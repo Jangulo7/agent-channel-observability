@@ -29,7 +29,7 @@ jobs:
         run: uv sync --frozen --extra dev
 
       - name: Lint
-        run: uv run ruff check src tests
+        run: uv run ruff check src tests scripts
 
       - name: Typecheck
         run: uv run mypy src/channels
@@ -41,3 +41,15 @@ jobs:
 
       - name: Publication-safety checks
         run: uv run pytest -m "not integration" tests/test_publication_safety.py -q
+
+      # Paper-facing gates. The manuscript lives outside the repository, so the
+      # number checker runs its self-check (records only) and the reference checker
+      # runs offline; both become no-ops rather than failures when the .tex is absent.
+      - name: Paper numbers match their records
+        run: uv run python scripts/check_paper_numbers.py --self-check
+
+      - name: Bibliography structure
+        run: uv run python scripts/verify_references.py --offline
+
+      - name: Records are schema-current
+        run: uv run python scripts/migrate_record_schema_version.py --check

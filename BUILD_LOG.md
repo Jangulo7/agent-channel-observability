@@ -1112,3 +1112,70 @@ steps, **steps 0 and 1 come out exact in all four cells**: the manuscript's head
 numbers (0.929, 0.000, 0.476, 0.263 at step 0 and 0.952, 0.000, 0.690, 0.605 at step 1)
 are exact full-denominator recalls and need no revision. The survivor-conditioning defect
 is confined to rows at step ≥ 2 and to the sentence "100% by step 2".
+
+**GREEN — the monitor experiment's own serving configuration is now recorded (R04).** The
+agent logs were on disk throughout. Both `qwen3-32b` arms were pinned after all: DeepInfra
+served 172 of 172 logged calls in the visible arm and 180 of 180 in the dark arm, requested
+through `extra_body.provider`, so §3.5's "provider pinned" was true and is now evidenced.
+Sampling temperature was never set and the record says so rather than implying a default.
+
+The finding that was not expected: AgentHarm's grader is `gpt-4o-2024-08-06`, which the
+paper never named, it was **not** pinned, and its upstream mix differed between the two
+arms it labelled (Azure 82 / OpenAI 120 against Azure 128 / OpenAI 80). Ground truth for
+every positive therefore came from an unpinned model whose own serving configuration varied
+between the arms being compared — the confound this paper is about, in this paper's ground
+truth. It is now Limitation (4) and is named in the conclusion.
+
+A first cut of `report_monitor_provenance.py` pooled every model event and reported the
+visible arm as "DeepInfra 172, OpenAI 120, Azure 82", attributing the grader's upstream to
+the agent. Every count is now keyed by model, and the agent is taken from the eval header
+rather than by matching the arm name against a model id.
+
+**GREEN — every SWE-bench arm's upstream is named (R05), and it resolves an apparent
+contradiction.** §4.4 reported `nemotron-3.5-lightning` readable on 0.994 of 530 turns to
+step 58 while §4.1 reported the same model dark on 0 of 625 pinned to DeepInfra. The
+long-horizon arm ran on **Phala**, 530 of 530 — the same upstream that reads 421 of 421 in
+the route contrast. The two findings are consistent and jointly stronger: one route stays
+readable on a second benchmark at six times the depth, the other is dark at every turn.
+
+The `gpt-oss-120b` SWE arm was **not** pinned (AkashML 197, DeepInfra 195, Mancer 2 93 of
+485 calls), and two of those upstreams already differ post-tool in our own follow-up record
+(0.834 against 0.922). Its "mild 0.92 → 0.83 dip that plateaus" may be route composition
+drifting along the trajectory rather than anything to do with depth, so the arm no longer
+supports a depth claim and §4.4 says so.
+
+**GREEN — the manuscript corrections (R06–R14, R20–R22).** "A partition, not a spectrum"
+is scoped to the sweep, whose configuration lever is binary in every arm, and replaced by
+the two-part claim that visibility is bimodal under binary configuration and continuous
+where the model's emission behaviour varies — four intermediate shares in our own records
+(0.834, 0.922, 0.856, 0.836) refuted the unscoped version. "Disclosed" becomes "produced"
+throughout the header contrast, with the three consequences drawn: the arms are not
+behaviourally equivalent, the headline falls on the not-produced side so the remedy is
+configuration reporting rather than disclosure, and the finding is thereby stronger.
+`/no_think` is "mostly dark" (11 of 155). The haiku pin claim is removed. "23,541" is
+replaced by the 17,181 ledger in the paper's two uses and kept in CITATION.cff and README,
+where it is a true statement about the artifact. "Coverage" is defined at first use and
+distinguished from Emmons et al.'s completeness sense; the title is unchanged.
+
+**GREEN — paper-facing CI (R19, R23).** `check_paper_numbers.py` holds 66 record-derived
+numbers with their derivations; `--self-check` passes on records alone and `--check`
+confirms the manuscript contains each one. Corrupting one digit makes it exit non-zero.
+`verify_references.py` checks the bibliography: 25 entries, 22 arXiv ids, all resolving
+with matching titles and first authors. It found one real gap — `guan2026` cited an
+OpenReview forum link with no durable identifier — now citing PMLR 306 instead. CI gained
+these two plus a schema-staleness check, and `ruff check` now covers `scripts/` as well as
+`src` and `tests`.
+
+**Not done, and why.** Run A (monitor re-scoring for a false-positive rate, post-hoc
+channel stripping, retained per-trajectory verdicts) and Run B (benign negatives) were
+excluded by the standing constraint: no new measurement. Both would have cost model calls.
+The false-positive rate is therefore **declared unmeasured** in §4.2 and Limitation (3)
+rather than estimated from the 8 and 12 refusal negatives already in the logs, whose Wilson
+intervals at zero flags would be [0.000, 0.324] and [0.000, 0.242] — wider than the effects
+being reported, and in the dark arm a measure of abstention rather than discrimination.
+Scoring a benign split is now the first item of future work, ahead of the native-API audit,
+because it is the cheapest. The exact monotone full-denominator curve is likewise not
+derivable and is bracketed instead (R02).
+
+Passing: ruff (src, tests, scripts), mypy --strict, pytest 338, check_paper_numbers
+--self-check, verify_references --offline, migrate_record_schema_version --check.
