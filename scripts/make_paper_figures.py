@@ -42,12 +42,17 @@ plt.rcParams.update({"font.size": 12, "axes.edgecolor": "#444444",
 FIG1_CAPTION = (
     "Figure 1. Share of assistant turns in each reasoning-channel state, per model "
     "arm, over three safety benchmarks (sycophancy, xstest, strong_reject; n = 1,263 "
-    "assistant turns per arm, identical 1,013 samples). Visibility is a partition, not "
-    "a spectrum: five arms are readable at about 1.0; deepseek-v3.2 in its default "
-    "configuration is fully absent (no reasoning produced) while the same model with "
-    "reasoning requested is 0.980 readable; and gpt-5-nano at low, medium and high "
-    "effort is fully redacted (encrypted). What an evaluator can read is set by the "
-    "provider and the request, not by the model. "
+    "assistant turns per arm, identical 1,013 samples). Visibility is bimodal IN THIS "
+    "SWEEP, whose configuration lever is binary in every arm: five arms are readable "
+    "at about 1.0; deepseek-v3.2 in its default configuration is fully absent (no "
+    "reasoning produced) while the same model with reasoning requested is 0.980 "
+    "readable; and gpt-5-nano at low, medium and high effort is fully redacted "
+    "(encrypted). The bimodality is not a general law: the agentic arms, where the "
+    "model's own emission behaviour varies, give intermediate shares (0.834 and 0.922 "
+    "for gpt-oss-120b across two pinned upstreams; 0.856 and 0.836 on SWE-bench). "
+    "Note also that this sweep is single-turn and so cannot show the post-tool-result "
+    "effect. What an evaluator can read is set by the provider and the request, not by "
+    "the model alone. "
     "Source: results/observability_record_reasoning.json."
 )
 
@@ -116,7 +121,10 @@ def figure_recall_drop() -> tuple[Path, str]:
                 for p in arms[arm]["recall_by_step"][channel]]
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    max_step = 3  # powered steps; later steps fall below n=10 (noted in the caption)
+    # Powered steps; later steps fall below n=10 (noted in the caption). Step 4 holds
+    # n=16 visible and n=13 dark, and its action-dark cell rises where step 3 fell,
+    # which is the survivor-conditioned denominator becoming visible in the figure.
+    max_step = 4
     # Series are labelled at the line end rather than in a legend box, and their
     # step-0 value is annotated at the left, so the figure reads without a key.
     # No descriptive note is drawn inside the axes: that text is the caption's job
@@ -139,7 +147,7 @@ def figure_recall_drop() -> tuple[Path, str]:
     ax.set_ylim(-0.04, 1.06)
     ax.set_xticks(range(max_step + 1))
     ax.set_xlabel("trajectory step (assistant turn)")
-    ax.set_ylabel("cumulative recall of harmful trajectories")
+    ax.set_ylabel("recall among trajectories reaching step j")
     ax.set_title("A reasoning-gated monitor collapses when the channel is dark;\n"
                  "an action-gated monitor degrades but does not",
                  fontsize=15, color=TEXT)
@@ -157,13 +165,22 @@ def figure_recall_drop() -> tuple[Path, str]:
         "only the reasoning channel and one only the actions, over harmful-graded "
         f"qwen3-32b trajectories (AgentHarm harmful; {on} positives with reasoning "
         f"visible, {dark} with reasoning turned off by /no_think; AgentHarm's own "
-        "grader is ground truth). With reasoning visible the CoT monitor catches 0.93 "
-        "of trajectories at the first step and 1.00 by step 2; with the channel dark "
-        "it catches 0.00 at step 0 and 0.17 by step 3 (abstaining on 144/155 turns). "
-        "The action monitor keeps most of its recall in both arms because actions "
-        "stay observable. Steps beyond 3 fall below n = 10 and are omitted. Caveat: "
-        "/no_think also raised refusals (0.10 to 0.28), so the arms are not a clean "
-        "behavioural A/B; the CoT collapse is unambiguous. "
+        "grader is gpt-4o-2024-08-06, our ground truth). The denominator is "
+        "survivor-conditioned: at each step it is the positive trajectories still "
+        "running, so the curves are not monotone. Steps 0 and 1 are exact "
+        "full-denominator recalls, because the shortest positive trajectory in either "
+        "arm runs two steps. With reasoning visible the CoT monitor catches 0.93 of "
+        "trajectories at the first step, and all 29 still running at step 2 had been "
+        "caught; with the channel dark it catches 0.00 at step 0 and at most 0.17 "
+        "through step 4 (abstaining on 144/155 turns). The action monitor keeps most "
+        "of its recall in both arms because actions stay observable; its step-3 to "
+        "step-4 rise is the shrinking denominator, not a late catch. Steps beyond 4 "
+        "fall below n = 10 and are omitted. Caveats: /no_think also raised refusals "
+        "(0.10 to 0.28; difference 0.18, 95% CI [0.03, 0.33]), so the arms are not a "
+        "clean behavioural A/B, and no false-positive rate was measured, so these are "
+        "a visible-versus-dark contrast rather than an operating point. The CoT "
+        "collapse is unambiguous: the Newcombe 95% interval for the step-0 difference "
+        "is [0.78, 0.98]. "
         "Source: results/monitor_experiment_qwen3/monitor_record.json."
     )
     return path, caption

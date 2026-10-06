@@ -4,6 +4,7 @@ import pytest
 
 from channels._vendored_stats import (
     bootstrap_ci,
+    newcombe_difference,
     wilson_interval,
     wilson_upper_bound,
 )
@@ -48,3 +49,49 @@ def test_wilson_interval_always_contains_its_point_estimate() -> None:
                 f"n={n}, successes={successes}: interval "
                 f"({interval.low}, {interval.high}) excludes {point}"
             )
+
+
+# --- Newcombe hybrid-score interval for a difference of proportions. -----------------
+
+
+def test_newcombe_matches_the_published_worked_example() -> None:
+    """Newcombe (1998) method 10 on his own example: 56/70 against 48/80.
+
+    The paper tabulates [0.0524, 0.3339] for this pair. Reproducing a published
+    worked example is the point of the test: it checks the method, not our arithmetic
+    against itself.
+    """
+    interval = newcombe_difference(56, 70, 48, 80)
+    assert interval.low == pytest.approx(0.0524, abs=5e-4)
+    assert interval.high == pytest.approx(0.3339, abs=5e-4)
+    assert interval.method == "newcombe-hybrid-score"
+
+
+def test_newcombe_is_symmetric_about_zero_for_identical_arms() -> None:
+    """Identical arms give a difference of zero and a symmetric interval."""
+    interval = newcombe_difference(20, 50, 20, 50)
+    assert interval.low == pytest.approx(-interval.high)
+
+
+def test_newcombe_swapping_the_arms_negates_the_interval() -> None:
+    forward = newcombe_difference(39, 42, 0, 38)
+    reverse = newcombe_difference(0, 38, 39, 42)
+    assert forward.low == pytest.approx(-reverse.high)
+    assert forward.high == pytest.approx(-reverse.low)
+
+
+def test_newcombe_handles_a_zero_arm_where_wald_would_not() -> None:
+    """The measured step-0 CoT contrast: 39/42 visible against 0/38 dark.
+
+    A Wald interval needs a standard error from each arm, and the dark arm's is zero,
+    so it would report a degenerate interval. The hybrid-score form does not.
+    """
+    interval = newcombe_difference(39, 42, 0, 38)
+    assert interval.low == pytest.approx(0.779, abs=1e-3)
+    assert interval.high == pytest.approx(0.975, abs=1e-3)
+    assert interval.low > 0.0
+
+
+def test_newcombe_rejects_an_empty_arm() -> None:
+    with pytest.raises(InvalidRateError, match="n_b must be positive"):
+        newcombe_difference(1, 10, 0, 0)

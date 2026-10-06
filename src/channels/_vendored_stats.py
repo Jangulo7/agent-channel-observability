@@ -212,3 +212,47 @@ def _z_for(confidence: float, two_sided: bool) -> float:
             f"(two_sided={two_sided}); tabulated levels are 0.90, 0.95, 0.99"
         )
     return table[key]
+
+
+def newcombe_difference(
+    successes_a: int,
+    n_a: int,
+    successes_b: int,
+    n_b: int,
+    confidence: float = 0.95,
+) -> Interval:
+    """Hybrid-score interval for the difference of two independent proportions.
+
+    Newcombe (1998) method 10: take each arm's Wilson limits, then combine the
+    distances from each point estimate in quadrature. The paper's visible and dark
+    arms are independent samples of trajectories, not a paired design, so this is the
+    applicable form.
+
+    Two non-overlapping Wilson intervals are evidence that two proportions differ, but
+    they are not an interval for the difference, and reporting them in place of one
+    overstates what was computed. This gives the quantity the comparison is actually
+    about. It behaves at the boundaries where a Wald interval does not: with 0 of 38
+    against 39 of 42 the normal-approximation standard error on one arm is zero.
+
+    Reference: Newcombe, R. G. (1998). Interval estimation for the difference between
+    independent proportions: comparison of eleven methods. Statistics in Medicine
+    17(8), 873-890.
+    """
+    for n, name in ((n_a, "n_a"), (n_b, "n_b")):
+        if n <= 0:
+            raise InvalidRateError(
+                f"{name} must be positive for a difference interval, got {n}"
+            )
+    first = wilson_interval(successes_a, n_a, confidence)
+    second = wilson_interval(successes_b, n_b, confidence)
+    point_a = successes_a / n_a
+    point_b = successes_b / n_b
+    difference = point_a - point_b
+    low = difference - math.hypot(point_a - first.low, second.high - point_b)
+    high = difference + math.hypot(first.high - point_a, point_b - second.low)
+    return Interval(
+        low=max(-1.0, low),
+        high=min(1.0, high),
+        method="newcombe-hybrid-score",
+        level=confidence,
+    )
