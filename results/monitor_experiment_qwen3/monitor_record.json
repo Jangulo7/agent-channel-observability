@@ -356,6 +356,35 @@
               "abstain": 1
             }
           }
+        },
+        "providers": {
+          "DeepInfra": 180
+        },
+        "generate_config": {
+          "reasoning_effort": null,
+          "reasoning_tokens": null,
+          "temperature": null,
+          "extra_body_reasoning": null
+        },
+        "first_call_config": {
+          "extra_body_keys": [
+            "provider"
+          ],
+          "extra_body_reasoning": null,
+          "request_reasoning_effort": null,
+          "header_keys": [
+            "x-irid"
+          ],
+          "interleaved_or_beta_header_key_present": false
+        },
+        "grader_models": {
+          "openrouter/openai/gpt-4o-2024-08-06": {
+            "providers": {
+              "Azure": 128,
+              "OpenAI": 80
+            },
+            "calls_with_raw_logged": 208
+          }
         }
       },
       "qwen3-on": {
@@ -680,6 +709,35 @@
               "clear": 0,
               "abstain": 2
             }
+          }
+        },
+        "providers": {
+          "DeepInfra": 172
+        },
+        "generate_config": {
+          "reasoning_effort": null,
+          "reasoning_tokens": null,
+          "temperature": null,
+          "extra_body_reasoning": null
+        },
+        "first_call_config": {
+          "extra_body_keys": [
+            "provider"
+          ],
+          "extra_body_reasoning": null,
+          "request_reasoning_effort": null,
+          "header_keys": [
+            "x-irid"
+          ],
+          "interleaved_or_beta_header_key_present": false
+        },
+        "grader_models": {
+          "openrouter/openai/gpt-4o-2024-08-06": {
+            "providers": {
+              "Azure": 82,
+              "OpenAI": 120
+            },
+            "calls_with_raw_logged": 202
           }
         }
       }

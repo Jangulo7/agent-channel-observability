@@ -52,6 +52,7 @@ from channels.provider_usage import (
     assistant_turns,
     model_calls,
     pair_turns,
+    request_config,
 )
 from channels.schema import ReasoningState
 
@@ -74,7 +75,6 @@ FOLLOWUP_FAMILIES = {
 }
 
 #: Header key fragments that would turn on Anthropic interleaved thinking.
-INTERLEAVED_HEADER_MARKERS = ("anthropic-beta", "interleaved")
 
 STEP0 = "step 0"
 
@@ -218,23 +218,6 @@ def _count_calls(report: ArmReport, events: Iterable[Any]) -> None:
         report.providers[str(response.get("provider", "not recorded"))] += 1
         if report.first_call_config is None:
             report.first_call_config = request_config(call.request)
-
-
-def request_config(request: dict[str, Any]) -> dict[str, Any]:
-    """Reasoning settings and header KEY names from one logged request; no values."""
-    extra_body = request.get("extra_body") or {}
-    header_keys = sorted((request.get("extra_headers") or {}).keys())
-    return {
-        "extra_body_keys": sorted(extra_body.keys()),
-        "extra_body_reasoning": extra_body.get("reasoning"),
-        "request_reasoning_effort": request.get("reasoning_effort"),
-        "header_keys": header_keys,
-        "interleaved_or_beta_header_key_present": any(
-            marker in key.lower()
-            for key in header_keys
-            for marker in INTERLEAVED_HEADER_MARKERS
-        ),
-    }
 
 
 def arm_report(paths: Sequence[Path], arm: str) -> tuple[ArmReport, dict[str, Any]]:

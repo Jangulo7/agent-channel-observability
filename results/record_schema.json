@@ -1126,6 +1126,31 @@
                   },
                   "first_call_config": {
                     "type": "object"
+                  },
+                  "grader_models": {
+                    "description": "AgentHarm's own grader, which is ground truth for every positive: its model id, upstream providers and logged call count. Reported for the same reason the agent's are - the grader was not pinned, and its upstream mix differed between arms.",
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "required": [
+                        "providers",
+                        "calls_with_raw_logged"
+                      ],
+                      "properties": {
+                        "providers": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "calls_with_raw_logged": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "additionalProperties": false
+                    }
                   }
                 }
               }

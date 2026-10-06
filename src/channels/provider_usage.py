@@ -139,3 +139,30 @@ def _turn_id(turn: Any) -> str | None:
     """A turn's message id as a string, or None when it has none."""
     value = getattr(turn, "id", None)
     return str(value) if value is not None else None
+
+
+# Header keys that mark an interleaved-thinking or Anthropic beta request. Matched on
+# the KEY name only: a header value may carry an API token and is never read.
+INTERLEAVED_HEADER_MARKERS = ("anthropic-beta", "interleaved")
+
+
+def request_config(request: dict[str, Any]) -> dict[str, Any]:
+    """Reasoning settings and header KEY names from one logged request; no values.
+
+    The serving configuration a paper must report is exactly this: what was asked
+    for, and which headers were attached. Header values are excluded because they
+    carry credentials, and because the finding is about which keys are present.
+    """
+    extra_body = request.get("extra_body") or {}
+    header_keys = sorted((request.get("extra_headers") or {}).keys())
+    return {
+        "extra_body_keys": sorted(extra_body.keys()),
+        "extra_body_reasoning": extra_body.get("reasoning"),
+        "request_reasoning_effort": request.get("reasoning_effort"),
+        "header_keys": header_keys,
+        "interleaved_or_beta_header_key_present": any(
+            marker in key.lower()
+            for key in header_keys
+            for marker in INTERLEAVED_HEADER_MARKERS
+        ),
+    }
