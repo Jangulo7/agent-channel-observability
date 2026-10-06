@@ -11,10 +11,12 @@ repository text is read or written - only per-turn classification counts.
 
 from __future__ import annotations
 
+import argparse
+import copy
 import glob
 import json
 import statistics as st
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -89,8 +91,125 @@ def _arm(log: Any) -> dict[str, Any]:
     }
 
 
+def _arm_providers(log_path: str) -> dict[str, dict[str, int]]:
+    """Upstream providers per model for one arm's log, keyed by model id.
+
+    The depth result is route-conditional: the same model reads 0 of 625 turns on
+    one upstream and all of them on another (results/turn_boundary_followup.json).
+    A readable share reported without its upstream therefore describes no route, and
+    an arm served by several upstreams reports an average over them rather than a
+    property of depth.
+    """
+    from inspect_ai.log import read_eval_log_samples
+
+    counts: dict[str, Counter[str]] = {}
+    for sample in read_eval_log_samples(log_path, resolve_attachments=True):
+        for event in getattr(sample, "events", []) or []:
+            if getattr(event, "event", None) != "model":
+                continue
+            call = getattr(event, "call", None)
+            if call is None:
+                continue
+            response = call.response if isinstance(call.response, dict) else {}
+            model = str(getattr(event, "model", "not recorded"))
+            counts.setdefault(model, Counter())[
+                str(response.get("provider", "not recorded"))
+            ] += 1
+    return {model: dict(tally) for model, tally in counts.items()}
+
+
+def _report_providers(write: bool) -> int:
+    """Print each arm's upstream providers; with `write`, append them to the record.
+
+    Append-only: the run aborts if any pre-existing value in the record would
+    change, so the measured readable shares cannot be disturbed by adding their
+    provenance.
+    """
+    if not OUT.exists():
+        print(f"no record at {OUT}; run without --providers first")
+        return 1
+    payload = json.loads(OUT.read_text())
+    before = copy.deepcopy(payload)
+    arms = payload["swebench_longhorizon"]["arms"]
+
+    for arm_name, block in arms.items():
+        logs = sorted(glob.glob(str(LOGS / arm_name / "*.eval")))
+        if not logs:
+            print(f"{arm_name}: no log under {LOGS / arm_name}")
+            continue
+        from inspect_ai.log import read_eval_log
+
+        agent_model = str(read_eval_log(logs[0], header_only=True).eval.model)
+        per_model = _arm_providers(logs[0])
+        # Take the agent from the eval header, never by matching the arm name
+        # against a model id: a log may hold a grader's calls too, and attributing
+        # the grader's upstream to the agent is exactly the error this records
+        # against.
+        providers = per_model.get(agent_model, {})
+        if not providers:
+            print(
+                f"{arm_name}: no logged call for the eval model {agent_model}; "
+                f"models seen: {sorted(per_model)}"
+            )
+            continue
+        other = sorted(model for model in per_model if model != agent_model)
+        if other:
+            block["other_models_in_log"] = {
+                model: per_model[model] for model in other
+            }
+        block["providers"] = providers
+        total = sum(providers.values())
+        served = ", ".join(
+            f"{name} {count}" for name, count in sorted(
+                providers.items(), key=lambda item: -item[1]
+            )
+        )
+        pinned = "pinned" if len(providers) == 1 else "NOT pinned"
+        print(f"{arm_name}: {total} logged call(s), {pinned} - {served}")
+
+    if not write:
+        return 0
+    _assert_append_only(before, payload)
+    OUT.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"wrote {OUT}")
+    return 0
+
+
+def _assert_append_only(before: Any, after: Any, path: str = "") -> None:
+    """Raise unless `after` only adds keys to `before`."""
+    if isinstance(before, dict):
+        if not isinstance(after, dict):
+            raise SystemExit(f"{path or '<root>'}: a mapping became {type(after)}")
+        for key, value in before.items():
+            if key not in after:
+                raise SystemExit(f"{path}/{key}: pre-existing key was removed")
+            _assert_append_only(value, after[key], f"{path}/{key}")
+    elif isinstance(before, list):
+        if not isinstance(after, list) or len(after) != len(before):
+            raise SystemExit(f"{path}: a list changed length or type")
+        for index, value in enumerate(before):
+            _assert_append_only(value, after[index], f"{path}[{index}]")
+    elif before != after:
+        raise SystemExit(f"{path}: {before!r} would become {after!r}")
+
+
 def main() -> int:
     """Write the long-horizon coverage record for every SWE-bench arm."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--providers",
+        action="store_true",
+        help="report each arm's upstream providers instead of rebuilding the record",
+    )
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="with --providers, append the providers blocks to the record",
+    )
+    args = parser.parse_args()
+    if args.providers:
+        return _report_providers(args.write)
+
     from inspect_ai.log import read_eval_log
 
     record: dict[str, Any] = {"swebench_longhorizon": {

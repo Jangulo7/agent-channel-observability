@@ -346,7 +346,12 @@
             "readable_share": 0.8345864661654135
           }
         },
-        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor"
+        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor",
+        "providers": {
+          "DeepInfra": 195,
+          "Mancer 2": 93,
+          "AkashML": 197
+        }
       },
       "nemotron-3.5-lightning": {
         "n_trajectories": 10,
@@ -691,7 +696,10 @@
             "readable_share": 0.9865771812080537
           }
         },
-        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor"
+        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor",
+        "providers": {
+          "Phala": 530
+        }
       },
       "qwen3-32b": {
         "n_trajectories": 10,
@@ -766,7 +774,10 @@
             "readable_share": 0.8360655737704918
           }
         },
-        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor"
+        "note": "n<=10 per step (below MIN_CELL_N=30): suggestive, not powered; message-limit-hit trajectories are right-censored, so depth is a floor",
+        "providers": {
+          "DeepInfra": 61
+        }
       }
     }
   }

@@ -1367,7 +1367,8 @@
                     "additionalProperties": {
                       "type": "integer",
                       "minimum": 0
-                    }
+                    },
+                    "description": "Upstream providers for the arm's own model, taken from the eval header. The depth result is route-conditional, so a readable share without its route describes no route; an arm served by several upstreams reports an average over them rather than a property of depth."
                   },
                   "by_step": {
                     "type": "object",
@@ -1427,6 +1428,17 @@
                   },
                   "note": {
                     "type": "string"
+                  },
+                  "other_models_in_log": {
+                    "description": "Any non-agent model whose calls share the log (e.g. a grader), so its upstream is never attributed to the agent.",
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
                   }
                 }
               }
