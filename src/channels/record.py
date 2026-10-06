@@ -33,8 +33,41 @@ from channels.schema import CorpusDescription, ReasoningState
 # reasoning_tokens) crossed with the four readable states, and each bound block
 # carries produced / not-produced / unknown shares and the count of turns whose token
 # accounting contradicts returned content. Readable is not produced.
-SCHEMA_VERSION = "4.1"
+# 4.2: the committed schema covers every record under results/, not only this
+# one - the monitor arms, the header and route contrasts and the long-horizon
+# depth arm were previously unvalidated. The provenance key is renamed to
+# `prespecification_commit`: the endpoints were git-committed before any label
+# existed, but no independent registration was obtained.
+SCHEMA_VERSION = "4.2"
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "results" / "record_schema.json"
+
+# The records the committed schema describes, as paths relative to results/. The
+# schema has one branch per shape; adding a record means adding a branch and a path
+# here, which is why this list is explicit rather than a glob: a glob would let a new
+# record shape land unvalidated, which is exactly the gap 4.2 closes.
+SCHEMA_COVERED_RECORDS = (
+    "observability_record_reasoning.json",
+    "monitor_experiment/monitor_record.json",
+    "monitor_experiment_qwen3/monitor_record.json",
+    "turn_boundary_followup.json",
+    "swebench_longhorizon/longhorizon.json",
+)
+
+# Files under results/ that are deliberately outside the record schema, with the
+# reason. These are inputs to and outputs of the annotation and detector-validation
+# tools, not measurement records: they have their own shapes, their own tests
+# (test_annotate.py, test_validate.py), and no emission or recall semantics for the
+# record schema to describe.
+SCHEMA_EXEMPT_RECORDS = (
+    "annotations/analysis_results.json",
+    "annotations/message_code_n200_seed7__JAG.json",
+    "annotations/revert_validity_n5_seed1__practice.json",
+    "annotations/revert_validity_n60_seed7__JAD.json",
+    "annotations/revert_validity_n60_seed7__JAG.json",
+    "validation/nli_detector_1.0_wikitactics.json",
+    "validation/revert_detector_1.0_collusion_wiki.json",
+    "validation/tree_coder_1.0_wikitactics.json",
+)
 
 
 def build_record(
@@ -43,7 +76,7 @@ def build_record(
     profiles: Sequence[ArmProfile],
     codebook_hash: str,
     codebook_version: int | None = None,
-    preregistration_commit: str | None = None,
+    prespecification_commit: str | None = None,
     stage2_recall: float = 1.0,
     inter_agent: Mapping[str, Any] | None = None,
     detectors: Sequence[Mapping[str, Any]] | None = None,
@@ -63,7 +96,7 @@ def build_record(
             "schema_version": SCHEMA_VERSION,
             "codebook_version": codebook_version,
             "codebook_hash": codebook_hash,
-            "preregistration_commit": preregistration_commit,
+            "prespecification_commit": prespecification_commit,
             "generated_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "corpora": [_corpus_block(item) for item in corpora],
             "emission": {

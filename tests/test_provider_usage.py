@@ -323,7 +323,7 @@ def test_record_carries_cross_tab_and_arm_shares_and_validates() -> None:
     record = _record()
     validate_record(record)
     inner = record["observability_record"]
-    assert inner["schema_version"] == "4.1"
+    assert inner["schema_version"] == "4.2"
     (cell,) = inner["emission"]["cells"]
     assert cell["deliberation_evidence"] == {
         "produced": 4, "not_produced": 4, "unknown": 2

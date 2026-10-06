@@ -2,294 +2,1409 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Jangulo7/agent-channel-observability/results/record_schema.json",
   "title": "observability_record",
-  "description": "Machine-readable record of how observable a model's reasoning was, and the recall ceiling that imposes. Fields that were not measured are null with a status, never a plausible default.",
-  "type": "object",
-  "required": ["observability_record"],
-  "additionalProperties": false,
+  "description": "Machine-readable record of how observable a model's reasoning was, and the recall ceiling that imposes. Fields that were not measured are null with a status, never a plausible default. Schema 4.2 extends coverage from the primary observability record to every record under results/: the monitor arms, the header and route contrasts, and the long-horizon depth arm. Before 4.2 only the observability record was validated, which left every record behind the paper's headline findings unchecked.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/observability_record_file"
+    },
+    {
+      "$ref": "#/$defs/monitor_experiment_file"
+    },
+    {
+      "$ref": "#/$defs/turn_boundary_followup_file"
+    },
+    {
+      "$ref": "#/$defs/swebench_longhorizon_file"
+    }
+  ],
   "$defs": {
     "unit": {
-      "enum": ["step", "bin"],
+      "enum": [
+        "step",
+        "bin"
+      ],
       "description": "What the profile keys are: a 0-based step_index (arms with >= 2 trajectories) or an equal-width bin index (single-trajectory arms)."
     },
     "bin_width": {
-      "type": ["integer", "null"], "minimum": 1,
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
       "description": "Steps per bin when unit is bin; null when unit is step."
     },
     "state_counts": {
       "type": "object",
       "description": "Turns in each of the four READABLE states (what an external evaluator can read).",
-      "required": ["raw_present", "summary_only", "redacted", "absent"],
-      "additionalProperties": false,
-      "properties": {
-        "raw_present": {"type": "integer", "minimum": 0},
-        "summary_only": {"type": "integer", "minimum": 0},
-        "redacted": {"type": "integer", "minimum": 0},
-        "absent": {"type": "integer", "minimum": 0}
-      }
-    },
-    "evidence_share": {
-      "type": ["number", "null"], "minimum": 0, "maximum": 1
-    },
-    "unit_coherence": {
-      "if": {"properties": {"unit": {"const": "step"}}},
-      "then": {"properties": {"bin_width": {"type": "null"}}},
-      "else": {"properties": {"bin_width": {"type": "integer"}}}
-    }
-  },
-  "properties": {
-    "observability_record": {
-      "type": "object",
       "required": [
-        "schema_version", "codebook_version", "codebook_hash",
-        "generated_utc", "corpora", "emission", "bound",
-        "inter_agent_channel", "detectors"
+        "raw_present",
+        "summary_only",
+        "redacted",
+        "absent"
       ],
       "additionalProperties": false,
       "properties": {
-        "schema_version": {"const": "4.1"},
-        "codebook_version": {
-          "type": ["integer", "null"], "minimum": 1,
-          "description": "The `version` field of data/codebook/v1.yaml, read at measure time. null when it could not be read, never a guessed default."
+        "raw_present": {
+          "type": "integer",
+          "minimum": 0
         },
-        "codebook_hash": {"type": "string", "minLength": 1},
-        "preregistration_commit": {
-          "type": ["string", "null"],
-          "description": "The git commit that recorded the pre-specified analysis plan (config provenance.plan_commit); a provenance pointer, not an independent registration. null when not found."
+        "summary_only": {
+          "type": "integer",
+          "minimum": 0
         },
-        "generated_utc": {
-          "type": "string",
-          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+        "redacted": {
+          "type": "integer",
+          "minimum": 0
         },
-        "corpora": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "required": ["name", "n_utterances", "n_actors", "source_hash", "licence", "caveats"],
-            "additionalProperties": false,
-            "properties": {
-              "name": {"type": "string"},
-              "n_utterances": {"type": "integer", "minimum": 0},
-              "n_actors": {"type": "integer", "minimum": 0},
-              "actor_concentration": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-              "source_hash": {"type": "string"},
-              "licence": {"type": "string", "minLength": 1},
-              "caveats": {"type": "array", "items": {"type": "string"}}
-            }
+        "absent": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "evidence_share": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "unit_coherence": {
+      "if": {
+        "properties": {
+          "unit": {
+            "const": "step"
           }
-        },
-        "emission": {
+        }
+      },
+      "then": {
+        "properties": {
+          "bin_width": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "bin_width": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "observability_record_file": {
+      "title": "observability_record file",
+      "description": "The primary emission/bound record written by `channels measure` (results/observability_record_reasoning.json).",
+      "type": "object",
+      "required": [
+        "observability_record"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "observability_record": {
           "type": "object",
-          "required": ["denominator", "min_cell_n", "cells", "positional_profile", "uninspectable_share"],
+          "required": [
+            "schema_version",
+            "codebook_version",
+            "codebook_hash",
+            "generated_utc",
+            "corpora",
+            "emission",
+            "bound",
+            "inter_agent_channel",
+            "detectors"
+          ],
           "additionalProperties": false,
           "properties": {
-            "denominator": {
-              "const": "assistant turns that occurred at this step index",
-              "description": "Stated explicitly because the prior art does not state it. Turns that never occurred are absent from the cell, not counted as ABSENT."
+            "schema_version": {
+              "const": "4.2"
             },
-            "min_cell_n": {"type": "integer", "minimum": 1},
-            "cells": {
+            "codebook_version": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "description": "The `version` field of data/codebook/v1.yaml, read at measure time. null when it could not be read, never a guessed default."
+            },
+            "codebook_hash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "prespecification_commit": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The git commit that recorded the pre-specified analysis plan (config provenance.plan_commit); a provenance pointer, not an independent registration. null when not found."
+            },
+            "generated_utc": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+            },
+            "corpora": {
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["model", "task_class", "step_index", "n_turns", "raw_present", "summary_only", "redacted", "absent", "low_n", "deliberation_evidence", "state_by_evidence", "token_accounting_inconsistent"],
+                "required": [
+                  "name",
+                  "n_utterances",
+                  "n_actors",
+                  "source_hash",
+                  "licence",
+                  "caveats"
+                ],
                 "additionalProperties": false,
                 "properties": {
-                  "model": {"type": "string"},
-                  "task_class": {"type": "string"},
-                  "step_index": {"type": "integer", "minimum": 0},
-                  "reasoning_effort": {"type": ["string", "null"]},
-                  "n_turns": {"type": "integer", "minimum": 1},
-                  "raw_present": {"type": "number", "minimum": 0, "maximum": 1},
-                  "summary_only": {"type": "number", "minimum": 0, "maximum": 1},
-                  "redacted": {"type": "number", "minimum": 0, "maximum": 1},
-                  "absent": {"type": "number", "minimum": 0, "maximum": 1},
-                  "ci95_raw_present": {
-                    "type": "array", "minItems": 2, "maxItems": 2,
-                    "items": {"type": ["number", "null"]}
+                  "name": {
+                    "type": "string"
                   },
-                  "n_clusters": {"type": ["integer", "null"], "minimum": 1},
-                  "low_n": {"type": "boolean"},
-                  "deliberation_evidence": {
-                    "type": "object",
-                    "description": "Turns by whether reasoning was PRODUCED. Readable is not produced: raw_present..absent say what can be read; this says what was generated. Evidence hierarchy: returned reasoning content (raw_present, summary_only, redacted) is direct evidence and is produced whatever the token count says; only a turn with no reasoning content (absent) falls back to the provider's reasoning_tokens (ModelEvent.output.usage, paired to the turn by message id): > 0 produced (produced, not returned), explicit 0 not_produced, no count or no unambiguous pairing unknown. The three sum to n_turns.",
-                    "required": ["produced", "not_produced", "unknown"],
-                    "additionalProperties": false,
-                    "properties": {
-                      "produced": {"type": "integer", "minimum": 0},
-                      "not_produced": {"type": "integer", "minimum": 0},
-                      "unknown": {"type": "integer", "minimum": 0}
+                  "n_utterances": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "n_actors": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "actor_concentration": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "source_hash": {
+                    "type": "string"
+                  },
+                  "licence": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "caveats": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
                     }
-                  },
-                  "state_by_evidence": {
-                    "type": "object",
-                    "description": "3x4 cross-tab of turn counts: deliberation evidence (produced / not_produced / unknown) by readable state. produced x absent is reasoning generated and not returned; not_produced x absent is no reasoning generated. not_produced and unknown rows are zero outside absent, by the evidence hierarchy. Each row sums to its deliberation_evidence count; each column to n_turns times its state share.",
-                    "required": ["produced", "not_produced", "unknown"],
-                    "additionalProperties": false,
-                    "properties": {
-                      "produced": {"$ref": "#/$defs/state_counts"},
-                      "not_produced": {"$ref": "#/$defs/state_counts"},
-                      "unknown": {"$ref": "#/$defs/state_counts"}
-                    }
-                  },
-                  "token_accounting_inconsistent": {
-                    "type": ["integer", "null"], "minimum": 0,
-                    "description": "Turns that returned reasoning content (raw_present, summary_only or redacted) while the provider reported reasoning_tokens == 0. They are counted produced (the content is direct evidence); this count surfaces the contradiction, and the token count is the suspect side. null when the cell carried no token evidence."
                   }
                 }
               }
             },
-            "positional_profile": {
-              "type": "array",
-              "description": "One entry per arm (model x task_class x reasoning_effort). Arms are never pooled.",
-              "items": {
-                "type": "object",
-                "required": ["model", "task_class", "reasoning_effort", "unit", "bin_width", "n_trajectories", "profile"],
-                "allOf": [{"$ref": "#/$defs/unit_coherence"}],
-                "additionalProperties": false,
-                "properties": {
-                  "model": {"type": "string"},
-                  "task_class": {"type": "string"},
-                  "reasoning_effort": {"type": ["string", "null"]},
-                  "unit": {"$ref": "#/$defs/unit"},
-                  "bin_width": {"$ref": "#/$defs/bin_width"},
-                  "n_trajectories": {"type": "integer", "minimum": 1},
-                  "profile": {
+            "emission": {
+              "type": "object",
+              "required": [
+                "denominator",
+                "min_cell_n",
+                "cells",
+                "positional_profile",
+                "uninspectable_share"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "denominator": {
+                  "const": "assistant turns that occurred at this step index",
+                  "description": "Stated explicitly because the prior art does not state it. Turns that never occurred are absent from the cell, not counted as ABSENT."
+                },
+                "min_cell_n": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
                     "type": "object",
-                    "propertyNames": {"pattern": "^[0-9]+$"},
-                    "additionalProperties": {
-                      "type": "object",
-                      "required": ["rate", "ci95", "n_turns", "low_n", "interval_status"],
-                      "additionalProperties": false,
-                      "properties": {
-                        "rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-                        "ci95": {
-                          "type": "array", "minItems": 2, "maxItems": 2,
-                          "items": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+                    "required": [
+                      "model",
+                      "task_class",
+                      "step_index",
+                      "n_turns",
+                      "raw_present",
+                      "summary_only",
+                      "redacted",
+                      "absent",
+                      "low_n",
+                      "deliberation_evidence",
+                      "state_by_evidence",
+                      "token_accounting_inconsistent"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "model": {
+                        "type": "string"
+                      },
+                      "task_class": {
+                        "type": "string"
+                      },
+                      "step_index": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "reasoning_effort": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "n_turns": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "raw_present": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "summary_only": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "redacted": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "absent": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "ci95_raw_present": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": [
+                            "number",
+                            "null"
+                          ]
+                        }
+                      },
+                      "n_clusters": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": 1
+                      },
+                      "low_n": {
+                        "type": "boolean"
+                      },
+                      "deliberation_evidence": {
+                        "type": "object",
+                        "description": "Turns by whether reasoning was PRODUCED. Readable is not produced: raw_present..absent say what can be read; this says what was generated. Evidence hierarchy: returned reasoning content (raw_present, summary_only, redacted) is direct evidence and is produced whatever the token count says; only a turn with no reasoning content (absent) falls back to the provider's reasoning_tokens (ModelEvent.output.usage, paired to the turn by message id): > 0 produced (produced, not returned), explicit 0 not_produced, no count or no unambiguous pairing unknown. The three sum to n_turns.",
+                        "required": [
+                          "produced",
+                          "not_produced",
+                          "unknown"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "produced": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "not_produced": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "unknown": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        }
+                      },
+                      "state_by_evidence": {
+                        "type": "object",
+                        "description": "3x4 cross-tab of turn counts: deliberation evidence (produced / not_produced / unknown) by readable state. produced x absent is reasoning generated and not returned; not_produced x absent is no reasoning generated. not_produced and unknown rows are zero outside absent, by the evidence hierarchy. Each row sums to its deliberation_evidence count; each column to n_turns times its state share.",
+                        "required": [
+                          "produced",
+                          "not_produced",
+                          "unknown"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "produced": {
+                            "$ref": "#/$defs/state_counts"
+                          },
+                          "not_produced": {
+                            "$ref": "#/$defs/state_counts"
+                          },
+                          "unknown": {
+                            "$ref": "#/$defs/state_counts"
+                          }
+                        }
+                      },
+                      "token_accounting_inconsistent": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "description": "Turns that returned reasoning content (raw_present, summary_only or redacted) while the provider reported reasoning_tokens == 0. They are counted produced (the content is direct evidence); this count surfaces the contradiction, and the token count is the suspect side. null when the cell carried no token evidence."
+                      }
+                    }
+                  }
+                },
+                "positional_profile": {
+                  "type": "array",
+                  "description": "One entry per arm (model x task_class x reasoning_effort). Arms are never pooled.",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "model",
+                      "task_class",
+                      "reasoning_effort",
+                      "unit",
+                      "bin_width",
+                      "n_trajectories",
+                      "profile"
+                    ],
+                    "allOf": [
+                      {
+                        "$ref": "#/$defs/unit_coherence"
+                      }
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "model": {
+                        "type": "string"
+                      },
+                      "task_class": {
+                        "type": "string"
+                      },
+                      "reasoning_effort": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "unit": {
+                        "$ref": "#/$defs/unit"
+                      },
+                      "bin_width": {
+                        "$ref": "#/$defs/bin_width"
+                      },
+                      "n_trajectories": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "profile": {
+                        "type": "object",
+                        "propertyNames": {
+                          "pattern": "^[0-9]+$"
                         },
-                        "n_turns": {"type": "integer", "minimum": 1},
-                        "low_n": {"type": "boolean"},
-                        "interval_status": {
-                          "type": "string",
-                          "description": "ok, or why no interval exists (single_cluster_no_interval for a single-trajectory arm)."
+                        "additionalProperties": {
+                          "type": "object",
+                          "required": [
+                            "rate",
+                            "ci95",
+                            "n_turns",
+                            "low_n",
+                            "interval_status"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "rate": {
+                              "type": [
+                                "number",
+                                "null"
+                              ],
+                              "minimum": 0,
+                              "maximum": 1
+                            },
+                            "ci95": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ],
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            },
+                            "n_turns": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "low_n": {
+                              "type": "boolean"
+                            },
+                            "interval_status": {
+                              "type": "string",
+                              "description": "ok, or why no interval exists (single_cluster_no_interval for a single-trajectory arm)."
+                            }
+                          }
                         }
                       }
                     }
                   }
+                },
+                "uninspectable_share": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
                 }
               }
             },
-            "uninspectable_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
-          }
-        },
-        "bound": {
-          "type": "array",
-          "description": "One recall-ceiling block per arm, keyed exactly as that arm's positional_profile entry.",
-          "items": {
-            "type": "object",
-            "required": [
-              "model", "task_class", "reasoning_effort", "unit", "bin_width",
-              "stage2_recall_assumed", "mean_weighting", "ceiling_mean_coverage",
-              "ceiling_by_step", "ceiling_at_worst_powered_step",
-              "produced_share", "readable_given_produced", "not_produced_share",
-              "unknown_share", "token_accounting_inconsistent"
-            ],
-            "allOf": [{"$ref": "#/$defs/unit_coherence"}],
-            "additionalProperties": false,
-            "properties": {
-              "model": {"type": "string"},
-              "task_class": {"type": "string"},
-              "reasoning_effort": {"type": ["string", "null"]},
-              "unit": {"$ref": "#/$defs/unit"},
-              "bin_width": {"$ref": "#/$defs/bin_width"},
-              "stage2_recall_assumed": {"type": "number", "minimum": 0, "maximum": 1},
-              "mean_weighting": {
-                "const": "action-weighted",
-                "description": "ceiling_mean_coverage uses the pooled raw_present share over all the arm's turns, not an unweighted mean over positions."
-              },
-              "ceiling_mean_coverage": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-              "ceiling_by_step": {
+            "bound": {
+              "type": "array",
+              "description": "One recall-ceiling block per arm, keyed exactly as that arm's positional_profile entry.",
+              "items": {
                 "type": "object",
-                "propertyNames": {"pattern": "^[0-9]+$"},
-                "additionalProperties": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
-              },
-              "ceiling_at_worst_powered_step": {
-                "type": ["object", "null"],
-                "description": "The ceiling at the lowest-coverage position among positions with n_turns >= min_cell_n; null when no position is powered.",
-                "required": ["step", "value"],
+                "required": [
+                  "model",
+                  "task_class",
+                  "reasoning_effort",
+                  "unit",
+                  "bin_width",
+                  "stage2_recall_assumed",
+                  "mean_weighting",
+                  "ceiling_mean_coverage",
+                  "ceiling_by_step",
+                  "ceiling_at_worst_powered_step",
+                  "produced_share",
+                  "readable_given_produced",
+                  "not_produced_share",
+                  "unknown_share",
+                  "token_accounting_inconsistent"
+                ],
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/unit_coherence"
+                  }
+                ],
                 "additionalProperties": false,
                 "properties": {
-                  "step": {"type": "integer", "minimum": 0},
-                  "value": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+                  "model": {
+                    "type": "string"
+                  },
+                  "task_class": {
+                    "type": "string"
+                  },
+                  "reasoning_effort": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "unit": {
+                    "$ref": "#/$defs/unit"
+                  },
+                  "bin_width": {
+                    "$ref": "#/$defs/bin_width"
+                  },
+                  "stage2_recall_assumed": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "mean_weighting": {
+                    "const": "action-weighted",
+                    "description": "ceiling_mean_coverage uses the pooled raw_present share over all the arm's turns, not an unweighted mean over positions."
+                  },
+                  "ceiling_mean_coverage": {
+                    "type": [
+                      "number",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "ceiling_by_step": {
+                    "type": "object",
+                    "propertyNames": {
+                      "pattern": "^[0-9]+$"
+                    },
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  },
+                  "ceiling_at_worst_powered_step": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "The ceiling at the lowest-coverage position among positions with n_turns >= min_cell_n; null when no position is powered.",
+                    "required": [
+                      "step",
+                      "value"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "step": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "value": {
+                        "type": [
+                          "number",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 1
+                      }
+                    }
+                  },
+                  "produced_share": {
+                    "$ref": "#/$defs/evidence_share",
+                    "description": "Share of ALL the arm's turns with reasoning PRODUCED: reasoning content returned, or no content and provider reasoning_tokens > 0. Readable is not produced: this is not coverage. null when every turn is unknown, because 0 would read as not produced."
+                  },
+                  "readable_given_produced": {
+                    "$ref": "#/$defs/evidence_share",
+                    "description": "Among turns with reasoning PRODUCED, the share whose reasoning is readable (raw_present). null when no turn was produced."
+                  },
+                  "not_produced_share": {
+                    "$ref": "#/$defs/evidence_share",
+                    "description": "Share of ALL the arm's turns with no reasoning content and an explicit provider reasoning_tokens == 0 (no reasoning produced, so nothing was hidden). null when every turn is unknown."
+                  },
+                  "unknown_share": {
+                    "$ref": "#/$defs/evidence_share",
+                    "description": "Share of ALL the arm's turns with no reasoning content and either no reported count or no unambiguous producing call. produced_share + not_produced_share + unknown_share = 1 whenever the first two are not null."
+                  },
+                  "token_accounting_inconsistent": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0,
+                    "description": "The arm's turns that returned reasoning content while the provider reported reasoning_tokens == 0; counted produced, surfaced here because provider token accounting is not reliable on every upstream. null when any of the arm's cells carried no token evidence."
+                  }
                 }
-              },
-              "produced_share": {
-                "$ref": "#/$defs/evidence_share",
-                "description": "Share of ALL the arm's turns with reasoning PRODUCED: reasoning content returned, or no content and provider reasoning_tokens > 0. Readable is not produced: this is not coverage. null when every turn is unknown, because 0 would read as not produced."
-              },
-              "readable_given_produced": {
-                "$ref": "#/$defs/evidence_share",
-                "description": "Among turns with reasoning PRODUCED, the share whose reasoning is readable (raw_present). null when no turn was produced."
-              },
-              "not_produced_share": {
-                "$ref": "#/$defs/evidence_share",
-                "description": "Share of ALL the arm's turns with no reasoning content and an explicit provider reasoning_tokens == 0 (no reasoning produced, so nothing was hidden). null when every turn is unknown."
-              },
-              "unknown_share": {
-                "$ref": "#/$defs/evidence_share",
-                "description": "Share of ALL the arm's turns with no reasoning content and either no reported count or no unambiguous producing call. produced_share + not_produced_share + unknown_share = 1 whenever the first two are not null."
-              },
-              "token_accounting_inconsistent": {
-                "type": ["integer", "null"], "minimum": 0,
-                "description": "The arm's turns that returned reasoning content while the provider reported reasoning_tokens == 0; counted produced, surfaced here because provider token accounting is not reliable on every upstream. null when any of the arm's cells carried no token evidence."
+              }
+            },
+            "inter_agent_channel": {
+              "type": "object",
+              "required": [
+                "n_messages",
+                "n_human_excluded",
+                "denominator_code",
+                "n_denominator",
+                "rate_per_1000",
+                "rate_status",
+                "codes",
+                "messages_authenticated"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "n_messages": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "n_human_excluded": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "denominator_code": {
+                  "type": "string"
+                },
+                "n_denominator": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "rate_per_1000": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "rate_status": {
+                  "enum": [
+                    "ok",
+                    "no_denominator",
+                    "not_measured"
+                  ],
+                  "description": "not_measured: nothing inter-agent was measured, so every count is null rather than 0."
+                },
+                "zero_case_upper_bound_95": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "codes": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "messages_authenticated": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ],
+                  "description": "null by design. No corpus this project reads supports sender authentication. Recording the absence of a field we cannot populate is the honest form of the adversarial-channel finding."
+                }
+              }
+            },
+            "detectors": {
+              "type": "array",
+              "description": "One entry per detector. Two detectors on the same corpus emit two entries with their own recalls; they are never averaged into one.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "version",
+                  "validated_on",
+                  "recall"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "validated_on": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "codebook_hash": {
+                    "type": "string"
+                  },
+                  "recall": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  },
+                  "recall_ci95": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": [
+                          "number",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "precision": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  },
+                  "f1": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    }
+                  },
+                  "n_labelled": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
               }
             }
           }
+        }
+      }
+    },
+    "monitor_experiment_file": {
+      "title": "monitor_experiment file",
+      "description": "A monitor-recall record (results/monitor_experiment*/monitor_record.json). recall_by_step is survivor-conditioned: its denominator is the positive trajectories still running at that step. recall_full_bounds, when present, brackets the full-denominator curve.",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_experiment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$"
         },
-        "inter_agent_channel": {
+        "monitor_experiment": {
           "type": "object",
-          "required": ["n_messages", "n_human_excluded", "denominator_code", "n_denominator", "rate_per_1000", "rate_status", "codes", "messages_authenticated"],
-          "additionalProperties": false,
+          "required": [
+            "ground_truth",
+            "monitor_model",
+            "arms"
+          ],
           "properties": {
-            "n_messages": {"type": ["integer", "null"], "minimum": 0},
-            "n_human_excluded": {"type": ["integer", "null"], "minimum": 0},
-            "denominator_code": {"type": "string"},
-            "n_denominator": {"type": ["integer", "null"], "minimum": 0},
-            "rate_per_1000": {"type": ["number", "null"], "minimum": 0},
-            "rate_status": {
-              "enum": ["ok", "no_denominator", "not_measured"],
-              "description": "not_measured: nothing inter-agent was measured, so every count is null rather than 0."
+            "ground_truth": {
+              "type": "string"
             },
-            "zero_case_upper_bound_95": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-            "codes": {"type": ["object", "null"], "additionalProperties": {"type": "integer", "minimum": 0}},
-            "messages_authenticated": {
-              "type": ["boolean", "null"],
-              "description": "null by design. No corpus this project reads supports sender authentication. Recording the absence of a field we cannot populate is the honest form of the adversarial-channel finding."
+            "monitor_model": {
+              "type": "string"
+            },
+            "note": {
+              "type": "string"
+            },
+            "monitor_sampling": {
+              "type": "object"
+            },
+            "arms": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "model",
+                  "n_trajectories",
+                  "n_refused",
+                  "refusal_rate",
+                  "refusal_ci95",
+                  "n_positive",
+                  "positive_trajectory_lengths",
+                  "underpowered",
+                  "recall_by_step",
+                  "flag_rate_by_step"
+                ],
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "n_trajectories": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "n_refused": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "refusal_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "refusal_ci95": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "n_positive": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "positive_upper_bound_95_if_zero": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "positive_trajectory_lengths": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "underpowered": {
+                    "type": "boolean"
+                  },
+                  "recall_by_step": {
+                    "type": "object",
+                    "required": [
+                      "reasoning",
+                      "action"
+                    ],
+                    "properties": {
+                      "reasoning": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "step_index",
+                            "channel",
+                            "n_positive_reaching",
+                            "n_caught_by_here",
+                            "recall",
+                            "ci95"
+                          ],
+                          "properties": {
+                            "step_index": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "channel": {
+                              "enum": [
+                                "reasoning",
+                                "action"
+                              ]
+                            },
+                            "n_positive_reaching": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "n_caught_by_here": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "recall": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            },
+                            "ci95": {
+                              "type": "array",
+                              "items": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
+                          }
+                        }
+                      },
+                      "action": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "step_index",
+                            "channel",
+                            "n_positive_reaching",
+                            "n_caught_by_here",
+                            "recall",
+                            "ci95"
+                          ],
+                          "properties": {
+                            "step_index": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "channel": {
+                              "enum": [
+                                "reasoning",
+                                "action"
+                              ]
+                            },
+                            "n_positive_reaching": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "n_caught_by_here": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "recall": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            },
+                            "ci95": {
+                              "type": "array",
+                              "items": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "recall_full_bounds": {
+                    "type": "object",
+                    "required": [
+                      "reasoning",
+                      "action"
+                    ],
+                    "properties": {
+                      "reasoning": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "step_index",
+                            "n_positive",
+                            "caught_low",
+                            "caught_high",
+                            "recall_low",
+                            "recall_high"
+                          ],
+                          "properties": {
+                            "step_index": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "n_positive": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "caught_low": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "caught_high": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "recall_low": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            },
+                            "recall_high": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            }
+                          }
+                        }
+                      },
+                      "action": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "step_index",
+                            "n_positive",
+                            "caught_low",
+                            "caught_high",
+                            "recall_low",
+                            "recall_high"
+                          ],
+                          "properties": {
+                            "step_index": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "n_positive": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "caught_low": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "caught_high": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "recall_low": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            },
+                            "recall_high": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "flag_rate_by_step": {
+                    "type": "object",
+                    "required": [
+                      "reasoning",
+                      "action"
+                    ],
+                    "properties": {
+                      "reasoning": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^\\d+$": {
+                            "type": "object",
+                            "required": [
+                              "flag",
+                              "clear",
+                              "abstain"
+                            ],
+                            "properties": {
+                              "flag": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "clear": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "abstain": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "action": {
+                        "type": "object",
+                        "patternProperties": {
+                          "^\\d+$": {
+                            "type": "object",
+                            "required": [
+                              "flag",
+                              "clear",
+                              "abstain"
+                            ],
+                            "properties": {
+                              "flag": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "clear": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "abstain": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "providers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "generate_config": {
+                    "type": "object"
+                  },
+                  "first_call_config": {
+                    "type": "object"
+                  }
+                }
+              }
             }
           }
-        },
-        "detectors": {
-          "type": "array",
-          "description": "One entry per detector. Two detectors on the same corpus emit two entries with their own recalls; they are never averaged into one.",
-          "items": {
+        }
+      }
+    },
+    "turn_boundary_followup_file": {
+      "title": "turn_boundary_followup file",
+      "description": "The header and route contrasts (results/turn_boundary_followup.json), keyed by task family then arm. Each arm records its upstream providers and request configuration, which is what makes the contrast auditable.",
+      "type": "object",
+      "required": [
+        "schema_version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$"
+        }
+      },
+      "patternProperties": {
+        "^(?!schema_version$).*_followup$": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
             "type": "object",
-            "required": ["name", "version", "validated_on", "recall"],
-            "additionalProperties": false,
+            "required": [
+              "buckets",
+              "n_samples",
+              "providers"
+            ],
             "properties": {
-              "name": {"type": "string"},
-              "version": {"type": "string"},
-              "validated_on": {"type": ["string", "null"]},
-              "codebook_hash": {"type": "string"},
-              "recall": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
-              "recall_ci95": {
+              "buckets": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "array", "minItems": 2, "maxItems": 2,
-                  "items": {"type": ["number", "null"]}
+                  "type": "object",
+                  "required": [
+                    "n",
+                    "raw_present",
+                    "summary_only",
+                    "redacted",
+                    "absent_no_block",
+                    "absent_empty_block",
+                    "reasoning_tokens_gt0",
+                    "usage_recorded"
+                  ],
+                  "properties": {
+                    "n": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "raw_present": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "summary_only": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "redacted": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "absent_no_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "absent_empty_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "reasoning_tokens_gt0": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "usage_recorded": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "minProperties": 1
+              },
+              "n_samples": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "providers": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
                 }
               },
-              "precision": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
-              "f1": {"type": "object", "additionalProperties": {"type": ["number", "null"]}},
-              "n_labelled": {"type": "integer", "minimum": 0}
+              "generate_config": {
+                "type": "object"
+              },
+              "first_call_config": {
+                "type": "object"
+              },
+              "calls_with_raw_logged": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "calls_without_raw_logged": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "incomplete_logs_excluded": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pairing_role_mismatches": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unpaired_mid_sample_calls": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unpaired_trailing_calls": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unpaired_turns": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      },
+      "minProperties": 2
+    },
+    "swebench_longhorizon_file": {
+      "title": "swebench_longhorizon file",
+      "description": "The long-horizon depth record (results/swebench_longhorizon/longhorizon.json). Underpowered by construction (n <= 10 per step) and right-censored at the message limit, so depth is a floor; the note field must say so.",
+      "type": "object",
+      "required": [
+        "schema_version",
+        "swebench_longhorizon"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+$"
+        },
+        "swebench_longhorizon": {
+          "type": "object",
+          "required": [
+            "benchmark",
+            "arms"
+          ],
+          "properties": {
+            "benchmark": {
+              "type": "string"
+            },
+            "arms": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "n_trajectories",
+                  "message_limit_hits",
+                  "turns_median",
+                  "turns_max",
+                  "turns_all",
+                  "deepest_step",
+                  "readable_overall",
+                  "by_step",
+                  "by_depth_bucket",
+                  "note"
+                ],
+                "properties": {
+                  "n_trajectories": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "message_limit_hits": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "turns_median": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "turns_max": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "turns_all": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "deepest_step": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "readable_overall": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "providers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "by_step": {
+                    "type": "object",
+                    "patternProperties": {
+                      "^\\d+$": {
+                        "type": "object",
+                        "required": [
+                          "n",
+                          "readable",
+                          "reasoning_tokens_gt0"
+                        ],
+                        "properties": {
+                          "n": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "readable": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "reasoning_tokens_gt0": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "by_depth_bucket": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "required": [
+                        "n",
+                        "readable",
+                        "readable_share"
+                      ],
+                      "properties": {
+                        "n": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "readable": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "readable_share": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         }

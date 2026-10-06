@@ -1,9 +1,9 @@
 {
   "observability_record": {
-    "schema_version": "4.1",
+    "schema_version": "4.2",
     "codebook_version": 3,
     "codebook_hash": "sha256:a67d3c09dfab3cb3fda0aea911322b15a40a6f45db466e19dd096481c0d21f62",
-    "preregistration_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
+    "prespecification_commit": "ae377b0e61ce4c5bfe00b449e6d9739fc2d2e4ce",
     "generated_utc": "2026-09-13T12:29:40Z",
     "corpora": [
       {

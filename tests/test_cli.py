@@ -367,7 +367,7 @@ def test_measure_records_codebook_version_and_registration_commit(
     block = record["observability_record"]
     assert block["codebook_version"] == codebook_version()
     assert block["codebook_version"] is not None
-    assert re.fullmatch(r"[0-9a-f]{40}", block["preregistration_commit"])
+    assert re.fullmatch(r"[0-9a-f]{40}", block["prespecification_commit"])
 
 
 def test_unfound_registration_commit_is_null_and_announced(
@@ -384,7 +384,7 @@ def test_unfound_registration_commit_is_null_and_announced(
     results = tmp_path / "results"
     assert main(["measure", *args(transcript, "--results", str(results))]) == 0
     record = json.loads((results / "observability_record_mythos.json").read_text())
-    assert record["observability_record"]["preregistration_commit"] is None
+    assert record["observability_record"]["prespecification_commit"] is None
     assert "NOT FOUND: provenance.plan_commit" in capsys.readouterr().out
 
 

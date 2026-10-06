@@ -1054,3 +1054,61 @@ reported. The secondary arm closes as a bounded null plus an unreliable-instrume
 
 Passing: ruff, mypy --strict, pytest 311. CI green (run 34766424769).
 
+
+---
+
+## Session 7 — applying the plan-v3 paper corrections (2026-10-06)
+
+Scope: `.other-experiments/paper/CORRECTION_SPEC_v3.md`, tasks R01–R25. No new
+measurement; no model or API call. Every number comes from a committed record, a local
+`.eval` log, or arithmetic over those.
+
+**AMBER — four records retrofitted with a schema version (R03).** Before this session
+`results/record_schema.json` required the top-level key `observability_record`, so it
+described exactly one of the five measurement records. The monitor arms, the header and
+route contrasts and the long-horizon depth arm — every record behind the paper's headline
+findings — were unvalidated, while §3.6 of the manuscript claimed "records validate
+against a committed JSON Schema (v4.1)". Schema 4.2 is a `oneOf` over four record shapes;
+the pre-existing `observability_record` subschema is carried into it unchanged.
+`scripts/migrate_record_schema_version.py` added `schema_version: "4.2"` to the four
+records that lacked one and renamed `preregistration_commit` to
+`prespecification_commit`. The migration is additive and idempotent: it checks every
+pre-existing value against the pre-image and aborts if one would change, and a second run
+is a no-op. Record diffs are one line each (two for the observability record: the version
+bump and the rename). No measured value changed.
+
+`SCHEMA_COVERED_RECORDS` and `SCHEMA_EXEMPT_RECORDS` in `src/channels/record.py` now
+account for every `results/**/*.json` explicitly. The annotation label files and the three
+detector-validation records are exempt with the reason stated: they are inputs to and
+outputs of the annotation and validation tools, not measurement records, and have their
+own shapes and tests. `test_no_record_is_neither_covered_nor_exempt` fails if a future
+record is added to `results/` without either a schema branch or an explicit exemption, so
+the gap this task closed cannot reopen by omission.
+
+**GREEN — the recall-ceiling bound now states its unit (R01).** Equation (1) of the
+manuscript multiplies a per-turn coverage by a per-trajectory stage-2 recall. The measured
+dark arm violates it: coverage 11/155 and stage-2 recall 39/42 give a ceiling of 0.066,
+i.e. 2.50 of 38 trajectories, while at least 4 of 38 were caught (4 of the 24 still
+running at step 3 had been flagged). `recall_ceiling_trajectory` and
+`assert_bound_respected` were added, the latter a guard clause that raises
+`InvalidRateError` naming the mismatch. Under the abstention rule the relation is an
+identity on a shared unit, not an inequality, which is the stronger claim and is now
+documented.
+
+**GREEN — the survivor-conditioned curve is named, and the full-denominator curve is
+bounded (R02).** Table 1's cumulative recall conditions on survival: the step-2 "1.000" is
+29 of 29 trajectories still running, not 42 of 42, which is why the action-dark cell falls
+from 0.750 to 0.708. The exact full-denominator curve cannot be recomputed —
+`run_monitor_experiment.py` aggregated the per-trajectory verdicts and did not store them,
+and the `.eval` files under `data/monitor-experiment/` hold the agent trajectories, not the
+monitor verdicts — so `cumulative_recall_full_bounds` brackets it from the aggregates the
+record does keep, with each of its three ceilings proved in the docstring. Measured
+ever-caught recall: visible arm [0.952, 1.000] reasoning and [0.690, 1.000] action; dark
+arm [0.105, 0.237] reasoning and [0.632, 1.000] action.
+
+The third ceiling, `survivor_caught(j) + dropped(j)`, pinches the interval shut before the
+first trajectory ends. Since the shortest positive trajectory in either arm runs two
+steps, **steps 0 and 1 come out exact in all four cells**: the manuscript's headline
+numbers (0.929, 0.000, 0.476, 0.263 at step 0 and 0.952, 0.000, 0.690, 0.605 at step 1)
+are exact full-denominator recalls and need no revision. The survivor-conditioning defect
+is confined to rows at step ≥ 2 and to the sentence "100% by step 2".

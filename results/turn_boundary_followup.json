@@ -1,4 +1,5 @@
 {
+  "schema_version": "4.2",
   "agent_bench_os_followup": {
     "claude-haiku-4.5-interleaved": {
       "buckets": {

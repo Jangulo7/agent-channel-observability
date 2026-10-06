@@ -182,8 +182,8 @@ def test_messages_authenticated_is_null_because_no_corpus_carries_it(
     assert block["messages_authenticated"] is None
 
 
-def test_absent_preregistration_commit_is_null(record: dict[str, Any]) -> None:
-    assert record["observability_record"]["preregistration_commit"] is None
+def test_absent_prespecification_commit_is_null(record: dict[str, Any]) -> None:
+    assert record["observability_record"]["prespecification_commit"] is None
 
 
 def test_detectors_default_to_empty_not_to_a_placeholder(

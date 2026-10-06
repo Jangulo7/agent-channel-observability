@@ -412,11 +412,11 @@ def _record_provenance() -> dict[str, Any]:
     commit = _plan_commit()
     if commit is None:
         print("NOT FOUND: provenance.plan_commit in config; "
-              "recording preregistration_commit as null")
+              "recording prespecification_commit as null")
     return {
         "codebook_hash": _codebook_hash(),
         "codebook_version": version,
-        "preregistration_commit": commit,
+        "prespecification_commit": commit,
     }
 
 

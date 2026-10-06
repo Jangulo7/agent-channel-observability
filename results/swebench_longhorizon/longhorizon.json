@@ -1,4 +1,5 @@
 {
+  "schema_version": "4.2",
   "swebench_longhorizon": {
     "benchmark": "SWE-bench Verified (score off; reasoning channel only)",
     "arms": {
