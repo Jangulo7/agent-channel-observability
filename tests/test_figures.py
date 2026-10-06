@@ -212,3 +212,31 @@ def test_figure_one_intervals_are_clustered_by_trajectory(tmp_path: Path) -> Non
     assert "clustered by trajectory" in caption
     assert f"{MIN_CELL_N} trajectories" in caption
     assert "status single_cluster_no_interval" in caption
+
+
+def test_turn_ledger_totals_the_paper_figure() -> None:
+    """The ledger must sum to the 17,181 the paper reports, from the records alone.
+
+    The 23,541 the paper previously quoted counts six corpora including two it scopes
+    out, and excludes the follow-up and SWE-bench arms its findings rest on. This test
+    pins the replacement so it cannot drift the same way.
+    """
+    import importlib.util
+    import sys
+
+    spec = importlib.util.spec_from_file_location(
+        "report_turn_ledger",
+        Path(__file__).resolve().parents[1] / "scripts" / "report_turn_ledger.py",
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    # The script defines a dataclass, which looks its module up in sys.modules.
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+
+    sweep = sum(row.turns for row in module._sweep_rows())
+    followup = sum(row.turns for row in module._followup_rows())
+    longhorizon = sum(row.turns for row in module._longhorizon_rows())
+    assert (sweep, followup, longhorizon) == (11_367, 4_738, 1_076)
+    assert sweep + followup + longhorizon == 17_181
+    assert module._monitor_turns() == {"qwen3-nothink": 155, "qwen3-on": 161}
