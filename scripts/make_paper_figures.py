@@ -36,8 +36,14 @@ C_ABSENT = "#999999"
 C_COT = "#0072B2"
 C_ACTION = "#E69F00"
 TEXT = "#111111"
-plt.rcParams.update({"font.size": 12, "axes.edgecolor": "#444444",
-                     "figure.facecolor": "white", "axes.facecolor": "white"})
+# TEXT_WIDTH_IN is the manuscript's \textwidth: 11pt article, 1in margins, US
+# Letter. Figures are drawn at that width and included at \linewidth, so a point in
+# a figure is a point on the page and the labels match the body text in size. Drawing
+# wider and letting LaTeX scale down is what made them unreadable.
+TEXT_WIDTH_IN = 6.5
+plt.rcParams.update({"font.size": 9, "axes.edgecolor": "#444444",
+                     "figure.facecolor": "white", "axes.facecolor": "white",
+                     "savefig.dpi": 300})
 
 FIG1_CAPTION = (
     "Figure 1. Share of assistant turns in each reasoning-channel state, per model "
@@ -85,7 +91,7 @@ def figure_visibility() -> tuple[Path, str]:
     """Fig 1: horizontal stacked bars of the four states, one per arm."""
     arms = _arm_shares()
     labels = [a for a, _ in arms]
-    fig, ax = plt.subplots(figsize=(9, 5.6))
+    fig, ax = plt.subplots(figsize=(TEXT_WIDTH_IN, 3.9))
     left = [0.0] * len(arms)
     for state, colour, name in (
         ("raw_present", C_READABLE, "readable (raw)"),
@@ -100,14 +106,14 @@ def figure_visibility() -> tuple[Path, str]:
     ax.set_xlabel("share of assistant turns (n = 1,263 per arm)")
     ax.set_title("What an external evaluator can read, by model arm\n"
                  "(same three benchmarks, identical 1,013 samples per arm)",
-                 fontsize=13, color=TEXT)
+                 fontsize=10, color=TEXT)
     # Legend below the axes so it never sits on top of a bar.
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=4,
-              frameon=False, fontsize=9.5, handlelength=1.2, columnspacing=1.2)
+              frameon=False, fontsize=8, handlelength=1.2, columnspacing=1.2)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     path = OUT / "fig1_visibility_by_arm.png"
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
     return path, FIG1_CAPTION
 
@@ -120,7 +126,7 @@ def figure_recall_drop() -> tuple[Path, str]:
         return [(p["step_index"], p["recall"])
                 for p in arms[arm]["recall_by_step"][channel]]
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(TEXT_WIDTH_IN, 3.5))
     # Powered steps; later steps fall below n=10 (noted in the caption). Step 4 holds
     # n=16 visible and n=13 dark, and its action-dark cell rises where step 3 fell,
     # which is the survivor-conditioned denominator becoming visible in the figure.
@@ -139,9 +145,9 @@ def figure_recall_drop() -> tuple[Path, str]:
         xy = [(x, y) for x, y in series(arm, ch) if x <= max_step]
         xs, ys = [x for x, _ in xy], [y for _, y in xy]
         ax.plot(xs, ys, ls, color=colour, marker=marker, markersize=7, linewidth=2.2)
-        ax.text(xs[-1] + 0.10, ys[-1], label, color=colour, fontsize=12.5,
+        ax.text(xs[-1] + 0.10, ys[-1], label, color=colour, fontsize=8.5,
                 va="center", ha="left")
-        ax.text(xs[0] - 0.10, ys[0], f"{ys[0]:.2f}", color=TEXT, fontsize=12.5,
+        ax.text(xs[0] - 0.10, ys[0], f"{ys[0]:.2f}", color=TEXT, fontsize=8.5,
                 va="center", ha="right")
     ax.set_xlim(-0.55, max_step + 1.45)
     ax.set_ylim(-0.04, 1.06)
@@ -150,13 +156,13 @@ def figure_recall_drop() -> tuple[Path, str]:
     ax.set_ylabel("recall among trajectories reaching step j")
     ax.set_title("A reasoning-gated monitor collapses when the channel is dark;\n"
                  "an action-gated monitor degrades but does not",
-                 fontsize=15, color=TEXT)
+                 fontsize=10.5, color=TEXT)
     ax.grid(axis="y", color="#DDDDDD", linewidth=0.8)
     ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     path = OUT / "fig2_recall_drop.png"
-    fig.savefig(path, dpi=200, bbox_inches="tight")
+    fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
     on = arms["qwen3-on"]["n_positive"]
     dark = arms["qwen3-nothink"]["n_positive"]
